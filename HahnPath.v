@@ -174,7 +174,7 @@ Lemma acyclic_decomp_u1 X (rel : relation X) a b :
   acyclic (rel +++ singl_rel a b).
 Proof.
   unfold acyclic, irreflexive; ins. 
-  exploit cycle_decomp_u1; ins; desf; eauto.
+  forward eapply cycle_decomp_u1; ins; desf; eauto.
 Qed.
 
 Lemma path_decomp_u1_max X (rel : relation X) a b (MAX: max_elt rel b) :
@@ -213,8 +213,8 @@ Proof.
     eapply T in NEQ; desf.
     by exfalso; eauto 10 using clos_trans, rt_trans.
     by eauto 8 using clos_trans, rt_trans.
-    by eapply t_rt_step in IHC0; desf; exploit D; eauto; tauto.
-    by eapply t_rt_step in IHC4; desf; exploit D; eauto; tauto.
+    by eapply t_rt_step in IHC0; desf; specialize_full D; eauto; tauto.
+    by eapply t_rt_step in IHC4; desf; specialize_full D; eauto; tauto.
   }
   eapply inclusion_union_l; eauto with rel.
   rewrite <- rt_ct with (rel := rel1 +++ rel2),
@@ -234,17 +234,6 @@ Proof.
   by rewrite irreflexive_seqC, seqA, rt_rt, irreflexive_seqC.
 Qed.
 
-(*
-Lemma cycle_decomp_u_total :
-  forall X (rel1 : relation X) dom rel2 (T: is_total dom rel2) 
-    (D: forall a b (REL: rel2 a b), dom a /\ dom b) x
-    (C: clos_trans (fun a b => rel1 a b \/ rel2 a b) x x),
-    clos_trans rel1 x x \/
-    (exists m n, clos_refl_trans rel1 m n /\ clos_trans rel2 n m).
-Proof.
-  ins; exploit path_decomp_u_total; eauto; ins; desf; eauto 8 using rt_trans.
-Qed. *)
-
 Lemma clos_trans_disj_rel :
   forall X (rel rel' : relation X)
     (DISJ: forall x y (R: rel x y) z (R': rel' y z), False) x y
@@ -255,53 +244,82 @@ Proof.
   ins; induction R; eauto; induction R'; eauto.
 Qed.
 
-
-Lemma path_decomp_u_1 :
-  forall X (rel rel' : relation X)
-    (DISJ: forall x y (R: rel x y) z (R': rel' y z), False),
+Lemma path_absorb1 :
+  forall X (rel rel' : relation X) (F: inclusion (rel' ;; rel) rel'),
     clos_trans (rel +++ rel') <-->
-    clos_trans rel +++ clos_trans rel' +++
-    clos_trans rel' ;; clos_trans rel.
+    clos_trans rel +++ clos_trans rel' +++ clos_trans rel ;; clos_trans rel'.
 Proof.
   split; cycle 1.
     repeat apply inclusion_union_l; eauto with rel.
     by repeat apply inclusion_seq_trans; eauto with rel; vauto.
-  intros ? ? T; unfold union, seq in *.
-  induction T; desf; eauto 6 using clos_trans;
-    try by exfalso; eauto using clos_trans_disj_rel.
+  apply inclusion_t_ind_right; rel_simpl; 
+    repeat apply inclusion_union_l; 
+    eauto 10 using inclusion_t_r_t with rel;
+  try solve [rewrite (ct_end rel'), !seqA, F, <- ct_end; eauto 10 with rel].
+  rewrite (ct_end rel') at 3; rewrite seqA; eauto 10 with rel.
 Qed.
 
-Lemma acyclic_decomp_u_1 :
+Lemma path_absorb2 :
+  forall X (rel rel' : relation X) (F: inclusion (rel' ;; rel) rel),
+    clos_trans (rel +++ rel') <-->
+    clos_trans rel +++ clos_trans rel' +++ clos_trans rel ;; clos_trans rel'.
+Proof.
+  split; cycle 1.
+    repeat apply inclusion_union_l; eauto with rel.
+    by repeat apply inclusion_seq_trans; eauto with rel; vauto.
+  apply inclusion_t_ind_left; rel_simpl; 
+    repeat apply inclusion_union_l; 
+    eauto 10 using inclusion_r_t_t with rel;
+  try solve [rewrite (ct_begin rel), <- !seqA, F, <- ct_begin; eauto 10 with rel].
+  rewrite (ct_begin rel) at 3; rewrite seqA; eauto 10 with rel.
+Qed.
+
+Lemma path_absorb :
+  forall X (rel rel' : relation X) 
+         (F: inclusion (rel' ;; rel) rel \/ inclusion (rel' ;; rel) rel'),
+    clos_trans (rel +++ rel') <-->
+    clos_trans rel +++ clos_trans rel' +++ clos_trans rel ;; clos_trans rel'.
+Proof.
+  ins; desf; eauto using path_absorb1, path_absorb2.
+Qed.
+
+Lemma acyclic_absorb :
   forall X (rel rel' : relation X)
-    (DISJ: forall x y (R: rel x y) z (R': rel' y z), False)
+         (F: inclusion (rel' ;; rel) rel \/ inclusion (rel' ;; rel) rel')
     (A1: acyclic rel)
     (A2: acyclic rel'),
     acyclic (rel +++ rel').
 Proof.
-  unfold acyclic; ins; rewrite path_decomp_u_1; eauto.
-  unfold union, seq, irreflexive; ins; desf; 
-  eauto using clos_trans_disj_rel.
+  unfold acyclic; ins; rewrite path_absorb; eauto.
+  unfold union, seq, irreflexive, inclusion in *; ins; desf; eauto.
+
+  apply clos_trans_tn1 in H0; induction H0; apply ct_begin in H; destruct H; desc; 
+  eauto 8 using t_rt_trans, t_step.
+  
+  apply clos_trans_t1n in H; induction H; apply ct_end in H0; destruct H0; desc; 
+  eauto 8 using rt_t_trans, t_step.
 Qed.
 
-Lemma path_decomp_u_2 :
-  forall (X : Type) (rel rel' : relation X)
-         (F: inclusion (rel' ;; rel) (fun _ _ => False)),
-    clos_trans (rel +++ rel') <--> 
-    clos_trans rel +++ clos_refl_trans rel ;; clos_trans rel'.
+
+Lemma path_absorb_lt :
+  forall X (rel rel' : relation X) 
+    (F: inclusion (rel' ;; rel) rel \/ inclusion (rel' ;; rel) rel')
+    (T: transitive rel),
+    clos_trans (rel +++ rel') <-->
+    clos_trans rel' +++ rel ;; clos_refl_trans rel'.
 Proof.
-  ins; rewrite unionC, path_decomp_u_1.
-    by rewrite crtE; rel_simpl; rewrite unionAC, unionA; vauto.
-  unfold seq in *; eauto.
+  ins; rewrite path_absorb, crtE, (ct_of_trans T); rel_simpl; eauto.
+  split; repeat apply inclusion_union_l; eauto with rel.
 Qed.
 
-Lemma path_decomp_u_3 :
-  forall (X : Type) (rel rel' : relation X)
-         (F: inclusion (rel' ;; rel) (fun _ _ => False))
-         (F': transitive rel'),
-    clos_trans (rel +++ rel') <--> 
+Lemma path_absorb_rt :
+  forall X (rel rel' : relation X) 
+    (F: inclusion (rel' ;; rel) rel \/ inclusion (rel' ;; rel) rel')
+    (T: transitive rel'),
+    clos_trans (rel +++ rel') <-->
     clos_trans rel +++ clos_refl_trans rel ;; rel'.
 Proof.
-  ins; rewrite path_decomp_u_2; ins.
+  ins; rewrite path_absorb, crtE, (ct_of_trans T); rel_simpl; eauto.
   split; repeat apply inclusion_union_l; eauto with rel.
 Qed.
 
@@ -515,7 +533,7 @@ Proof.
   intros until 3; induction ND; ins; vauto.
   destruct (classic (R a x /\ R x b)) as [|N]; desf;
     [apply t_trans with x|]; eapply IHND; ins;
-    exploit (D c); eauto; intro; desf; exfalso; eauto.
+    forward eapply (D c); eauto; intro; desf; exfalso; eauto.
 Qed.
 
 
@@ -568,9 +586,10 @@ Proof.
     by destruct dom; ins; vauto.
   ins; destruct (classic (exists c, r a c /\ r c b)); desf.
   2: by eapply t_step; split; ins; eauto.
-  exploit D'; eauto; intro X; apply in_split in X; desf.
+  forward eapply D' as X; eauto; apply in_split in X; desf.
   rewrite app_length in *; ins; rewrite <- plus_n_Sm, <- app_length in *; desf.
-  apply t_trans with c; eapply IHn with (dom := l1 ++ l2); ins; exploit (D' c0); eauto;
+  apply t_trans with c; eapply IHn with (dom := l1 ++ l2); ins;
+  forward eapply (D' c0); eauto;
   rewrite !in_app_iff; ins; desf; eauto; exfalso; eauto.
 Qed.
 
@@ -595,7 +614,7 @@ Proof.
                     (fun x y => r x y \/ r' x y /\ ~ r y x)
           <--> restr_rel (fun x => ~ dom x) r).
     unfold restr_rel; split; red; ins; desf; eauto.
-    by exploit DL; eauto; ins; desf.
+    by specialize_full DL; eauto; ins; desf.
 
   apply min_cycle with (dom := dom) (rel' := r); 
     repeat split; repeat red; ins; desf; eauto using t_step;
@@ -849,11 +868,10 @@ Proof.
   eauto using t_step.
 
   apply t_rt_step in H0; desf; apply (H z0).
-  exploit (proj2 (crt_seq_swap r r') z0 z); [by eexists x; vauto|].
+  forward eapply (proj2 (crt_seq_swap r r') z0 z); [by eexists x; vauto|].
   by intros [? ?]; desf; eapply rt_t_trans, t_step; eauto.
 
   eapply A; vauto. 
   eapply B; vauto. 
 Qed.
-
 
