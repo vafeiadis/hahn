@@ -437,43 +437,21 @@ Ltac hacksimp :=
    end.
 
 (* ************************************************************************** *)
-(** ** Delineating cases in proofs *)
-(* ************************************************************************** *)
-
-(** Named case tactics (taken from Libtactics) *)
-
-Tactic Notation "assert_eq" ident(x) constr(v) :=
-  let H := fresh in
-  assert (x = v) as H by reflexivity;
-  clear H.
-
-Tactic Notation "Case_aux" ident(x) constr(name) :=
-  first [
-    set (x := name); move x at top
-  | assert_eq x name
-  | fail 1 "because we are working on a different case." ].
-
-Ltac Case name := Case_aux case name.
-Ltac SCase name := Case_aux subcase name.
-Ltac SSCase name := Case_aux subsubcase name.
-Ltac SSSCase name := Case_aux subsubsubcase name.
-Ltac SSSSCase name := Case_aux subsubsubsubcase name.
-
-(** Lightweight case tactics (without names) *)
-
-Tactic Notation "--" tactic(c) :=
-  first [
-    assert (WithinCaseM := True); move WithinCaseM at top
-  | fail 1 "because we are working on a different case." ]; c.
-
-Tactic Notation "++" tactic(c) :=
-  first [
-    assert (WithinCaseP := True); move WithinCaseP at top
-  | fail 1 "because we are working on a different case." ]; c.
-
-(* ************************************************************************** *)
 (** ** Exploiting a hypothesis *)
 (* ************************************************************************** *)
+
+Tactic Notation "forward" tactic1(tac) :=
+  let foo := fresh in
+  evar (foo : Prop); cut (foo); subst foo; cycle 1; [tac|].
+
+Tactic Notation "forward" tactic1(tac) "as" ident(H) :=
+  let foo := fresh in
+  evar (foo : Prop); cut (foo); subst foo; cycle 1; [tac|try clear H; intro H].
+
+Tactic Notation "specialize_full" ident(H) :=
+  let foo := fresh in
+  evar (foo : Prop); cut (foo); subst foo; cycle 1; [eapply H|try clear H; intro H].
+
 
 (** Exploit an assumption (adapted from CompCert). *)
 
@@ -512,5 +490,3 @@ Ltac exploit x :=
  || refine ((fun x y => y x) (x _ _ _) _)
  || refine ((fun x y => y x) (x _ _) _)
  || refine ((fun x y => y x) (x _) _).
-
-

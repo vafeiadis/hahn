@@ -329,54 +329,6 @@ Proof.
   destruct X0; left; apply ANTIS; eauto using in_eq, in_or_app.
 Qed.
 
-(*
-Lemma perm_sort_eq A (l l': list A) (P: Permutation l l') cmp 
-    (TOTAL: forall x y, In x l -> In y l -> cmp x y = true \/ cmp y x = true)
-    (TRANS: transitive _ cmp) 
-    (ANTIS: antisymmetric _ cmp) :
-  sort cmp l = sort cmp l'. 
-Proof.
-  exploit (@sort_sorted A cmp l); eauto.
-  exploit (@sort_sorted A cmp l'); 
-    eauto 6 using Permutation_in, Permutation_sym.
-  ins; eauto using sorted_perm_eq, sort_perm, Permutation_trans, 
-                   Permutation_sym.
-Qed.
-
-
-Lemma In_sort A (x: A) cmp l : In x (sort cmp l) <-> In x l.
-Proof.
-  split; eauto using Permutation_in, sort_perm, Permutation_sym.
-Qed.
-
-Lemma NoDup_sort A cmp (l : list A) : NoDup (sort cmp l) <-> NoDup l.
-Proof.
-  split; eauto using Permutation_nodup, Permutation_sym, sort_perm.
-Qed.
-
-Lemma NoDup_sort1 A cmp (l : list A) : NoDup l -> NoDup (sort cmp l).
-Proof.
-  apply NoDup_sort. 
-Qed.
-
-Hint Resolve NoDup_sort1.
-
-Lemma Sorted_total : 
-  forall A cmp (R: reflexive _ cmp) (l: list A), StronglySorted cmp l -> 
-    forall x y, In x l -> In y l -> 
-      cmp x y \/ cmp y x.
-Proof.
-  induction 2; ins; rewrite Forall_forall in *; desf; desf; eauto.
-Qed.
-
-Lemma Sorted_app_end_inv A (cmp : A -> A -> Prop) l x :
-  StronglySorted cmp (l ++ x :: nil) ->
-  forall y, In y l -> cmp y x.
-Proof.
-  ins; induction l; ins; inv H; rewrite Forall_forall in *.
-  desf; eauto using in_or_app, in_eq.
-Qed.
-*)
 
 (** [dprod] *)
 (******************************************************************************)

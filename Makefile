@@ -50,10 +50,10 @@ vo_to_obj = $(addsuffix .o,\
 ##########################
 
 COQLIBS?=\
-  -R "." Hahn\
+  -R "." Top\
   -I "."
 COQDOCLIBS?=\
-  -R "." Hahn
+  -R "." Top
 
 ##########################
 #                        #
