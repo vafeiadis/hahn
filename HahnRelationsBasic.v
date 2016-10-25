@@ -24,6 +24,7 @@ Arguments symmetric [A] R.
 Arguments transitive [A] R.
 Arguments inclusion {A} R1 R2.
 Arguments same_relation {A} R1 R2.
+Arguments transp [A] R x y.
 
 Section RelDefs.
 
@@ -645,6 +646,12 @@ Proof.
   eapply H0 in NEQ; desf; eauto.
 Qed.
 
+Add Parametric Morphism X : (@transp X) with signature 
+  inclusion ==> inclusion as transp_mori.
+Proof.
+  unfold inclusion, transp; eauto.
+Qed.
+
 (** Second, for equivalence. *)
 
 Lemma same_relation_exp A (r r' : relation A) (EQ: r <--> r') :
@@ -763,6 +770,12 @@ Add Parametric Morphism X : (@is_total X) with signature
   eq ==> same_relation ==> iff as is_total_more.
 Proof.
   unfold is_total, same_relation; split; ins; eapply H0 in NEQ; desf; eauto.
+Qed.
+
+Add Parametric Morphism X : (@transp X) with signature 
+  same_relation ==> same_relation as transp_more.
+Proof.
+  unfold same_relation, transp; ins; desf; eauto; split; red; ins; desf; eauto.
 Qed.
 
 Lemma same_relation_restr X (f : X -> Prop) rel rel' :
