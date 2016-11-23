@@ -100,6 +100,7 @@ VFILES:=Hahn.v\
   HahnFun.v\
   HahnList.v\
   HahnRelationsBasic.v\
+  HahnRewrite.v\
   HahnDom.v\
   HahnMaxElt.v\
   HahnPath.v\

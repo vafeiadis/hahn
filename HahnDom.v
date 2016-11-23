@@ -81,6 +81,26 @@ Section Lemmas.
   Lemma codom_eqv1 x : codom_rel (r ;; <| d |>) x <-> codom_rel r x /\ d x.
   Proof. unfold codom_rel, seq, eqv_rel; split; ins; desf; eauto. Qed.
 
+  Lemma transp_doma : domb r d -> doma (transp r) d.
+  Proof. unfold doma, domb, transp; eauto. Qed.
+
+  Lemma transp_domb : doma r d -> domb (transp r) d.
+  Proof. unfold doma, domb, transp; eauto. Qed.
+
+  Lemma doma_implies : (forall a, d a -> d' a) -> doma r d -> doma r d'.
+  Proof. unfold doma; eauto. Qed.
+
+  Lemma domb_implies : (forall a, d a -> d' a) -> domb r d -> domb r d'.
+  Proof. unfold domb; eauto. Qed.
+
+  Lemma doma_fold : 
+    (doma r d) -> (forall a, d a -> d' a) -> <| d' |> ;; r <--> r.
+  Proof. unfold eqv_rel, seq; split; red; ins; desf; eauto 6. Qed.
+
+  Lemma domb_fold : 
+    (domb r d) -> (forall a, d a -> d' a) -> r ;; <| d' |> <--> r.
+  Proof. unfold eqv_rel, seq; split; red; ins; desf; eauto 6. Qed.
+
 End Lemmas.
 
 End Domains.
@@ -88,6 +108,7 @@ End Domains.
 Hint Resolve
   eqv_doma seq_eqv_doma restr_eq_rel_doma seq_doma union_doma ct_doma seq_r_doma
   eqv_domb seq_eqv_domb restr_eq_rel_domb seq_domb union_domb ct_domb seq_r_domb
+  transp_doma transp_domb 
 : rel.
 
 Add Parametric Morphism X : (@doma X) with signature 
