@@ -1197,7 +1197,7 @@ Proof.
   intros until 3; induction ND; ins; vauto.
   destruct (classic (R a x /\ R x b)) as [|N]; desf;
     [apply t_trans with x|]; eapply IHND; ins;
-    exploit (D c); eauto; intro; desf; exfalso; eauto.
+  forward (by eapply (D c); eauto) as K; desf; exfalso; eauto.
 Qed.
 
 
@@ -1250,9 +1250,10 @@ Proof.
     by destruct dom; ins; vauto.
   ins; destruct (classic (exists c, r a c /\ r c b)); desf.
   2: by eapply t_step; split; ins; eauto.
-  exploit D'; eauto; intro X; apply in_split in X; desf.
+  forward (by eapply D'; eauto) as X; apply in_split in X; desf.
   rewrite app_length in *; ins; rewrite <- plus_n_Sm, <- app_length in *; desf.
-  apply t_trans with c; eapply IHn with (dom := l1 ++ l2); ins; exploit (D' c0); eauto;
+  apply t_trans with c; eapply IHn with (dom := l1 ++ l2); ins;
+  forward (by eapply (D' c0); eauto);
   rewrite !in_app_iff; ins; desf; eauto; exfalso; eauto.
 Qed.
 
