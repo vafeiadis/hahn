@@ -113,8 +113,8 @@ Lemma eqE : forall T x, eq_op x = Equality.op (Equality.class T) x.
 Proof. done. Qed.
 
 Lemma eqP : forall T, Equality.axiom (@eq_op T).
-Proof. by unfold eq_op; destruct T as (? & []). Qed.
-Implicit Arguments eqP [T].
+Proof. by unfold eq_op; destruct T as [? []]. Qed.
+Arguments eqP [T].
 
 Notation "x == y" := (eq_op x y)
   (at level 70, no associativity) : bool_scope.

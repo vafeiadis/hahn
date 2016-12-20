@@ -208,7 +208,7 @@ Proof.
     by eapply NoDup_concat_simpl; 
        eauto using total_order_from_list_in1, total_order_from_list_in2.
   assert (l = l1 ++ a :: b :: l2); subst.
-    by eapply NoDup_concat_simpl; 
+    by eapply NoDup_concat_simpl with (a:=a);
        eauto using in_or_app, in_eq, total_order_from_list_in1.
   rewrite concat_app, concat_cons in H.
   apply nodup_append_right, nodup_append_left in H. 
