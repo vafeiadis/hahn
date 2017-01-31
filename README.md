@@ -7,6 +7,7 @@ about lists and binary relations.
 - HahnFun.v : functional update
 - HahnList.v : lemmas about lists
 - HahnRelationsBasic.v : binary relations
+- HahnRewrite.v : support for rewriting equivalent relations
 - HahnDom.v : (co)domain of a relation
 - HahnMaxElt.v : maximal elements of a relation
 - HahnPath.v : paths over relations
@@ -15,7 +16,7 @@ about lists and binary relations.
 
 ## Build
 
-- Install [Coq](http://coq.inria.fr) 8.5
+- Install [Coq](http://coq.inria.fr) 8.6
 - make
 
 ## Use

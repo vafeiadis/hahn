@@ -158,5 +158,3 @@ Proof.
   eapply tot_ext_more; try eassumption; symmetry; eauto.
 Qed.
 
-
-

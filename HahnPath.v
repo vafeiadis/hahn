@@ -616,7 +616,8 @@ Proof.
 
   apply min_cycle with (dom := dom) (rel' := r); 
     repeat split; repeat red; ins; desf; eauto using t_step;
-    try rewrite EQ in *; 
+    try hahn_rewrite EQ in H;
+    try hahn_rewrite EQ in S';
     repeat match goal with 
           | H : clos_trans _ _ _ |- _ =>
             rewrite (ct_of_transitive (restr_rel_trans T)) in H

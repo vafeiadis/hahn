@@ -773,18 +773,6 @@ Proof.
   unfold same_relation; ins; desf; split; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@clos_trans X) with signature 
-  same_relation ==> eq ==> eq ==> iff as clos_trans_more'.
-Proof.
-  unfold same_relation; ins; desf; split; ins; desf; eauto using clos_trans_mon.
-Qed.
-
-Add Parametric Morphism X : (@clos_refl_trans X) with signature 
-  same_relation ==> eq ==> eq ==> iff as clos_refl_trans_more'.
-Proof.
-  unfold same_relation; ins; desf; split; ins; desf; eauto using clos_refl_trans_mon.
-Qed.
-
 Add Parametric Morphism X : (@is_total X) with signature 
   eq ==> same_relation ==> iff as is_total_more.
 Proof.
