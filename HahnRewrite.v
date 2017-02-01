@@ -7,27 +7,33 @@ Require Import Classical NPeano Omega Permutation List Setoid.
 
 Set Implicit Arguments.
 
+Lemma hahn_inclusion_exp (A : Type) (r r' : relation A) :
+  r ⊆ r' -> forall x y : A, r x y -> r' x y.
+Proof.
+  eauto.
+Qed.
+
 Tactic Notation "hahn_rewrite" uconstr(EQ) :=
   match goal with 
-    | |- _ _ _ => apply <- same_relation_exp; [|rewrite EQ; reflexivity]
+    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite EQ; reflexivity|]
     | |- _ => rewrite EQ
   end.
 
 Tactic Notation "hahn_rewrite" "<-" uconstr(EQ) :=
   match goal with 
-    | |- _ _ _ => apply <- same_relation_exp; [|rewrite <- EQ; reflexivity]
+    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite <- EQ; reflexivity|]
     | |- _ => rewrite <- EQ
   end.
 
 Tactic Notation "hahn_rewrite" uconstr(EQ) "in" hyp(H) :=
   match type of H with 
-    | _ _ _ => apply <- same_relation_exp in H; [|rewrite EQ; reflexivity]
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite EQ; reflexivity]
     | _ => rewrite EQ in H
   end.
 
 Tactic Notation "hahn_rewrite" "<-" uconstr(EQ) "in" hyp(H) :=
   match type of H with 
-    | _ _ _ => apply <- same_relation_exp in H; [|rewrite <- EQ; reflexivity]
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite <- EQ; reflexivity]
     | _ => rewrite <- EQ in H
   end.
 
