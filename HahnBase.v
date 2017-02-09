@@ -114,7 +114,7 @@ Proof. done. Qed.
 
 Lemma eqP : forall T, Equality.axiom (@eq_op T).
 Proof. by unfold eq_op; destruct T as [? []]. Qed.
-Arguments eqP [T].
+Arguments eqP [T] x y.
 
 Notation "x == y" := (eq_op x y)
   (at level 70, no associativity) : bool_scope.
