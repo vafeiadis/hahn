@@ -899,31 +899,225 @@ Proof.
   eapply B; vauto. 
 Qed.
 
-Lemma seq_rt_absorb_l A (r r': relation A) (T: transitive r) :
-  r ;; clos_refl_trans r' ⊆ r ∪ r ;; minus_rel r' r ;; clos_refl_trans r'.
+
+Lemma minus_seq_l A (r r': relation A) (T: transitive r) :
+  minus_rel (r ;; r') r ⊆ r ;; minus_rel r' r.
+Proof.
+  unfold minus_rel, seq; red; ins; desf; repeat eexists; eauto.
+Qed.
+
+Lemma minus_seq_r A (r r': relation A) (T: transitive r') :
+  minus_rel (r ;; r') r' ⊆ minus_rel r r' ;; r'.
+Proof.
+  unfold minus_rel, seq; red; ins; desf; repeat eexists; eauto.
+Qed.
+
+Lemma seq_rt_absorb_l A (r r': relation A) :
+  r ;; clos_refl_trans r' ⊆ r ∪ minus_rel (r ;; r') r ;; clos_refl_trans r'.
 Proof.
   unfold seq, union, inclusion, minus_rel; ins; desf.
   induction H0 using clos_refl_trans_ind_left; desf; eauto.
-  destruct (classic (r y z0)); eauto 8 using clos_refl_trans.
+  destruct (classic (r x z0)); eauto 8 using clos_refl_trans.
   right; repeat eexists; eauto using clos_refl_trans. 
 Qed.
 
-Lemma seq_ct_absorb_l A (r r': relation A) (T: transitive r) :
-  r ;; clos_trans r' ⊆ r ∪ r ;; minus_rel r' r ;; clos_refl_trans r'.
+Lemma seq_ct_absorb_l A (r r': relation A) :
+  r ;; clos_trans r' ⊆ r ∪ minus_rel (r ;; r') r ;; clos_refl_trans r'.
 Proof.
   rewrite <- seq_rt_absorb_l; eauto with rel. 
 Qed.
 
-Lemma seq_rt_absorb_r A (r r': relation A) (T: transitive r') :
-  clos_refl_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel r r' ;; r'.
+Lemma seq_rt_absorb_r A (r r': relation A) :
+  clos_refl_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel (r ;; r') r'. 
 Proof.
   apply inclusion_transpE.
-  rewrite !transp_union, !transp_seq, !transp_minus, !transp_rt, !seqA.
+  rewrite !transp_union, !transp_seq, !transp_minus, !transp_rt, !transp_seq;
   auto using seq_rt_absorb_l, transitive_transp. 
 Qed.
 
-Lemma seq_ct_absorb_r A (r r': relation A) (T: transitive r') :
-  clos_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel r r' ;; r'.
+Lemma seq_ct_absorb_r A (r r': relation A) : 
+  clos_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel (r ;; r') r'. 
 Proof.
   rewrite <- seq_rt_absorb_r; eauto with rel. 
 Qed.
+
+Lemma seq_rt_absorb_lt A (r r': relation A) (T: transitive r) :
+  r ;; clos_refl_trans r' ⊆ r ∪ r ;; minus_rel r' r ;; clos_refl_trans r'.
+Proof.
+  by rewrite seq_rt_absorb_l, minus_seq_l, seqA.
+Qed.
+
+Lemma seq_ct_absorb_lt A (r r': relation A) (T: transitive r) :
+  r ;; clos_trans r' ⊆ r ∪ r ;; minus_rel r' r ;; clos_refl_trans r'.
+Proof.
+  by rewrite seq_ct_absorb_l, minus_seq_l, seqA.
+Qed.
+
+Lemma seq_rt_absorb_rt A (r r': relation A) (T: transitive r') :
+  clos_refl_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel r r' ;; r'.
+Proof.
+  by rewrite seq_rt_absorb_r, minus_seq_r. 
+Qed.
+
+Lemma seq_ct_absorb_rt A (r r': relation A) (T: transitive r') :
+  clos_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel r r' ;; r'.
+Proof.
+  by rewrite seq_ct_absorb_r, minus_seq_r. 
+Qed.
+
+
+
+Lemma acyclic_via_expand_minus :
+  forall X (r r' : relation X)
+    (IRR1: irreflexive r)
+    (IRR2: irreflexive (minus_rel (r ;; r) r ;; clos_refl_trans r)),
+    acyclic r.
+Proof.
+  unfold acyclic; ins; rewrite ct_begin. 
+  by rewrite seq_rt_absorb_l, irreflexive_union.
+Qed.
+
+Lemma acyclic_seq_via_expand_minus :
+  forall X (r r' : relation X)
+    (IRR1: irreflexive (r ;; r'))
+    (IRR2: irreflexive (minus_rel (r ;; r' ;; r) r ;; r' ;; clos_refl_trans (r ;; r'))),
+    acyclic (r ;; r').
+Proof.
+  unfold acyclic; ins; rewrite ct_end, <- seqA. 
+  rewrite seq_rt_absorb_r, !seqA; rel_simpl. 
+  rewrite irreflexive_union; split; ins.
+  by rewrite seqA, irreflexive_seqC, seqA. 
+Qed.
+
+
+
+Require Import Omega. 
+
+Lemma get_first_nat (P : nat -> Prop) :
+  (exists m, P m /\ forall k, P k -> m <= k) \/ forall k, ~ P k.
+Proof.
+  apply NNPP; intro X; apply not_or_and in X; desf.
+  apply not_all_not_ex in X0; desf; destruct X. 
+  revert P X0; induction n; ins.
+    by exists 0; split; ins; desf; auto with arith. 
+  destruct (classic (P 0)).
+    by exists 0; split; ins; desf; auto with arith. 
+  specialize (IHn (fun n => P (S n)) X0); desf.
+  eexists (S m); split; ins; eauto.
+  destruct k; try done; eauto using le_n_S.
+Qed.
+
+Lemma get_max_bounded_nat (P : nat -> Prop) x n (LE: x <= n) (SAT: P x) :
+  exists m, m <= n /\ P m /\ forall k, k <= n -> P k -> k <= m.
+Proof.
+  destruct get_first_nat with (P := fun x => P (n - x)); desf.
+  exists (n - m); repeat split; ins; eauto; try omega. 
+  replace k with (n - (n - k)) in H2; [apply H0 in H2|]; omega.
+  destruct (H (n - x)).
+  replace (n - (n - x)) with x; eauto; omega.
+Qed.
+
+Lemma path_minimize :
+  forall X (r : relation X) a b
+    (PATH: clos_trans r a b),
+    exists f n, 
+      << START: f 0 = a >> /\ 
+      << END: f (S n) = b >> /\
+      << STEP: forall i (LT: i <= n), r (f i) (f (S i)) >> /\
+      << MIN: forall i (LTi: i <= n) j (LTj: i < j <= S n), 
+                r (f i) (f j) -> j = S i >> .
+Proof.
+  ins; apply clos_trans_tn1 in PATH; induction PATH; desf; unnw.
+    exists (fun x => match x with 0 => a | S _ => y end), 0; intuition; try omega. 
+      by apply NPeano.Nat.le_0_r in LT; desf.
+
+  destruct (get_first_nat (fun x => x <= n /\ r (f x) z)) as [(m & M)|M]; desc.
+  { exists (fun x => if Compare_dec.le_dec x m then f x else z), m;
+    repeat split; ins; desf; try omega.
+      by eapply STEP; omega.
+    by assert (i = m) by omega; desf. 
+    by eapply MIN; eauto; omega.
+    assert (j = S m) by omega; desf.
+    specialize (M0 i); specialize_full M0; try split; ins; omega. }
+  { exists (fun x => if Compare_dec.le_dec x (S n) then f x else z), (S n);
+    repeat split; ins; desf; try omega.
+      by eapply STEP; omega.
+    assert (i = S n) by omega; desf. 
+    eapply MIN; eauto; try omega.
+    destruct (eqP i (S n)); desf; try omega.
+    destruct (M i); split; ins; omega. }
+Qed.
+
+
+Lemma acyclic_minimize1 X (r : relation X) :
+  acyclic r <->
+  ~ exists f n, 
+      << ENDS: f 0 = f (S n) >> /\ 
+      << STEP: forall i (LT: i <= n), r (f i) (f (S i)) >> /\
+      << MIN: forall i (LTi: i <= n) j (LTj: j <= S n), 
+                r (f i) (f j) -> j = S i \/ i = n /\ j = 0 >>.
+Proof.
+  split; repeat red; ins; desf.
+  { destruct (H (f 0)).
+    rewrite ENDS at 2; clear - STEP.
+    induction n; vauto.
+      by apply t_step, STEP.
+    by eapply t_trans, t_step; eauto. }
+  apply path_minimize in H0; desf.
+  destruct H; unnw.
+  destruct (get_first_nat (fun x => x <= n /\ exists mm, mm <= x /\ 
+                                                         r (f x) (f mm))) 
+    as [(m & M & M'')|M]; desc.
+  assert (M' : forall k k', k' <= k -> k <= n -> r (f k) (f k') -> m <= k).
+    by ins; apply M''; eauto.
+  clear M''.
+  { 
+    forward eapply get_max_bounded_nat 
+    with (P := fun x => r (f m) (f x)) (x := mm) (n := m) as [kk K]; ins; desc.
+    clear mm M0 M1; rename kk into mm.
+    exists (fun x => if x == (S (m - mm)) then (f mm) else (f (x + mm))), (m - mm); 
+      repeat split; ins; desf; desf; try omega.
+    by rewrite NPeano.Nat.sub_add.
+    eapply STEP; omega.
+    left; apply M' in H; omega.  
+    destruct (eqP j 0); desf; ins.
+      right; apply M' in H; omega.
+    left; apply MIN in H; try split; try omega. 
+    apply NNPP; intro K'.
+    assert (Z:=H); apply M' in Z; try omega.
+    assert (i = m - mm) by omega; subst.
+    rewrite Nat.sub_add in *; ins; apply K1 in H; omega.
+  }
+  { exists f, n;
+    repeat split; ins; desf; try omega. 
+    destruct (le_lt_dec j i); [edestruct M|]; eauto.
+ }
+Qed.
+
+Lemma acyclic_minimize X (r : relation X) :
+  acyclic r <->
+  ~ exists f n, 
+      << ENDS: f 0 = f (S n) >> /\ 
+      << STEP: forall i (LT: i <= n), r (f i) (f (S i)) >> /\
+      << MIN: forall i (LTi: i <= n) j (LTj: j <= S n), 
+                r (f i) (f j) -> j = S i \/ i = n /\ j = 0 >> /\
+      << NODUP: forall i (LTi: i <= S n) j (LTj: j <= S n), 
+                  f i = f j -> 
+                  i = j \/ i = 0 /\ j = S n \/ 
+                           i = S n /\ j = 0 >>.
+Proof.
+  rewrite acyclic_minimize1. 
+  split; intros A B; destruct A; desc; unnw; eauto. 
+  exists f, n; repeat split; ins; eauto.
+  destruct (lt_dec i j).
+    destruct j; [exfalso; omega|]; ins; auto. 
+    specialize (STEP j); specialize_full STEP; try omega.
+    rewrite <- H in STEP; eapply MIN in STEP; try omega.
+  destruct (lt_dec j i); try omega.
+  destruct i; [exfalso; omega|]; ins; auto. 
+  specialize (STEP i); specialize_full STEP; try omega.
+  rewrite H in STEP; eapply MIN in STEP; try omega.
+Qed.
+
+
+
