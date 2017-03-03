@@ -2,7 +2,7 @@
 (** * Maximal elements of relations *)
 (******************************************************************************)
 
-Require Import HahnBase HahnList HahnRelationsBasic.
+Require Import HahnBase HahnList HahnRelationsBasic HahnEquational.
 Require Import Classical NPeano Omega Setoid.
 
 Set Implicit Arguments.
@@ -121,7 +121,7 @@ Lemma seq_max_rt X (rel rel' : relation X) b
       (MAX: max_elt rel' b) (COD: forall x y, rel x y -> y = b) :
   rel ;; clos_refl_trans rel' <--> rel. 
 Proof.
-  rewrite crtE; rel_simpl; rewrite seq_max_t; rel_simpl. 
+  rewrite rtE; rel_simpl; rewrite seq_max_t; rel_simpl. 
 Qed.
 
 Lemma seq_max_r X (rel rel' : relation X) b
@@ -146,7 +146,7 @@ Qed.
 Lemma seq_eq_max_rt X (rel : relation X) b (MAX: max_elt rel b) :
   <| eq b |> ;; clos_refl_trans rel <--> <| eq b |>.
 Proof.
-  rewrite crtE; rel_simpl; rewrite seq_eq_max_t; rel_simpl. 
+  rewrite rtE; rel_simpl; rewrite seq_eq_max_t; rel_simpl. 
 Qed.
 
 Lemma seq_eq_max_r X (rel : relation X) b (MAX: max_elt rel b) :
@@ -170,7 +170,7 @@ Qed.
 Lemma seq_singl_max_rt X (rel : relation X) a b (MAX: max_elt rel b) :
   singl_rel a b ;; clos_refl_trans rel <--> singl_rel a b.
 Proof.
-  rewrite crtE; rel_simpl; rewrite seq_singl_max_t; rel_simpl. 
+  rewrite rtE; rel_simpl; rewrite seq_singl_max_t; rel_simpl. 
 Qed.
 
 Lemma seq_singl_max_r X (rel : relation X) a b (MAX: max_elt rel b) :
@@ -198,7 +198,7 @@ Lemma seq_wmax_rt X (rel rel' : relation X) b
       (MAX: wmax_elt rel' b) (COD: forall x y, rel x y -> y = b) :
   rel ;; clos_refl_trans rel' <--> rel.
 Proof.
-  rewrite crtE; split; rel_simpl; rewrite seq_wmax_t; rel_simpl. 
+  rewrite rtE; split; rel_simpl; rewrite seq_wmax_t; rel_simpl. 
 Qed.
 
 Lemma seq_wmax_r X (rel rel' : relation X) b 
@@ -223,7 +223,7 @@ Qed.
 Lemma seq_eq_wmax_rt X (rel : relation X) b (MAX: wmax_elt rel b) :
   <| eq b |> ;; clos_refl_trans rel <--> <| eq b |>.
 Proof.
-  rewrite crtE; split; rel_simpl; rewrite seq_eq_wmax_t; rel_simpl. 
+  rewrite rtE; split; rel_simpl; rewrite seq_eq_wmax_t; rel_simpl. 
 Qed.
 
 Lemma seq_eq_wmax_r X (rel : relation X) b (MAX: wmax_elt rel b) :
@@ -249,7 +249,7 @@ Qed.
 Lemma seq_singl_wmax_rt X (rel : relation X) a b (MAX: wmax_elt rel b) :
   singl_rel a b ;; clos_refl_trans rel <--> singl_rel a b.
 Proof.
-  rewrite crtE; split; rel_simpl; rewrite seq_singl_wmax_t; rel_simpl. 
+  rewrite rtE; split; rel_simpl; rewrite seq_singl_wmax_t; rel_simpl. 
 Qed.
 
 Lemma seq_singl_wmax_r X (rel : relation X) a b (MAX: wmax_elt rel b) :

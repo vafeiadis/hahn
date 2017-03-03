@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import NPeano Omega Setoid Classical.
-Require Import HahnBase HahnList HahnRelationsBasic.
+Require Import HahnBase HahnList HahnRelationsBasic HahnEquational.
 
 Set Implicit Arguments.
 
