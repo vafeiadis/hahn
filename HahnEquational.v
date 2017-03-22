@@ -314,6 +314,30 @@ Section PropertiesSeqUnion.
     unfold eqv_rel, seq; split; red; ins; desf; eauto.
   Qed.
 
+  Lemma seq_eqvK_l (dom1 dom2 : A -> Prop) (IMP: forall x, dom2 x -> dom1 x) : 
+    <| dom1 |>;; <| dom2 |> ≡ <| dom2 |>.
+  Proof.
+    unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
+  Qed.
+
+  Lemma seq_eqvK_r (dom1 dom2 : A -> Prop) (IMP: forall x, dom1 x -> dom2 x) : 
+    <| dom1 |>;; <| dom2 |> ≡ <| dom1 |>.
+  Proof.
+    unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
+  Qed.
+
+  Lemma seq_eqvC (doma domb : A -> Prop) : 
+    <| doma |> ;; <| domb |> ≡ <| domb |> ;; <| doma |>.
+  Proof.
+    unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
+  Qed.
+
+  Lemma seq_eqv (doma domb : A -> Prop) : 
+    <| doma |> ;; <| domb |> ≡ <| fun x => doma x /\ domb x |>.
+  Proof.
+    unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
+  Qed.
+
 End PropertiesSeqUnion.
 
 Hint Rewrite seq_false_l seq_false_r union_false_l union_false_r unionK : rel.
@@ -420,6 +444,26 @@ Section PropertiesClos.
   Lemma ct_ct rel : rel ^+ ;; rel ^+ ⊆ rel ^+.
   Proof.
     unfold seq; red; ins; desf; eauto using t_trans.
+  Qed.
+
+  Lemma cr_ct rel : rel ^? ;; rel ^+ ≡ rel ^+.
+  Proof.
+    unfold seq, clos_refl; split; red; ins; desf; eauto using t_trans, t_step. 
+  Qed.
+
+  Lemma ct_cr rel : rel ^+ ;; rel ^? ≡ rel ^+.
+  Proof.
+    unfold seq, clos_refl; split; red; ins; desf; eauto using t_trans, t_step. 
+  Qed.
+
+  Lemma cr_rt rel : rel ^? ;; rel ^* ≡ rel ^*.
+  Proof.
+    unfold seq, clos_refl; split; red; ins; desf; eauto using rt_trans, rt_step.
+  Qed.
+
+  Lemma rt_cr rel : rel ^* ;; rel ^? ≡ rel ^*.
+  Proof.
+    unfold seq, clos_refl; split; red; ins; desf; eauto using rt_trans, rt_step.
   Qed.
 
   Lemma ct_of_ct rel: (rel ^+) ^+ ≡ rel ^+. 
@@ -795,3 +839,5 @@ Lemma inclusion_ct_seq_eqv_l A dom (rel : relation A) :
 Proof.
   by rewrite ct_begin, seqA, inclusion_seq_eqv_l with (rel:=rel), <- ct_begin.
 Qed.
+
+

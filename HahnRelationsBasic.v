@@ -88,6 +88,7 @@ Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
 Notation "P ;; Q" := (seq P Q) (at level 45, right associativity).
 Notation "<| a |>" := (eqv_rel a).
+(* Notation "[ a ]" := (eqv_rel a). *)
 Notation "a ^? " := (clos_refl a) (at level 1).
 Notation "a ^+ " := (clos_trans a) (at level 1).
 Notation "a ^* " := (clos_refl_trans a) (at level 1).
@@ -98,6 +99,7 @@ Notation "a ≡ b" := (same_relation a b)  (at level 60).
 (* Alternative non-unicode notations *)
 
 Notation "P +++ Q" := (union P Q) (at level 50, left associativity, only parsing).
+Notation "a <<= b" := (inclusion a b)  (at level 60, only parsing).
 Notation "a <--> b" := (same_relation a b)  (at level 60, only parsing).
 
 
@@ -391,6 +393,44 @@ Proof.
   unfold inclusion, seq, restr_eq_rel; ins; desf; eauto.
 Qed.
 
+Lemma inclusion_minus_rel : minus_rel r r' ⊆ r.
+Proof. 
+  unfold minus_rel, inclusion; ins; desf; auto.
+Qed.
+
+Lemma inclusion_eqv_rel_true : <| dom |>  ⊆ <| fun _ => True |>.
+Proof. 
+  unfold eqv_rel, inclusion; ins; desf; auto.
+Qed.
+
+(** Inclusions involving reflexive closure. *)
+
+Lemma inclusion_id_cr : <| fun _ => True |> ⊆ clos_refl r'.
+Proof.
+  by unfold eqv_rel, inclusion; ins; desf; vauto.
+Qed.
+
+Lemma inclusion_eqv_cr : <| dom |> ⊆ clos_refl r'.
+Proof.
+  by unfold eqv_rel, inclusion; ins; desf; vauto.
+Qed.
+
+Lemma inclusion_step_cr : r ⊆ r' -> r ⊆ clos_refl r'.
+Proof.
+  unfold seq, clos_refl; red; ins; desf; eauto.
+Qed.
+
+Lemma inclusion_r_cr : r ⊆ r' -> clos_refl r ⊆ clos_refl r'.
+Proof.
+  unfold seq, clos_refl; red; ins; desf; eauto.
+Qed.
+
+Lemma inclusion_cr_ind :
+  reflexive r' -> r ⊆ r' -> clos_refl r ⊆ r'.
+Proof. 
+  unfold clos_refl; ins; red; ins; desf; eauto.
+Qed.
+
 (** Inclusions involving transitive closure. *)
 
 Lemma inclusion_step_t : r ⊆ r' -> r ⊆ clos_trans r'.
@@ -431,6 +471,11 @@ Qed.
 (** Inclusions involving reflexive-transitive closure. *)
 
 Lemma inclusion_id_rt : <| fun _ => True |> ⊆ clos_refl_trans r'.
+Proof.
+  by unfold eqv_rel, inclusion; ins; desf; vauto.
+Qed.
+
+Lemma inclusion_eqv_rt : <| dom |> ⊆ clos_refl_trans r'.
 Proof.
   by unfold eqv_rel, inclusion; ins; desf; vauto.
 Qed.
@@ -518,11 +563,12 @@ Hint Resolve
 
 Hint Resolve 
      inclusion_step_t inclusion_t_t inclusion_t_ind inclusion_rt_rt 
-     inclusion_r_rt inclusion_step_rt : rel.
+     inclusion_r_rt inclusion_step_rt inclusion_step_cr inclusion_r_cr : rel.
 
-Hint Resolve inclusion_acyclic : rel.
+Hint Immediate inclusion_acyclic : rel.
 
 Hint Immediate inclusion_t_rt : rel.
+Hint Immediate inclusion_eqv_rt inclusion_eqv_cr : rel.
 
 Lemma clos_trans_of_clos_trans A (r : relation A) x y :
   clos_trans (clos_trans r) x y <-> clos_trans r x y.

@@ -147,6 +147,40 @@ Proof.
     by eapply IHP; do 4 right; eexists k,m,m'; repeat eexists; vauto.
 Qed.
 
+Lemma min_cycle1 X (r r' : relation X) (d : X -> Prop)
+    nd (ND: nd = fun x => ~ d x) 
+    (TOT: is_total d r') 
+    (T : transitive r')
+    (INCL: r' ⊆ r^+)
+    (INV: irreflexive (r ;; r')) :
+    acyclic r <->
+    acyclic (<| nd |> ;; r ;; <| nd |>) /\
+    irreflexive (<| d |> ;; r ;; <| d |>) /\
+    irreflexive (<| nd |> ;; r ;; <| d |> ;; r'^? ;; <| d |> ;; 
+                 r ;; <| nd |> ;; (<| nd |> ;; r ;; <| nd |>)^*).
+Proof.
+generalize (@min_cycle X r r' d TOT T INCL); ins.
+assert (XX: forall a b : X, r a b -> r' b a -> False).
+  by unfold irreflexive, seq in *; eauto.
+rewrite ND.
+specialize (H XX); clear TOT T INCL INV XX ND nd.
+assert (AA: restr_rel (fun x : X => ~ d x) r <--> [fun x : X => ~ d x];; r;; [fun x : X => ~ d x]).
+  by red; unfold  seq, eqv_rel, restr_rel, inclusion in *; split; ins; desf; eauto 10.
+split.
+- intro H1; apply H in H1; clear H.
+  desc; split.
+  by rewrite <- AA.
+  split.
+  by unfold irreflexive, seq, eqv_rel; ins; desc; subst; eauto.
+  by rewrite <- AA; unfold eqv_rel, seq; red; ins; desc; subst; eauto.
+- ins; desc; apply H; split.
+  by rewrite AA.
+  split.
+  by unfold irreflexive, seq, eqv_rel in *; eauto 10.
+  rewrite <- AA in *; ins; apply (H2 c1).
+  by unfold irreflexive, seq, eqv_rel in *; repeat eexists; eauto.
+Qed.
+
 
 (******************************************************************************)
 

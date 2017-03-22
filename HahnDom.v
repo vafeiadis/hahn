@@ -63,6 +63,12 @@ Section Lemmas.
   Lemma seq_r_domb : domb r d -> domb r' d -> domb (r ;; clos_refl r') d. 
   Proof. unfold clos_refl, seq; red; ins; desf; eauto. Qed.
 
+  Lemma minus_doma :doma r d -> doma (minus_rel r r') d.
+  Proof. unfold doma, minus_rel; ins; desf; eauto. Qed.
+
+  Lemma minus_domb :domb r d -> domb (minus_rel r r') d.
+  Proof. unfold domb, minus_rel; ins; desf; eauto. Qed.
+
   Lemma dom_union x : dom_rel (r +++ r') x <-> dom_rel r x \/ dom_rel r' x.
   Proof. unfold dom_rel, union; split; ins; desf; eauto. Qed.
 
