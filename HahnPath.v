@@ -164,7 +164,7 @@ assert (XX: forall a b : X, r a b -> r' b a -> False).
   by unfold irreflexive, seq in *; eauto.
 rewrite ND.
 specialize (H XX); clear TOT T INCL INV XX ND nd.
-assert (AA: restr_rel (fun x : X => ~ d x) r <--> [fun x : X => ~ d x];; r;; [fun x : X => ~ d x]).
+assert (AA: restr_rel (fun x : X => ~ d x) r <--> <| fun x : X => ~ d x |>;; r;; <| fun x : X => ~ d x |>).
   by red; unfold  seq, eqv_rel, restr_rel, inclusion in *; split; ins; desf; eauto 10.
 split.
 - intro H1; apply H in H1; clear H.
