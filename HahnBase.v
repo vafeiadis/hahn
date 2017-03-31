@@ -241,13 +241,6 @@ Ltac vauto :=
   (clarify; try edone;
    try [> econstructor; (solve [edone | [> econstructor; edone]])]).
 
-(** Check that the hypothesis [id] is defined. This is useful to make sure that
-    an [assert] has been completely finished. *)
-    
-Ltac end_assert id := 
-  let m := fresh in 
-  pose (m := refl_equal id); clear m.
-
 Ltac inv x := inversion x; clarify.
 Ltac simpls  := simpl in *; try done.
 Ltac ins := simpl in *; try done; intros.
@@ -261,6 +254,8 @@ Ltac clarsimp := intros; simpl in *; hahn__clarsimp1.
 
 Ltac autos   := clarsimp; auto with hahn.
 
+Tactic Notation "econs" := econstructor.
+Tactic Notation "econs" int_or_var(x) := econstructor x.
 
 (* ************************************************************************** *)
 (** Destruct but give useful names *)
@@ -275,6 +270,22 @@ Ltac unnw := unfold NW in *.
 Ltac rednw := red; unnw.
 
 Hint Unfold NW.
+
+Ltac splits :=
+  intros; unfold NW;
+  repeat match goal with
+  | [ |- _ /\ _ ] => split
+  end.
+
+Ltac esplits :=
+  intros; unfold NW;
+  repeat match goal with
+  | [ |- @ex _ _ ] => eexists
+  | [ |- _ /\ _ ] => split
+  | [ |- @sig _ _ ] => eexists
+  | [ |- @sigT _ _ ] => eexists
+  | [ |- @prod _  _ ] => split
+  end.
 
 (** Destruct, but no case split *)
 Ltac desc :=
@@ -335,6 +346,9 @@ Ltac des :=
     | H : is_true (_ || _) |- _ => case (hahn__orb_split H); clear H; intro H
     | H : (_ && _) = false |- _ => case (hahn__nandb_split H); clear H; intro H
   end.
+
+Ltac cdes H :=
+  let H' := fresh H in assert (H' := H); red in H'; desc.
 
 Ltac des_if_asm :=
   clarify;

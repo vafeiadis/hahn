@@ -288,7 +288,7 @@ Proof.
   split; cycle 1.
     repeat apply inclusion_union_l; eauto with rel.
     by repeat apply inclusion_seq_trans; eauto with rel; vauto.
-  apply inclusion_t_ind_right; rel_simpl; 
+  apply inclusion_t_ind_right; relsf; 
     repeat apply inclusion_union_l; 
     eauto 10 using inclusion_t_r_t with rel;
   try solve [rewrite (ct_end rel'), !seqA, F, <- ct_end; eauto 10 with rel].
@@ -303,7 +303,7 @@ Proof.
   split; cycle 1.
     repeat apply inclusion_union_l; eauto with rel.
     by repeat apply inclusion_seq_trans; eauto with rel; vauto.
-  apply inclusion_t_ind_left; rel_simpl; 
+  apply inclusion_t_ind_left; relsf; 
     repeat apply inclusion_union_l; 
     eauto 10 using inclusion_r_t_t with rel;
   try solve [rewrite (ct_begin rel), <- !seqA, F, <- ct_begin; eauto 10 with rel].
@@ -344,8 +344,7 @@ Lemma path_absorb_lt :
     clos_trans (rel ∪ rel') ≡
     clos_trans rel' ∪ rel ;; clos_refl_trans rel'.
 Proof.
-  ins; rewrite path_absorb, rtE, (ct_of_trans T); rel_simpl; eauto.
-  split; repeat apply inclusion_union_l; eauto with rel.
+  ins; rewrite path_absorb, rtE; relsf; hahn_rel.
 Qed.
 
 Lemma path_absorb_rt :
@@ -355,8 +354,7 @@ Lemma path_absorb_rt :
     clos_trans (rel ∪ rel') ≡
     clos_trans rel ∪ clos_refl_trans rel ;; rel'.
 Proof.
-  ins; rewrite path_absorb, rtE, (ct_of_trans T); rel_simpl; eauto.
-  split; repeat apply inclusion_union_l; eauto with rel.
+  ins; rewrite path_absorb, rtE; relsf; hahn_rel.
 Qed.
 
 Lemma cycle_disj :
@@ -722,10 +720,7 @@ Qed.
 
 Lemma path_ut :
   forall X (r r' : relation X) (T: transitive r'),
-    clos_refl_trans (r ∪ r') ≡
-    clos_refl_trans r ;;
-    clos_refl_trans (r' ;; clos_trans r) ;;
-    clos_refl r'.
+    (r ∪ r') ^* ≡ r ^*;; (r';; r ^+) ^*;; r' ^?.
 Proof.
   split.
   - unfold seq, union, clos_refl; red; ins; eapply path_ut_helper in H;
@@ -734,41 +729,18 @@ Proof.
     eauto 10 using inclusion_seq_trans, inclusion_rt_rt2 with rel.
 Qed.
 
-
-
-Lemma rewrite_trans A (r: relation A) :
-  transitive r -> inclusion (r ;; r) r.
-Proof.
-  unfold inclusion, seq; ins; desf; eauto. 
-Qed.
-
-Lemma transitiveI A (r: relation A) :
-  inclusion (r ;; r) r -> transitive r.
-Proof.
-  unfold transitive, inclusion, seq; ins; desf; eauto. 
-Qed.
-
-
 Lemma path_ut2 :
   forall X (r r' : relation X) (T: transitive r'),
-    clos_trans (r ∪ r') ≡
-    clos_trans r ∪
-      clos_refl_trans r ;; 
-      clos_refl_trans (r' ;; clos_trans r) ;;
-      r' ;; clos_refl_trans r.
+    (r ∪ r') ^+ ≡ r ^+ ∪ r ^*;; (r';; r ^+) ^*;; r';; r ^*.
 Proof.
   split.
-    rewrite rtE at 2; rewrite !seq_union_r, seq_id_r, <- ct_end.
-    rewrite ct_begin, path_ut, !seq_union_l, <- !seqA, <- ct_begin; ins.
-    
-    rewrite (rtE r) at 1; 
-      rewrite !seq_union_r, seq_id_r, !seq_union_l, <- ct_begin. 
-    rewrite rt_begin at 2; rel_simpl. 
-    rewrite !seqA, <- (seqA r'), rewrite_trans, <- !seqA, <- ct_begin; ins.
-
-    rewrite crE, !seq_union_r, !seq_id_r, rewrite_trans; ins; rel_simpl.
-    hahn_rel; rewrite !rtE; rel_simpl.
-
+    rewrite ct_end, path_ut; ins; relsf.
+    rewrite !seqA, (rewrite_trans_seq_cr_l T), crE; relsf; hahn_rel.
+    2: by rewrite (rtE r) at 3; relsf.
+    rewrite (rt_end (r' ;; r^+)) at 1; relsf. 
+    rewrite <- ct_end, !seqA; hahn_rel.
+    rewrite inclusion_t_rt with (r:=r) at 2; rewrite <- ct_end.
+    rewrite inclusion_t_rt with (r:=r) at 2; hahn_rel.
   hahn_rel.
   rewrite inclusion_t_rt, <- (rt_ct (r ∪ r')); seq_rewrite <- ct_end.
   apply inclusion_seq_mon; eauto with rel. 
@@ -784,8 +756,8 @@ Lemma acyclic_ut :
     acyclic (r' ;; clos_trans r).
 Proof.
   unfold acyclic; ins; rewrite path_ut2; ins.
-  rewrite irreflexive_union, irreflexive_seqC, !seqA, rt_rt, (rtE r); rel_simpl.
-  rewrite irreflexive_union, <- ct_end, irreflexive_seqC, rtE; rel_simpl.
+  rewrite irreflexive_union, irreflexive_seqC, !seqA, rt_rt, (rtE r); relsf.
+  rewrite irreflexive_union, <- ct_end, irreflexive_seqC, rtE; relsf.
   rewrite irreflexive_union; intuition. 
   rewrite ct_begin, seqA; sin_rewrite (rewrite_trans T). 
   by rewrite <- seqA, <- ct_begin.
@@ -844,7 +816,7 @@ Lemma acyclic_utd :
 Proof.
   unfold acyclic; ins.
   assert (irreflexive (r';; clos_refl_trans r)).
-    by rewrite rtE; rel_simpl; rewrite irreflexive_union.
+    by rewrite rtE; relsf; rewrite irreflexive_union.
   unfold acyclic; ins; rewrite path_utd, irreflexive_union; eauto.
   by split; ins; rewrite irreflexive_seqC, seqA, rt_rt.
 Qed.
@@ -1004,7 +976,7 @@ Lemma acyclic_seq_via_expand_minus :
     acyclic (r ;; r').
 Proof.
   unfold acyclic; ins; rewrite ct_end, <- seqA. 
-  rewrite seq_rt_absorb_r, !seqA; rel_simpl. 
+  rewrite seq_rt_absorb_r, !seqA; relsf. 
   rewrite irreflexive_union; split; ins.
   by rewrite seqA, irreflexive_seqC, seqA. 
 Qed.

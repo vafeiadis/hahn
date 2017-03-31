@@ -9,6 +9,7 @@ Set Implicit Arguments.
 
 (* Database of lemmas *)
 Create HintDb rel discriminated. 
+Create HintDb hahn_full discriminated. 
 
 
 (** Definitions of relations *)
@@ -80,8 +81,17 @@ Section RelDefs.
 
   Definition restr_dom := fun x y => rel x y /\ cond y.
   Definition restr_codom := fun x y => rel x y /\ cond y.
-
+  
 End RelDefs.
+
+Fixpoint pow_rel A (r: relation A) n := 
+  match n with 
+  | 0 => eqv_rel (fun _ => True)
+  | S n => seq (pow_rel r n) r
+  end.
+
+Definition Union A B (r: A -> relation B) x y := 
+  exists a, r a x y.
 
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
@@ -92,6 +102,7 @@ Notation "<| a |>" := (eqv_rel a).
 Notation "a ^? " := (clos_refl a) (at level 1).
 Notation "a ^+ " := (clos_trans a) (at level 1).
 Notation "a ^* " := (clos_refl_trans a) (at level 1).
+Notation "a ^^ n" := (pow_rel a n) (at level 1).
 
 Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
@@ -101,6 +112,7 @@ Notation "a ≡ b" := (same_relation a b)  (at level 60).
 Notation "P +++ Q" := (union P Q) (at level 50, left associativity, only parsing).
 Notation "a <<= b" := (inclusion a b)  (at level 60, only parsing).
 Notation "a <--> b" := (same_relation a b)  (at level 60, only parsing).
+
 
 
 (** Very basic properties of relations *)
@@ -326,6 +338,12 @@ Qed.
 (** Lemmas about inclusion *)
 (******************************************************************************)
 
+Lemma eq_in_l : r ≡ r' -> r ⊆ r'.
+Proof. by destruct 1. Qed.
+
+Lemma eq_in_r : r ≡ r' -> r' ⊆ r.
+Proof. by destruct 1. Qed.
+
 Lemma inclusion_refl : reflexive (@inclusion A).
 Proof. repeat red; ins. Qed.
 
@@ -360,6 +378,12 @@ Lemma inclusion_union_mon s s' :
   r ⊆ r' -> s ⊆ s' -> r ∪ s ⊆ r' ∪ s'.
 Proof.
   unfold inclusion, union; ins; desf; eauto.
+Qed.
+
+Lemma inclusion_Union_l (rr : B -> relation A) :
+  (forall n, rr n ⊆ r') -> Union rr ⊆ r'.
+Proof.
+  unfold Union, inclusion; intros; desf; eauto.
 Qed.
 
 Lemma inclusion_seq_mon s s' : r ⊆ r' -> s ⊆ s' -> r ;; s ⊆ r' ;; s'.

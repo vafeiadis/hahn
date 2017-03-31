@@ -230,8 +230,9 @@ Qed.
 
 Section PropertiesSeqUnion.
 
-  Variable A : Type.
+  Variables B A : Type.
   Implicit Type r : relation A.
+  Implicit Type rr : B -> relation A.
 
   Lemma seqA r1 r2 r3 : (r1 ;; r2) ;; r3 ≡ r1 ;; (r2 ;; r3).
   Proof.
@@ -298,6 +299,16 @@ Section PropertiesSeqUnion.
     unfold seq, union; split; red; ins; desf; eauto. 
   Qed.
 
+  Lemma seq_Union_l rr r : Union rr ;; r ≡ Union (fun n => rr n ;; r).
+  Proof.
+    unfold seq, Union; split; red; ins; desf; eauto. 
+  Qed.
+
+  Lemma seq_Union_r r rr : r ;; Union rr ≡ Union (fun n => r ;; rr n).
+  Proof.
+    unfold seq, Union; split; red; ins; desf; eauto. 
+  Qed.
+
   Lemma minus_union_l r1 r2 r : 
     minus_rel (r1 ∪ r2) r ≡ minus_rel r1 r ∪ minus_rel r2 r.
   Proof.
@@ -343,43 +354,8 @@ End PropertiesSeqUnion.
 Hint Rewrite seq_false_l seq_false_r union_false_l union_false_r unionK : rel.
 Hint Rewrite seq_id_l seq_id_r seq_eqvK : rel.
 
-Ltac rel_simpl :=
-  repeat first [rewrite seq_false_l | rewrite seq_false_r | 
-                rewrite union_false_l | rewrite union_false_r |
-                rewrite seq_id_l | rewrite seq_id_r |
-                rewrite minusK | rewrite minus_union_l |
-                rewrite seq_union_l | rewrite seq_union_r];
-    eauto 8 with rel.
+Hint Rewrite seq_Union_l seq_Union_r seq_union_l seq_union_r : rel_full.
 
-Ltac hahn_rel := 
-  rel_simpl; 
-  try match goal with |- (_ <--> _) => split end;
-  repeat apply inclusion_union_l; eauto 8 with rel.
-
-Ltac hahn_frame_r := 
-  rewrite <- ?seqA; apply inclusion_seq_mon; [|reflexivity]; rewrite ?seqA.
-
-Ltac hahn_frame_l := 
-  rewrite ?seqA; apply inclusion_seq_mon; [reflexivity|].
-
-
-Ltac hahn_frame :=
-  rewrite <- ?seqA; 
-  repeat (
-      match goal with 
-      | |- inclusion _ (_ ;; clos_refl_trans _) => fail 1
-      | |- inclusion _ (_ ;; clos_trans _) => fail 1
-      | |- _ => apply inclusion_seq_mon; [|reflexivity] 
-      end);
-  rewrite ?seqA; 
-  repeat (
-      match goal with 
-      | |- inclusion _ (clos_refl_trans _ ;; _) => fail 1
-      | |- inclusion _ (clos_trans _ ;; _) => fail 1
-      | |- _ => apply inclusion_seq_mon; [reflexivity|] 
-      end);
-  try solve [ apply inclusion_seq_l; try done; auto with rel
-            | apply inclusion_seq_r; try done; auto with rel].
 
 
 
@@ -404,6 +380,18 @@ Section PropertiesClos.
     split; ins; tauto.
   Qed.
 
+  Lemma rtEE r : r ^* ≡ Union (fun n => r ^^ n).
+  Proof.
+    split; ins; desc.
+      unfold eqv_rel, Union, same_relation, inclusion; ins.
+      induction H using clos_refl_trans_ind_left; desc.
+        by exists 0.
+      by exists (S a); vauto.
+    apply inclusion_Union_l.
+    induction n; ins; [|rewrite IHn];
+      unfold eqv_rel, seq; red; ins; desf; vauto.
+  Qed.
+
   Lemma ct_begin r : r ^+ ≡ r ;; r ^*.
   Proof.
     unfold seq; split; red; ins; desf; rewrite t_step_rt in *; eauto.
@@ -412,6 +400,11 @@ Section PropertiesClos.
   Lemma ct_end r : r ^+ ≡ r ^* ;; r.
   Proof.
     unfold seq; split; red; ins; desf; rewrite t_rt_step in *; eauto.
+  Qed.
+
+  Lemma ctEE r : r ^+ ≡ Union (fun n => r ^^ (S n)).
+  Proof.
+    by rewrite ct_end, rtEE, seq_Union_l.
   Qed.
 
   Lemma rt_begin rel : 
@@ -426,14 +419,24 @@ Section PropertiesClos.
     rewrite <- ct_end, <- rtE; vauto. 
   Qed.
 
-  Lemma rt_rt rel : rel ^* ;; rel ^* ≡ rel ^*.
+  Lemma ct_of_trans r (T: transitive r) : r ^+ ≡ r.
   Proof.
-    unfold seq; split; red; ins; desf; eauto using rt_trans, rt_refl. 
+    split; eauto with rel. 
   Qed.
 
-  Lemma rt_ct rel : rel ^* ;; rel ^+ ≡ rel ^+.
+  Lemma rt_of_trans r (T: transitive r) : r ^* ≡ r ^?.
   Proof.
-    unfold seq; split; red; ins; desf; eauto using rt_t_trans, rt_refl. 
+    rewrite rtE, crE, ct_of_trans; vauto.
+  Qed.
+
+  Lemma cr_ct rel : rel ^? ;; rel ^+ ≡ rel ^+.
+  Proof.
+    unfold seq, clos_refl; split; red; ins; desf; eauto using t_trans, t_step. 
+  Qed.
+
+  Lemma cr_rt rel : rel ^? ;; rel ^* ≡ rel ^*.
+  Proof.
+    unfold seq, clos_refl; split; red; ins; desf; eauto using rt_trans, rt_step.
   Qed.
 
   Lemma ct_rt rel : rel ^+ ;; rel ^* ≡ rel ^+.
@@ -446,19 +449,19 @@ Section PropertiesClos.
     unfold seq; red; ins; desf; eauto using t_trans.
   Qed.
 
-  Lemma cr_ct rel : rel ^? ;; rel ^+ ≡ rel ^+.
-  Proof.
-    unfold seq, clos_refl; split; red; ins; desf; eauto using t_trans, t_step. 
-  Qed.
-
   Lemma ct_cr rel : rel ^+ ;; rel ^? ≡ rel ^+.
   Proof.
     unfold seq, clos_refl; split; red; ins; desf; eauto using t_trans, t_step. 
   Qed.
 
-  Lemma cr_rt rel : rel ^? ;; rel ^* ≡ rel ^*.
+  Lemma rt_rt rel : rel ^* ;; rel ^* ≡ rel ^*.
   Proof.
-    unfold seq, clos_refl; split; red; ins; desf; eauto using rt_trans, rt_step.
+    unfold seq; split; red; ins; desf; eauto using rt_trans, rt_refl. 
+  Qed.
+
+  Lemma rt_ct rel : rel ^* ;; rel ^+ ≡ rel ^+.
+  Proof.
+    unfold seq; split; red; ins; desf; eauto using rt_t_trans, rt_refl. 
   Qed.
 
   Lemma rt_cr rel : rel ^* ;; rel ^? ≡ rel ^*.
@@ -466,7 +469,34 @@ Section PropertiesClos.
     unfold seq, clos_refl; split; red; ins; desf; eauto using rt_trans, rt_step.
   Qed.
 
+  Lemma cr_of_ct rel : (rel ^+) ^? ≡ rel ^*. 
+  Proof.
+    by rewrite rt_begin, ct_begin, crE.
+  Qed.
+
+  Lemma cr_of_cr rel : (rel ^?) ^? ≡ rel ^?. 
+  Proof.
+    by rewrite !crE, <- unionA, unionK. 
+  Qed.
+
+  Lemma cr_of_rt rel : (rel ^*) ^? ≡ rel ^*. 
+  Proof.
+    by rewrite rtE, <- crE, cr_of_cr.
+  Qed.
+
   Lemma ct_of_ct rel: (rel ^+) ^+ ≡ rel ^+. 
+  Proof.
+    split; eauto with rel.
+  Qed.
+
+  Lemma ct_of_cr rel: (rel ^?) ^+ ≡ rel ^*. 
+  Proof.
+    split; eauto with rel.
+    apply inclusion_rt_ind_left; vauto.
+    rewrite ct_begin at 2; eauto with rel.
+  Qed.
+
+  Lemma ct_of_rt rel: (rel ^*) ^+ ≡ rel ^*. 
   Proof.
     split; eauto with rel.
   Qed.
@@ -476,19 +506,14 @@ Section PropertiesClos.
     split; eauto using inclusion_rt_rt2 with rel.
   Qed.
 
-  Lemma ct_of_trans r (T: transitive r) : r ^+ ≡ r.
+  Lemma rt_of_cr rel : (rel ^?) ^* ≡ rel ^*. 
   Proof.
-    split; eauto with rel. 
+    split; eauto using inclusion_rt_rt2 with rel.
   Qed.
 
-  Lemma rt_of_trans r (T: transitive r) : r ^* ≡ r ^?.
+  Lemma rt_of_rt rel : (rel ^*) ^* ≡ rel ^*. 
   Proof.
-    rewrite rtE, crE, ct_of_trans; vauto.
-  Qed.
-
-  Lemma cr_of_ct rel : (rel ^+) ^? ≡ rel ^*. 
-  Proof.
-    rewrite <- rt_of_trans, rt_of_ct; vauto.
+    split; eauto using inclusion_rt_rt2 with rel.
   Qed.
 
   Lemma cr_union_l r r' : (r ∪ r') ^? ≡ r ^? ∪ r'.
@@ -503,30 +528,142 @@ Section PropertiesClos.
 
   Lemma seq_rtE_r r r' : r ;; r' ^* ≡ r ∪ (r ;; r') ;; r' ^*.
   Proof.
-    rewrite rt_begin at 1; rel_simpl; rewrite seqA; hahn_rel.
+    by rewrite rt_begin at 1; rewrite ?seq_union_r, ?seq_id_r, ?seqA.
   Qed.
 
   Lemma seq_rtE_l r r' : r' ^* ;; r ≡ r ∪ (r' ^* ;; r' ;; r).
   Proof.
-    rewrite rt_end at 1; rel_simpl; rewrite seqA; hahn_rel.
+    by rewrite rt_end at 1; rewrite ?seq_union_l, ?seq_id_l, ?seqA.
   Qed.
+
+End PropertiesClos.
+
+
+Definition good_ctx A (P: relation A -> relation A) := 
+  << MON: Morphisms.Proper (inclusion ==> inclusion) P >> /\
+  << CUN: forall (rr : nat -> relation A), P (Union rr) ⊆ Union (fun n => P (rr n)) >>.
+
+Section good_ctx_lemmas.
+
+  Variables A : Type.
+  Implicit Types P Q : relation A -> relation A.
+  Implicit Types r : relation A.
+
+  Lemma good_ctx_id : good_ctx (fun x : relation A => x).
+  Proof. 
+    split; unnw; ins; vauto. 
+  Qed.
+
+  Lemma good_ctx_const r : good_ctx (fun x : relation A => r).
+  Proof. 
+    split; unnw; ins; repeat red; ins; vauto.
+  Qed.
+
+  Lemma good_ctx_seq_l P (GP : good_ctx P) r : 
+    good_ctx (fun x => P x ;; r).
+  Proof. 
+    cdes GP; split; unnw; ins; [by do 2 red; ins; rewrite H|]. 
+    by rewrite CUN, seq_Union_l.
+  Qed.
+
+  Lemma good_ctx_seq_r P (GP : good_ctx P) r : 
+    good_ctx (fun x => r ;; P x).
+  Proof. 
+    cdes GP; split; unnw; ins; [by do 2 red; ins; rewrite H|]. 
+    by rewrite CUN, seq_Union_r.
+  Qed.
+
+  Lemma good_ctx_union P (GP : good_ctx P) Q (GQ : good_ctx Q) : 
+    good_ctx (fun x => P x ∪ Q x).
+  Proof. 
+    cdes GP; cdes GQ; split; unnw; ins; [by do 2 red; ins; rewrite H|]. 
+    rewrite CUN, CUN0; apply inclusion_union_l; apply inclusion_Union_l; vauto.
+  Qed.
+
+  Lemma good_ctx_compose P (GP : good_ctx P) Q (GQ : good_ctx Q) : 
+    good_ctx (fun x => P (Q x)).
+  Proof. 
+    cdes GP; cdes GQ; split; unnw; ins; [by do 2 red; ins; rewrite H|]. 
+    rewrite CUN0, CUN; apply inclusion_Union_l; vauto.
+  Qed.
+
+  Lemma seq_pow_l r n : r ^^ n ;; r ≡ r ;; r ^^ n.
+  Proof.
+    induction n; ins; autorewrite with rel; try done.
+    by rewrite IHn at 1; rewrite seqA.
+  Qed.
+
+  Lemma rt_ind_left P (G: good_ctx P) r r' : 
+    P <| fun _ => True |> ⊆ r' -> 
+    (forall k, P k ⊆ r' -> P (r ;; k) ⊆ r') ->
+    P ( r ^* ) ⊆ r'.
+  Proof.
+    ins; cdes G; rewrite (proj1 (rtEE _)).
+    etransitivity; [eapply CUN|apply inclusion_Union_l]; ins.
+    induction n; ins; rewrite (proj1 (seq_pow_l _ _)); eauto.
+  Qed.
+
+  Lemma rt_ind_right P (G: good_ctx P) r r' : 
+    P <| fun _ => True |> ⊆ r' -> 
+    (forall k, P k ⊆ r' -> P (k ;; r) ⊆ r') -> 
+    P ( r ^* ) ⊆ r'.
+  Proof.
+    ins; cdes G; rewrite (proj1 (rtEE _)).
+    etransitivity; [eapply CUN|apply inclusion_Union_l]; ins.
+    induction n; ins; eauto.
+  Qed.
+
+  Lemma ct_ind_left P (G: good_ctx P) r r' : 
+    P r ⊆ r' -> (forall k, P k ⊆ r' -> P (r ;; k) ⊆ r') -> P ( r ^+ ) ⊆ r'.
+  Proof.
+    ins; cdes G; rewrite (proj1 (ct_end _)).
+    apply rt_ind_left with (P := fun x => P (x ;; r)); ins;
+      eauto using good_ctx_compose, good_ctx_seq_l, good_ctx_id.
+      by rewrite (proj1 (seq_id_l _)). 
+    by rewrite (proj1 (seqA _ _ _)); eauto.
+  Qed.
+
+  Lemma ct_ind_right P (G: good_ctx P) r r' : 
+    P r ⊆ r' -> (forall k, P k ⊆ r' -> P (k ;; r) ⊆ r') -> P ( r ^+ ) ⊆ r'.
+  Proof.
+    ins; cdes G; rewrite (proj1 (ctEE _)).
+    etransitivity; [eapply CUN|apply inclusion_Union_l]; ins.
+    induction n; ins; eauto.
+    by rewrite (proj1 (seq_id_l _)). 
+  Qed.
+
+  Lemma ct_ind_left_helper P (G: good_ctx P) x r (EQ: x = r ^+) r' : 
+    P r ⊆ r' -> (forall k, P k ⊆ r' -> P (r ;; k) ⊆ r') -> P x ⊆ r'.
+  Proof.
+    by subst; apply ct_ind_left.
+  Qed.
+
+End good_ctx_lemmas.
+
+Hint Resolve good_ctx_id good_ctx_const good_ctx_seq_l
+  good_ctx_seq_r good_ctx_union good_ctx_compose : rel.
+
+Section ExtraPropertiesClos.
+
+  Variable A : Type.
+  Implicit Types r rel : relation A.
 
   Lemma ct_seq_swap r r' :
     (r ;; r') ^+ ;; r ≡ r ;; (r' ;; r) ^+.
   Proof.
     split.
-    { rewrite (ct_end (r' ;; r)); hahn_frame.
-      apply inclusion_t_ind_left; hahn_frame. 
-      rewrite <- seqA, <- ct_begin; hahn_rel. }
-    rewrite (ct_begin (r ;; r')); hahn_frame.
-    apply inclusion_t_ind_left; hahn_frame. 
-    rewrite <- seqA, <- ct_begin; hahn_rel.
+     { apply ct_ind_left with (P := fun x => x ;; _); auto with rel;
+       ins; rewrite seqA; eauto with rel.
+       rewrite ct_begin, H, ?seqA; eauto with rel. }
+     apply ct_ind_right with (P := fun x => _ ;; x); auto with rel;
+     ins; rewrite <- seqA; eauto with rel.
+     rewrite ct_end, H, <- ?seqA; eauto with rel.
   Qed.
 
   Lemma rt_seq_swap r r' :
     (r ;; r') ^* ;; r ≡ r ;; (r' ;; r) ^*.
   Proof.
-    by rewrite !rtE; rel_simpl; rewrite ct_seq_swap. 
+    by rewrite !rtE; autorewrite with rel rel_full; rewrite ct_seq_swap. 
   Qed.
 
   Lemma ct_rotl r r' :
@@ -540,12 +677,11 @@ Section PropertiesClos.
   Proof.
     split; [|by eauto 7 using inclusion_seq_trans, inclusion_rt_rt2 with rel].
     apply inclusion_rt_ind_left; eauto with rel.
-    rewrite !crE; hahn_rel.
-    rewrite <- seqA, <- ct_begin; hahn_rel.
+    rewrite !crE; autorewrite with rel rel_full.
+    rewrite <- seqA, <- ct_begin; eauto with rel. 
   Qed.
 
-End PropertiesClos.
-
+End ExtraPropertiesClos.
 
 (******************************************************************************)
 (** Properties of [eqv_rel] *)
