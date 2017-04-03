@@ -198,6 +198,12 @@ Proof.
   unfold inclusion, seq, clos_refl; ins; desf; eauto. 
 Qed.
 
+Lemma rewrite_trans_seq_cr_cr A (r: relation A) :
+  transitive r -> r^? ;; r^? ⊆ r^?.
+Proof.
+  unfold inclusion, seq, clos_refl; ins; desf; eauto. 
+Qed.
+
 Lemma transitiveI A (r: relation A) :
   inclusion (r ;; r) r -> transitive r.
 Proof.
@@ -206,15 +212,16 @@ Qed.
 
 Ltac rels := 
   repeat first [progress autorewrite with rel |
+                seq_rewrite seq_eqvK |
                 seq_rewrite ct_cr | seq_rewrite ct_rt |
                 seq_rewrite rt_cr | seq_rewrite rt_ct | seq_rewrite rt_rt |
-                seq_rewrite cr_ct | seq_rewrite cr_rt 
-                (* | seq_rewrite <- ct_end | seq_rewrite <- ct_begin *) ];
+                seq_rewrite cr_ct | seq_rewrite cr_rt |
+                seq_rewrite <- ct_end | seq_rewrite <- ct_begin ];
     try done; eauto 3 with rel.
-
 
 Ltac relsf := 
   repeat first [progress autorewrite with rel |
+                seq_rewrite seq_eqvK |
                 seq_rewrite ct_cr | seq_rewrite ct_rt |
                 seq_rewrite rt_cr | seq_rewrite rt_ct | seq_rewrite rt_rt |
                 seq_rewrite cr_ct | seq_rewrite cr_rt |
@@ -223,9 +230,12 @@ Ltac relsf :=
                                 rewrite (rt_of_trans H) |
                                 sin_rewrite (rewrite_trans H) |
                                 sin_rewrite (rewrite_trans_seq_cr_l H) |
-                                sin_rewrite (rewrite_trans_seq_cr_r H) ] end |
+                                sin_rewrite (rewrite_trans_seq_cr_r H) |
+                                sin_rewrite (rewrite_trans_seq_cr_cr H) ] end |
                 progress autorewrite with rel rel_full ];
     try done; eauto 3 with rel.
+
+
 
 Ltac hahn_rel := 
   rels; 

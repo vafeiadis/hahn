@@ -538,6 +538,9 @@ Section PropertiesClos.
 
 End PropertiesClos.
 
+Hint Rewrite cr_of_ct cr_of_cr cr_of_rt
+  ct_of_ct ct_of_cr ct_of_rt
+  rt_of_ct rt_of_cr rt_of_rt : rel.
 
 Definition good_ctx A (P: relation A -> relation A) := 
   << MON: Morphisms.Proper (inclusion ==> inclusion) P >> /\

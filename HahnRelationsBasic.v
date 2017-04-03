@@ -96,6 +96,7 @@ Definition Union A B (r: A -> relation B) x y :=
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
 Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
+Notation "P \ Q" := (minus_rel P Q) (at level 50).
 Notation "P ;; Q" := (seq P Q) (at level 45, right associativity).
 Notation "<| a |>" := (eqv_rel a).
 (* Notation "[ a ]" := (eqv_rel a). *)
@@ -103,6 +104,7 @@ Notation "a ^? " := (clos_refl a) (at level 1).
 Notation "a ^+ " := (clos_trans a) (at level 1).
 Notation "a ^* " := (clos_refl_trans a) (at level 1).
 Notation "a ^^ n" := (pow_rel a n) (at level 1).
+Notation "a ^{-1} " := (transp a) (at level 1).
 
 Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
