@@ -451,6 +451,24 @@ Ltac hacksimp :=
    end.
 
 (* ************************************************************************** *)
+(** ** Unification helpers *)
+(* ************************************************************************** *)
+
+Tactic Notation "pattern_lhs" uconstr(term) :=
+  match goal with 
+    |- _ ?lhs _ =>
+    let P := fresh in
+    pose (P := lhs); pattern term in P; change lhs with P; subst P
+  end.
+
+Tactic Notation "pattern_rhs" uconstr(term) :=
+  match goal with 
+    |- _ _ ?rhs =>
+    let P := fresh in
+    pose (P := rhs); pattern term in P; change rhs with P; subst P
+  end.
+
+(* ************************************************************************** *)
 (** ** Exploiting a hypothesis *)
 (* ************************************************************************** *)
 
