@@ -82,6 +82,7 @@ Section RelDefs.
   Definition restr_dom := fun x y => rel x y /\ cond y.
   Definition restr_codom := fun x y => rel x y /\ cond y.
   
+  Definition functional := forall x y z, rel x y -> rel x z -> y=z. 
 End RelDefs.
 
 Fixpoint pow_rel A (r: relation A) n := 
@@ -611,4 +612,21 @@ Proof.
   eauto using clos_trans, clos_trans_mon.
 Qed.
 
+(** Lemmas about functional relations *)
+(******************************************************************************)
 
+Lemma functional_alt A (r : relation A) :
+   functional r <-> r^{-1} ;; r ⊆ <| fun _ => True |>.
+Proof.
+unfold functional, seq, transp, eqv_rel, inclusion.
+split; ins; desf; [|apply H]; eauto.
+Qed.
+
+Lemma functional_seq A (r r': relation A) :
+  functional r ->
+  functional r' ->
+  functional (r ;; r').
+Proof.
+unfold functional, seq.
+ins; desf; assert (z0 =z1); subst; eauto.
+Qed.

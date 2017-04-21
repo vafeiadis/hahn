@@ -8,7 +8,7 @@ relations. We start with some basic helper lemmas. *)
 Section HelperLemmas.
 
   Variable A : Type.
-  Variables r1 r2 r3 r4 r r' : relation A.
+  Variables r1 r2 r3 r4 r5 r6 r r' : relation A.
 
   Lemma hahn_inclusion_exp :
     r ⊆ r' -> forall x y, r x y -> r' x y.
@@ -34,6 +34,18 @@ Section HelperLemmas.
     rewrite <- L, !seqA; vauto.
   Qed.
 
+  Lemma seq5 (L : r1 ;; r2 ;; r3 ;; r4 ;; r5 ≡ r) s :
+     r1 ;; r2 ;; r3 ;; r4 ;; r5 ;; s ≡ r ;; s.
+  Proof.
+    rewrite <- L, !seqA; vauto.
+  Qed.
+
+  Lemma seq6 (L : r1 ;; r2 ;; r3 ;; r4 ;; r5 ;; r6 ≡ r) s :
+     r1 ;; r2 ;; r3 ;; r4 ;; r5 ;; r6 ;; s ≡ r ;; s.
+  Proof.
+    rewrite <- L, !seqA; vauto.
+  Qed.
+
   Lemma sin2 (L : r1 ;; r2 ⊆ r) s :
     r1 ;; r2 ;; s ⊆ r ;; s. 
   Proof.
@@ -48,6 +60,18 @@ Section HelperLemmas.
 
   Lemma sin4 (L : r1 ;; r2 ;; r3 ;; r4 ⊆ r) s :
     r1 ;; r2 ;; r3 ;; r4 ;; s ⊆ r ;; s. 
+  Proof.
+    rewrite <- L, !seqA; vauto.
+  Qed.
+
+  Lemma sin5 (L : r1 ;; r2 ;; r3 ;; r4 ;; r5 ⊆ r) s :
+    r1 ;; r2 ;; r3 ;; r4 ;; r5 ;; s ⊆ r ;; s. 
+  Proof.
+    rewrite <- L, !seqA; vauto.
+  Qed.
+
+  Lemma sin6 (L : r1 ;; r2 ;; r3 ;; r4 ;; r5 ;; r6 ⊆ r) s :
+    r1 ;; r2 ;; r3 ;; r4 ;; r5 ;; r6 ;; s ⊆ r ;; s. 
   Proof.
     rewrite <- L, !seqA; vauto.
   Qed.
@@ -103,6 +127,20 @@ Tactic Notation "seq_rewrite" uconstr(x) :=
         | hahn_rewrite (fun a b c d => seq4 (x a b c d)) 
         | hahn_rewrite (fun a b c d e => seq4 (x a b c d e))
         | hahn_rewrite (fun a b c d e f => seq4 (x a b c d e f))
+        | hahn_rewrite (seq5 x)
+        | hahn_rewrite (fun a => seq5 (x a))
+        | hahn_rewrite (fun a b => seq5 (x a b)) 
+        | hahn_rewrite (fun a b c => seq5 (x a b c))
+        | hahn_rewrite (fun a b c d => seq5 (x a b c d)) 
+        | hahn_rewrite (fun a b c d e => seq5 (x a b c d e))
+        | hahn_rewrite (fun a b c d e f => seq5 (x a b c d e f))
+        | hahn_rewrite (seq6 x)
+        | hahn_rewrite (fun a => seq6 (x a))
+        | hahn_rewrite (fun a b => seq6 (x a b)) 
+        | hahn_rewrite (fun a b c => seq6 (x a b c))
+        | hahn_rewrite (fun a b c d => seq6 (x a b c d)) 
+        | hahn_rewrite (fun a b c d e => seq6 (x a b c d e))
+        | hahn_rewrite (fun a b c d e f => seq6 (x a b c d e f))
         ].
 
 Tactic Notation "seq_rewrite" "<-" uconstr(x) :=
@@ -133,6 +171,20 @@ Tactic Notation "seq_rewrite" "<-" uconstr(x) :=
         | hahn_rewrite (fun a b c d => seq4 (same_relation_sym (x a b c d)))
         | hahn_rewrite (fun a b c d e => seq4 (same_relation_sym (x a b c d e)))
         | hahn_rewrite (fun a b c d e f => seq4 (same_relation_sym (x a b c d e f)))
+        | hahn_rewrite (seq5 (same_relation_sym x)) 
+        | hahn_rewrite (fun a => seq5 (same_relation_sym (x a)))
+        | hahn_rewrite (fun a b => seq5 (same_relation_sym (x a b)))
+        | hahn_rewrite (fun a b c => seq5 (same_relation_sym (x a b c)))
+        | hahn_rewrite (fun a b c d => seq5 (same_relation_sym (x a b c d)))
+        | hahn_rewrite (fun a b c d e => seq5 (same_relation_sym (x a b c d e)))
+        | hahn_rewrite (fun a b c d e f => seq5 (same_relation_sym (x a b c d e f)))
+        | hahn_rewrite (seq6 (same_relation_sym x)) 
+        | hahn_rewrite (fun a => seq6 (same_relation_sym (x a)))
+        | hahn_rewrite (fun a b => seq6 (same_relation_sym (x a b)))
+        | hahn_rewrite (fun a b c => seq6 (same_relation_sym (x a b c)))
+        | hahn_rewrite (fun a b c d => seq6 (same_relation_sym (x a b c d)))
+        | hahn_rewrite (fun a b c d e => seq6 (same_relation_sym (x a b c d e)))
+        | hahn_rewrite (fun a b c d e f => seq6 (same_relation_sym (x a b c d e f)))
         ].
 
 Tactic Notation "seq_rewrite" "!" uconstr(x) :=
