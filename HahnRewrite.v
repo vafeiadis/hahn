@@ -287,6 +287,9 @@ Ltac relsf :=
                 progress autorewrite with rel rel_full ];
     try done; eauto 3 with rel.
 
+Hint Resolve eq_in_l eq_in_r rt_rt ct_rt rt_ct inclusion_minus_rel rewrite_trans
+  inclusion_seq_eqv_r inclusion_seq_eqv_l ct_end clos_rt_idempotent inclusion_t_rt
+  inclusion_eqv_rel_true cr_ct ct_cr cr_rt rt_cr : rel_full.
 
 
 Ltac hahn_rel := 
@@ -317,3 +320,65 @@ Ltac hahn_frame :=
       end);
   try solve [ apply inclusion_seq_l; try done; auto with rel
             | apply inclusion_seq_r; try done; auto with rel].
+
+(** Rewrite with proof search *)
+
+Tactic Notation "arewrite" uconstr(EQ) :=
+  let H := fresh in
+  first [assert (H: EQ) |
+    let typ1 := fresh in let binder1 := fresh in
+    evar (typ1 : Type); evar (binder1 : typ1);
+    first [assert (H: EQ binder1); subst binder1 typ1 |
+      let typ2 := fresh in let binder2 := fresh in
+      evar (typ2 : Type); evar (binder2 : typ2);
+      assert (H: EQ binder1 binder2); subst binder1 typ1 binder2 typ2]]; cycle 1;
+  [ first [seq_rewrite H|sin_rewrite H]; clear H; rewrite ?seqA
+  | eauto 4 with rel rel_full; try done ]; cycle 1.
+
+Tactic Notation "arewrite" uconstr(EQ) "at" int_or_var(index) :=
+  let H := fresh in
+  assert (H : EQ); [eauto 4 with rel rel_full; try done|
+                    rewrite H at index; clear H; rewrite ?seqA].
+
+Tactic Notation "arewrite" "!" uconstr(EQ) :=
+  let H := fresh in
+  first [assert (H: EQ) |
+    let typ1 := fresh in let binder1 := fresh in
+    evar (typ1 : Type); evar (binder1 : typ1);
+    first [assert (H: EQ binder1); subst binder1 typ1 |
+      let typ2 := fresh in let binder2 := fresh in
+      evar (typ2 : Type); evar (binder2 : typ2);
+      assert (H: EQ binder1 binder2); subst binder1 typ1 binder2 typ2]]; cycle 1;
+  [ first [seq_rewrite !H|sin_rewrite !H]; clear H; rewrite ?seqA
+  | eauto 4 with rel rel_full; try done ]; cycle 1.
+
+Tactic Notation "arewrite_false" constr(exp) :=
+  arewrite (exp ≡ fun _ _ => False); [split;[|vauto]|].
+Tactic Notation "arewrite_false" "!" constr(exp) :=
+  arewrite !(exp ≡ fun _ _ => False); [split;[|vauto]|].
+Tactic Notation "arewrite_false" constr(exp) "at" int_or_var(index) :=
+  arewrite (exp ≡ fun _ _ => False) at index; [split;[|vauto]|].
+Tactic Notation "arewrite_id" constr(exp) :=
+  arewrite (exp ⊆ <| fun _ => True |>).
+Tactic Notation "arewrite_id" "!" constr(exp) :=
+  arewrite !(exp ⊆ <| fun _ => True |>).
+Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
+  arewrite (exp ⊆ <| fun _ => True |>) at index.
+
+Tactic Notation "case_union"  uconstr(x) uconstr(y) :=
+  repeat (first [rewrite seq_union_l with (r1 := x) (r2 := y)
+                |rewrite seq_union_r with (r1 := x) (r2 := y)
+                |rewrite seq_union_r with (r1 := x ;; _) (r2 := y ;; _)]).
+
+Tactic Notation "basic_solver" int_or_var(index) :=
+  by ( rewrite ?seqA;
+  repeat rewrite seq_eqv;
+  repeat rewrite seq_eqv_r, seq_eqv_l;
+  rewrite ?rtE;
+  unfold same_relation, irreflexive, transp, clos_refl, union, seq,
+         eqv_rel, transp, inclusion, restr_rel, restr_eq_rel, minus_rel;
+  splits; ins; desf; eauto index; done).
+
+Tactic Notation "basic_solver" :=
+  basic_solver 4.
+
