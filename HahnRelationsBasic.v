@@ -82,6 +82,7 @@ Section RelDefs.
   Definition restr_dom := fun x y => rel x y /\ cond y.
   Definition restr_codom := fun x y => rel x y /\ cond y.
   
+  Definition functional := forall x y z, rel x y -> rel x z -> y=z. 
 End RelDefs.
 
 Fixpoint pow_rel A (r: relation A) n := 
@@ -419,9 +420,26 @@ Proof.
   unfold inclusion, seq, restr_eq_rel; ins; desf; eauto.
 Qed.
 
-Lemma inclusion_minus_rel : minus_rel r r' ⊆ r.
+Lemma inclusion_minus_rel : r \ r' ⊆ r.
 Proof. 
   unfold minus_rel, inclusion; ins; desf; auto.
+Qed.
+
+Lemma inclusion_minus_mon s s' : r ⊆ r' -> s' ⊆ s -> r \ s ⊆ r' \ s'.
+Proof.
+  unfold minus_rel, inclusion, not; ins; desf; eauto.
+Qed.
+
+Lemma inclusion_minus_l s : r \ r' ⊆ s <-> r ⊆ r' ∪ s.
+Proof. 
+  unfold minus_rel, union, inclusion; split; ins; desf. 
+    2: by eapply H in H0; desf; eauto.
+  by destruct (classic (r' x y)); eauto.
+Qed.
+
+Lemma inclusion_union_minus : r ⊆ (r \ r') ∪ r'.
+Proof.
+  by unfold minus_rel, union, inclusion; clear; intros; tauto.
 Qed.
 
 Lemma inclusion_eqv_rel_true : <| dom |>  ⊆ <| fun _ => True |>.
@@ -583,7 +601,7 @@ Hint Resolve
      inclusion_refl2 same_relation_refl2
      inclusion_union_r1 inclusion_union_r2 
      inclusion_union_l inclusion_union_r
-     inclusion_seq_mon 
+     inclusion_seq_mon inclusion_minus_mon 
      inclusion_restr_eq_l inclusion_restr_rel_l 
   : rel.
 
@@ -611,4 +629,22 @@ Proof.
   eauto using clos_trans, clos_trans_mon.
 Qed.
 
+(** Lemmas about functional relations *)
+(******************************************************************************)
+
+Lemma functional_alt A (r : relation A) :
+   functional r <-> r^{-1} ;; r ⊆ <| fun _ => True |>.
+Proof.
+unfold functional, seq, transp, eqv_rel, inclusion.
+split; ins; desf; [|apply H]; eauto.
+Qed.
+
+Lemma functional_seq A (r r': relation A) :
+  functional r ->
+  functional r' ->
+  functional (r ;; r').
+Proof.
+unfold functional, seq.
+ins; desf; assert (z0 =z1); subst; eauto.
+Qed.
 

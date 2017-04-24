@@ -222,7 +222,11 @@ Proof.
   unfold same_relation, transp; ins; desf; eauto; split; red; ins; desf; eauto.
 Qed.
 
-
+Add Parametric Morphism X : (@functional X) with signature 
+  same_relation ==> Basics.impl as functional_more.
+Proof.
+  unfold same_relation, inclusion, functional; ins; desf; red; ins; desf; eauto.
+Qed.
 
 (******************************************************************************)
 (** Basic properties of sequential composition and relational union *)
@@ -776,6 +780,12 @@ Qed.
 (** Lemmas about [transp] *)
 (******************************************************************************)
 
+Lemma transp_inv  X (r : relation X) :
+  transp (transp r) ≡ r.
+Proof. 
+  unfold transp; split; red; intuition.
+Qed.
+
 Lemma transp_union  X (r1 r2 : relation X) :
   transp (r1 ∪ r2) ≡ transp r1 ∪ transp r2.
 Proof. 
@@ -829,6 +839,8 @@ Lemma inclusion_transpE A (r r': relation A) :
 Proof. 
   by unfold transp, inclusion; intuition.
 Qed.
+
+Hint Rewrite transp_inv: rel.
 
 
 (** Misc properties *)
