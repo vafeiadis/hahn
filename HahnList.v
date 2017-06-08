@@ -39,6 +39,12 @@ Proof.
   eapply IHl in H; desf; eexists (_ :: _), _; split; ins.
 Qed.
 
+Lemma app_nth A n l l' (d : A) : 
+  nth n (l ++ l') d = 
+  if le_lt_dec (length l) n then nth (n - length l) l' d else nth n l d.
+Proof.
+  desf; eauto using app_nth1, app_nth2.
+Qed.
 
 (** List filtering *)
 (******************************************************************************)
@@ -512,6 +518,30 @@ Proof.
   by rewrite map_app, plus_0_r, <- minus_Sn_m, minus_diag.
 Qed.
 
+Lemma in_mk_list_iff A (x: A) n f : 
+  In x (mk_list n f) <-> exists m, m < n /\ x = f m.
+Proof.
+  induction n; ins; try (rewrite in_app_iff, IHn; clear IHn); desc;
+    split; ins; desf; try omega; try (by repeat eexists; omega).
+  destruct (eqP m n); desf; eauto.
+  left; repeat eexists; ins; omega.
+Qed.
+
+Lemma mk_list_length A n (f : nat -> A) : 
+  length (mk_list n f) = n.
+Proof.
+  induction n; ins; rewrite app_length; ins; omega.
+Qed.
+
+Lemma mk_list_nth A i n f (d : A) : 
+  nth i (mk_list n f) d = if le_lt_dec n i then d else f i.
+Proof.
+  induction n; ins; desf; rewrite app_nth; desf; 
+  rewrite mk_list_length in *; desf; try omega. 
+    apply nth_overflow; ins; omega.
+  by assert (i = n) by omega; desf; rewrite minus_diag.
+Qed.
+
 
 (** [max_of_list] *)
 (******************************************************************************)
@@ -610,6 +640,7 @@ Ltac in_simp :=
     rewrite in_flatten_iff in *; desc; clarify |
     rewrite in_map_iff in *; desc; clarify |
     rewrite in_seq0_iff in *; desc; clarify | 
+    rewrite in_mk_list_iff in *; desc; clarify | 
     rewrite in_filter_iff in *; desc; clarify | 
     rewrite in_filterP_iff in *; desc; clarify ].
 
