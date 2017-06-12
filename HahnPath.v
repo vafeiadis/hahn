@@ -152,19 +152,19 @@ Lemma min_cycle1 X (r r' : relation X) (d : X -> Prop)
     (TOT: is_total d r') 
     (T : transitive r')
     (INCL: r' ⊆ r^+)
-    (INV: irreflexive (r ;; r')) :
+    (INV: irreflexive (r ⨾ r')) :
     acyclic r <->
-    acyclic (<| nd |> ;; r ;; <| nd |>) /\
-    irreflexive (<| d |> ;; r ;; <| d |>) /\
-    irreflexive (<| nd |> ;; r ;; <| d |> ;; r'^? ;; <| d |> ;; 
-                 r ;; <| nd |> ;; (<| nd |> ;; r ;; <| nd |>)^*).
+    acyclic (<| nd |> ⨾ r ⨾ <| nd |>) /\
+    irreflexive (<| d |> ⨾ r ⨾ <| d |>) /\
+    irreflexive (<| nd |> ⨾ r ⨾ <| d |> ⨾ r'^? ⨾ <| d |> ⨾ 
+                 r ⨾ <| nd |> ⨾ (<| nd |> ⨾ r ⨾ <| nd |>)^*).
 Proof.
 generalize (@min_cycle X r r' d TOT T INCL); ins.
 assert (XX: forall a b : X, r a b -> r' b a -> False).
   by unfold irreflexive, seq in *; eauto.
 rewrite ND.
 specialize (H XX); clear TOT T INCL INV XX ND nd.
-assert (AA: restr_rel (fun x : X => ~ d x) r <--> <| fun x : X => ~ d x |>;; r;; <| fun x : X => ~ d x |>).
+assert (AA: restr_rel (fun x : X => ~ d x) r <--> <| fun x : X => ~ d x |>⨾ r⨾ <| fun x : X => ~ d x |>).
   by red; unfold  seq, eqv_rel, restr_rel, inclusion in *; split; ins; desf; eauto 10.
 split.
 - intro H1; apply H in H1; clear H.
@@ -186,7 +186,7 @@ Qed.
 
 Lemma path_decomp_u1 X (rel : relation X) a b : 
   clos_trans (rel ∪ singl_rel a b) ≡
-  clos_trans rel ∪ clos_refl_trans rel ;; singl_rel a b ;; clos_refl_trans rel.
+  clos_trans rel ∪ clos_refl_trans rel ⨾ singl_rel a b ⨾ clos_refl_trans rel.
 Proof.
   split. 
   { unfold inclusion, union, singl_rel, seq. 
@@ -215,7 +215,7 @@ Qed.
 
 Lemma path_decomp_u1_max X (rel : relation X) a b (MAX: max_elt rel b) :
   clos_trans (rel ∪ singl_rel a b) ≡
-  clos_trans rel ∪ clos_refl_trans rel ;; singl_rel a b.
+  clos_trans rel ∪ clos_refl_trans rel ⨾ singl_rel a b.
 Proof.
   rewrite path_decomp_u1, seq_singl_max_rt; vauto.
 Qed.
@@ -234,10 +234,10 @@ Qed.
 Lemma path_decomp_u_total :
   forall X (rel1 : relation X) dom rel2 (T: is_total dom rel2) 
     (D: forall a b (REL: rel2 a b), dom a /\ dom b)
-    (IRR: irreflexive (clos_refl_trans rel1 ;; clos_trans rel2)),
+    (IRR: irreflexive (clos_refl_trans rel1 ⨾ clos_trans rel2)),
   clos_trans (rel1 ∪ rel2) ≡
   clos_trans rel1 ∪
-  clos_refl_trans rel1 ;; clos_trans rel2 ;; clos_refl_trans rel1. 
+  clos_refl_trans rel1 ⨾ clos_trans rel2 ⨾ clos_refl_trans rel1. 
 Proof.
   split; ins.
   { intros ? ? C; unfold seq, union in *.
@@ -261,7 +261,7 @@ Lemma acyclic_decomp_u_total :
   forall X (rel1 : relation X) dom rel2 (T: is_total dom rel2) 
     (D: forall a b (REL: rel2 a b), dom a /\ dom b)
     (A: acyclic rel1)
-    (IRR: irreflexive (clos_refl_trans rel1 ;; clos_trans rel2)),
+    (IRR: irreflexive (clos_refl_trans rel1 ⨾ clos_trans rel2)),
     acyclic (rel1 ∪ rel2).
 Proof.
   red; ins.
@@ -281,9 +281,9 @@ Proof.
 Qed.
 
 Lemma path_absorb1 :
-  forall X (rel rel' : relation X) (F: inclusion (rel' ;; rel) rel'),
+  forall X (rel rel' : relation X) (F: inclusion (rel' ⨾ rel) rel'),
     clos_trans (rel ∪ rel') ≡
-    clos_trans rel ∪ clos_trans rel' ∪ clos_trans rel ;; clos_trans rel'.
+    clos_trans rel ∪ clos_trans rel' ∪ clos_trans rel ⨾ clos_trans rel'.
 Proof.
   split; cycle 1.
     repeat apply inclusion_union_l; eauto with rel.
@@ -296,9 +296,9 @@ Proof.
 Qed.
 
 Lemma path_absorb2 :
-  forall X (rel rel' : relation X) (F: inclusion (rel' ;; rel) rel),
+  forall X (rel rel' : relation X) (F: inclusion (rel' ⨾ rel) rel),
     clos_trans (rel ∪ rel') ≡
-    clos_trans rel ∪ clos_trans rel' ∪ clos_trans rel ;; clos_trans rel'.
+    clos_trans rel ∪ clos_trans rel' ∪ clos_trans rel ⨾ clos_trans rel'.
 Proof.
   split; cycle 1.
     repeat apply inclusion_union_l; eauto with rel.
@@ -312,16 +312,16 @@ Qed.
 
 Lemma path_absorb :
   forall X (rel rel' : relation X) 
-         (F: rel';; rel ⊆ rel \/ rel';; rel ⊆ rel'),
+         (F: rel'⨾ rel ⊆ rel \/ rel'⨾ rel ⊆ rel'),
     clos_trans (rel ∪ rel') ≡
-    clos_trans rel ∪ clos_trans rel' ∪ clos_trans rel ;; clos_trans rel'.
+    clos_trans rel ∪ clos_trans rel' ∪ clos_trans rel ⨾ clos_trans rel'.
 Proof.
   ins; desf; eauto using path_absorb1, path_absorb2.
 Qed.
 
 Lemma acyclic_absorb :
   forall X (rel rel' : relation X)
-         (F: rel';; rel ⊆ rel \/ rel';; rel ⊆ rel')
+         (F: rel'⨾ rel ⊆ rel \/ rel'⨾ rel ⊆ rel')
     (A1: acyclic rel)
     (A2: acyclic rel'),
     acyclic (rel ∪ rel').
@@ -339,20 +339,20 @@ Qed.
 
 Lemma path_absorb_lt :
   forall X (rel rel' : relation X) 
-    (F: rel';; rel ⊆ rel \/ rel';; rel ⊆ rel')
+    (F: rel'⨾ rel ⊆ rel \/ rel'⨾ rel ⊆ rel')
     (T: transitive rel),
     clos_trans (rel ∪ rel') ≡
-    clos_trans rel' ∪ rel ;; clos_refl_trans rel'.
+    clos_trans rel' ∪ rel ⨾ clos_refl_trans rel'.
 Proof.
   ins; rewrite path_absorb, rtE; relsf; hahn_rel.
 Qed.
 
 Lemma path_absorb_rt :
   forall X (rel rel' : relation X) 
-    (F: rel';; rel ⊆ rel \/ rel';; rel ⊆ rel')
+    (F: rel'⨾ rel ⊆ rel \/ rel'⨾ rel ⊆ rel')
     (T: transitive rel'),
     clos_trans (rel ∪ rel') ≡
-    clos_trans rel ∪ clos_refl_trans rel ;; rel'.
+    clos_trans rel ∪ clos_refl_trans rel ⨾ rel'.
 Proof.
   ins; rewrite path_absorb, rtE; relsf; hahn_rel.
 Qed.
@@ -396,8 +396,8 @@ Lemma path_tur :
          (B: forall x y (R: r' x y), bdom y),
     clos_trans (r ∪ r') ≡
     r ∪
-      clos_trans (r ;; eqv_rel adom ∪ r') ;;
-      clos_refl (eqv_rel bdom ;; r).
+      clos_trans (r ⨾ eqv_rel adom ∪ r') ⨾
+      clos_refl (eqv_rel bdom ⨾ r).
 Proof.
   split.
     rewrite seq_eqv_r, seq_eqv_l.
@@ -415,8 +415,8 @@ Lemma path_ur :
          (B: forall x y (R: r' x y), bdom y),
     clos_trans (r ∪ r') ≡
     clos_trans r ∪
-      clos_trans (clos_trans r ;; <| adom |> ∪ r') ;;
-      clos_refl (<| bdom |> ;; clos_trans r).
+      clos_trans (clos_trans r ⨾ <| adom |> ∪ r') ⨾
+      clos_refl (<| bdom |> ⨾ clos_trans r).
 Proof.
   by ins; rewrite <- path_tur, clos_trans_union_ct; eauto; vauto. 
 Qed. 
@@ -427,7 +427,7 @@ Lemma path_tur2 :
          (A: forall x y (R: r x y), adom x)
          (B: forall x y (R: r x y), bdom y),
     clos_trans (r ∪ r') ≡
-    r' ∪ clos_refl (r' ;; <| adom |>) ;; clos_trans (r ∪ <| bdom |> ;; r').
+    r' ∪ clos_refl (r' ⨾ <| adom |>) ⨾ clos_trans (r ∪ <| bdom |> ⨾ r').
 Proof.
   split.
     rewrite seq_eqv_r, seq_eqv_l.
@@ -445,8 +445,8 @@ Lemma path_ur2 :
          (B: forall x y (R: r x y), bdom y),
     clos_trans (r ∪ r') ≡
     clos_trans r' ∪
-      clos_refl (clos_trans r' ;; eqv_rel adom) ;;
-      clos_trans (r ∪ eqv_rel bdom ;; clos_trans r').
+      clos_refl (clos_trans r' ⨾ eqv_rel adom) ⨾
+      clos_trans (r ∪ eqv_rel bdom ⨾ clos_trans r').
 Proof.
   ins; rewrite <- path_tur2; eauto; vauto. 
   rewrite unionC, <- clos_trans_union_ct, unionC; eauto; vauto. 
@@ -455,8 +455,8 @@ Qed.
 
 (*
 Lemma seq_cr_cr A (rel rel' : relation A) :
-  clos_refl rel ;; clos_refl rel' ≡
-  clos_refl (rel ;; rel').
+  clos_refl rel ⨾ clos_refl rel' ≡
+  clos_refl (rel ⨾ rel').
 Proof.
   rewrite !crE, seq_union_l, seq_id_l, seq_union_r, seq_id_r.
 *)
@@ -466,7 +466,7 @@ Lemma acyclic_ur :
          (A: forall x y (R: r x y), adom x)
          (B: forall x y (R: r x y), bdom y),
     acyclic r' ->
-    acyclic (r ∪ eqv_rel bdom ;; clos_trans r' ;; eqv_rel adom) ->
+    acyclic (r ∪ eqv_rel bdom ⨾ clos_trans r' ⨾ eqv_rel adom) ->
     acyclic (r ∪ r').
 Proof.
   unfold acyclic; ins.
@@ -484,7 +484,7 @@ Proof.
   rewrite ct_end, seqA, !seq_union_l, !seqA.
   rewrite <- rt_ct in H0; eapply irreflexive_inclusion, H0.
   eapply inclusion_seq_mon, inclusion_union_l; ins. 
-    assert (EQ: r ≡ r ;; eqv_rel bdom).
+    assert (EQ: r ≡ r ⨾ eqv_rel bdom).
       by split; rewrite seq_eqv_r; red; ins; desf; eauto. 
     by rewrite EQ at 1; rewrite seqA;
        eauto using inclusion_step2_ct with rel.
@@ -495,7 +495,7 @@ Proof.
   rewrite <- ct_rt in H0; eapply irreflexive_inclusion, H0.
   apply inclusion_seq_mon; ins.
   apply inclusion_union_l; ins. 
-    assert (EQ: r ≡ eqv_rel adom ;; r).
+    assert (EQ: r ≡ eqv_rel adom ⨾ r).
       by split; rewrite seq_eqv_l; red; ins; desf; eauto. 
     by rewrite EQ at 1; rewrite <- !seqA;
        eauto using inclusion_step2_ct with rel.
@@ -570,18 +570,18 @@ Qed.
 
 
 Lemma clos_trans_rotl A (r r' : relation A) :
-  clos_trans (r ;; r') ≡ r ;; clos_refl_trans (r' ;; r) ;; r'.
+  clos_trans (r ⨾ r') ≡ r ⨾ clos_refl_trans (r' ⨾ r) ⨾ r'.
 Proof.
   split; red; ins; unfold seq in *; desf.
     by induction H; desf; eauto 10 using clos_refl_trans.
-  cut (exists m, clos_refl_trans (r ;; r') x m /\ r m z0); unfold seq in *.
+  cut (exists m, clos_refl_trans (r ⨾ r') x m /\ r m z0); unfold seq in *.
     by ins; desf; eapply t_rt_step; eauto.
   clear H1; induction H0 using clos_refl_trans_ind_left; desf; 
   eauto 8 using clos_refl_trans.
 Qed.
 
 Lemma acyclic_rotl A (r r' : relation A) :
-  acyclic (r ;; r') <-> acyclic (r' ;; r).
+  acyclic (r ⨾ r') <-> acyclic (r' ⨾ r).
 Proof.
   unfold acyclic; rewrite clos_trans_rotl.
   unfold irreflexive, seq; ins; desf; intuition; desf; [|eapply H]; 
@@ -720,7 +720,7 @@ Qed.
 
 Lemma path_ut :
   forall X (r r' : relation X) (T: transitive r'),
-    (r ∪ r') ^* ≡ r ^*;; (r';; r ^+) ^*;; r' ^?.
+    (r ∪ r') ^* ≡ r ^*⨾ (r'⨾ r ^+) ^*⨾ r' ^?.
 Proof.
   split.
   - unfold seq, union, clos_refl; red; ins; eapply path_ut_helper in H;
@@ -731,13 +731,13 @@ Qed.
 
 Lemma path_ut2 :
   forall X (r r' : relation X) (T: transitive r'),
-    (r ∪ r') ^+ ≡ r ^+ ∪ r ^*;; (r';; r ^+) ^*;; r';; r ^*.
+    (r ∪ r') ^+ ≡ r ^+ ∪ r ^*⨾ (r'⨾ r ^+) ^*⨾ r'⨾ r ^*.
 Proof.
   split.
     rewrite ct_end, path_ut; ins; relsf.
     rewrite !seqA, (rewrite_trans_seq_cr_l T), crE; relsf; hahn_rel.
     2: by rewrite (rtE r) at 3; relsf.
-    rewrite (rt_end (r' ;; r^+)) at 1; relsf. 
+    rewrite (rt_end (r' ⨾ r^+)) at 1; relsf. 
     rewrite <- ct_end, !seqA; hahn_rel.
     rewrite inclusion_t_rt with (r:=r) at 2; rewrite <- ct_end.
     rewrite inclusion_t_rt with (r:=r) at 2; hahn_rel.
@@ -753,7 +753,7 @@ Lemma acyclic_ut :
     acyclic (r ∪ r') <->
     acyclic r /\
     irreflexive r' /\
-    acyclic (r' ;; clos_trans r).
+    acyclic (r' ⨾ clos_trans r).
 Proof.
   unfold acyclic; ins; rewrite path_ut2; ins.
   rewrite irreflexive_union, irreflexive_seqC, !seqA, rt_rt, (rtE r); relsf.
@@ -768,7 +768,7 @@ Lemma acyclic_utt :
     acyclic (r ∪ r') <->
     irreflexive r /\
     irreflexive r' /\
-    acyclic (r ;; r').
+    acyclic (r ⨾ r').
 Proof.
   ins; rewrite acyclic_ut, ct_of_trans, acyclic_rotl; ins.
   by unfold acyclic; rewrite ct_of_trans.
@@ -794,10 +794,10 @@ Lemma path_utd :
   forall X (r r' : relation X) (T: transitive r') dom
          (F: is_total dom r')
          (R: forall a b, r' a b -> dom a /\ dom b)
-         (I': irreflexive (r' ;; clos_refl_trans r)),
+         (I': irreflexive (r' ⨾ clos_refl_trans r)),
     clos_trans (r ∪ r') ≡
     clos_trans r ∪
-    (clos_refl_trans r ;; r' ;; clos_refl_trans r).
+    (clos_refl_trans r ⨾ r' ⨾ clos_refl_trans r).
 Proof.
   split.
     unfold inclusion, seq, union in *; ins; desf.
@@ -811,11 +811,11 @@ Lemma acyclic_utd :
          r' (T: transitive r') (IRR: irreflexive r') dom
          (F: is_total dom r')
          (R: forall a b, r' a b -> dom a /\ dom b)
-         (I': irreflexive (r' ;; clos_trans r)),
+         (I': irreflexive (r' ⨾ clos_trans r)),
   acyclic (r ∪ r').
 Proof.
   unfold acyclic; ins.
-  assert (irreflexive (r';; clos_refl_trans r)).
+  assert (irreflexive (r'⨾ clos_refl_trans r)).
     by rewrite rtE; relsf; rewrite irreflexive_union.
   unfold acyclic; ins; rewrite path_utd, irreflexive_union; eauto.
   by split; ins; rewrite irreflexive_seqC, seqA, rt_rt.
@@ -840,18 +840,18 @@ Proof.
 Qed.
 
 Lemma path_unc X (r r' : relation X)
-  (A: r ;; r ≡ (fun x y => False))
-  (B: r' ;; r' ≡ (fun x y => False)) :
+  (A: r ⨾ r ≡ (fun x y => False))
+  (B: r' ⨾ r' ≡ (fun x y => False)) :
   clos_refl_trans (r ∪ r') ≡
-  clos_refl_trans (r ;; r') ∪
-  (clos_refl_trans (r' ;; r) ∪
-   (r ;; clos_refl_trans (r' ;; r) ∪
-    r' ;; clos_refl_trans (r ;; r'))).
+  clos_refl_trans (r ⨾ r') ∪
+  (clos_refl_trans (r' ⨾ r) ∪
+   (r ⨾ clos_refl_trans (r' ⨾ r) ∪
+    r' ⨾ clos_refl_trans (r ⨾ r'))).
 Proof.
   split.
     eapply inclusion_rt_ind_left; [by vauto|].
     rewrite seq_union_l, !seq_union_r, <- !seqA, <- !ct_begin.
-    rewrite (seq_rtE_r r (r ;; r')), (seq_rtE_r r' (r' ;; r)), <- !seqA.
+    rewrite (seq_rtE_r r (r ⨾ r')), (seq_rtE_r r' (r' ⨾ r)), <- !seqA.
     rewrite A, B, ?seq_false_l, ?union_false_l, ?union_false_r.
     by unfold union, seq; red; ins; desf; 
        eauto 6 using clos_trans_in_rt, rt_refl.
@@ -861,13 +861,13 @@ Proof.
 Qed.
 
 Lemma pathp_unc X (r r' : relation X)
-  (A: r ;; r ≡ (fun x y => False))
-  (B: r' ;; r' ≡ (fun x y => False)) :
+  (A: r ⨾ r ≡ (fun x y => False))
+  (B: r' ⨾ r' ≡ (fun x y => False)) :
   clos_trans (r ∪ r') ≡
-  clos_trans (r ;; r') ∪
-  (clos_trans (r' ;; r) ∪
-   (r ;; clos_refl_trans (r' ;; r) ∪
-    r' ;; clos_refl_trans (r ;; r'))).
+  clos_trans (r ⨾ r') ∪
+  (clos_trans (r' ⨾ r) ∪
+   (r ⨾ clos_refl_trans (r' ⨾ r) ∪
+    r' ⨾ clos_refl_trans (r ⨾ r'))).
 Proof.
   rewrite ct_begin, path_unc; ins.
   rewrite seq_union_l, !seq_union_r, <- !seqA, <- !ct_begin.
@@ -877,9 +877,9 @@ Proof.
 Qed.
 
 Lemma acyclic_unc X (r r' : relation X)
-  (A: r ;; r ≡ (fun x y => False))
-  (B: r' ;; r' ≡ (fun x y => False)) :
-  acyclic (r ∪ r') <-> acyclic (r ;; r').
+  (A: r ⨾ r ≡ (fun x y => False))
+  (B: r' ⨾ r' ≡ (fun x y => False)) :
+  acyclic (r ∪ r') <-> acyclic (r ⨾ r').
 Proof.
   unfold acyclic.
   rewrite pathp_unc, !irreflexive_union; ins. 
@@ -893,19 +893,19 @@ Qed.
 
 
 Lemma minus_seq_l A (r r': relation A) (T: transitive r) :
-  minus_rel (r ;; r') r ⊆ r ;; minus_rel r' r.
+  minus_rel (r ⨾ r') r ⊆ r ⨾ minus_rel r' r.
 Proof.
   unfold minus_rel, seq; red; ins; desf; repeat eexists; eauto.
 Qed.
 
 Lemma minus_seq_r A (r r': relation A) (T: transitive r') :
-  minus_rel (r ;; r') r' ⊆ minus_rel r r' ;; r'.
+  minus_rel (r ⨾ r') r' ⊆ minus_rel r r' ⨾ r'.
 Proof.
   unfold minus_rel, seq; red; ins; desf; repeat eexists; eauto.
 Qed.
 
 Lemma seq_rt_absorb_l A (r r': relation A) :
-  r ;; clos_refl_trans r' ⊆ r ∪ minus_rel (r ;; r') r ;; clos_refl_trans r'.
+  r ⨾ clos_refl_trans r' ⊆ r ∪ minus_rel (r ⨾ r') r ⨾ clos_refl_trans r'.
 Proof.
   unfold seq, union, inclusion, minus_rel; ins; desf.
   induction H0 using clos_refl_trans_ind_left; desf; eauto.
@@ -914,13 +914,13 @@ Proof.
 Qed.
 
 Lemma seq_ct_absorb_l A (r r': relation A) :
-  r ;; clos_trans r' ⊆ r ∪ minus_rel (r ;; r') r ;; clos_refl_trans r'.
+  r ⨾ clos_trans r' ⊆ r ∪ minus_rel (r ⨾ r') r ⨾ clos_refl_trans r'.
 Proof.
   rewrite <- seq_rt_absorb_l; eauto with rel. 
 Qed.
 
 Lemma seq_rt_absorb_r A (r r': relation A) :
-  clos_refl_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel (r ;; r') r'. 
+  clos_refl_trans r ⨾ r' ⊆ r' ∪ clos_refl_trans r ⨾ minus_rel (r ⨾ r') r'. 
 Proof.
   apply inclusion_transpE.
   rewrite !transp_union, !transp_seq, !transp_minus, !transp_rt, !transp_seq;
@@ -928,31 +928,31 @@ Proof.
 Qed.
 
 Lemma seq_ct_absorb_r A (r r': relation A) : 
-  clos_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel (r ;; r') r'. 
+  clos_trans r ⨾ r' ⊆ r' ∪ clos_refl_trans r ⨾ minus_rel (r ⨾ r') r'. 
 Proof.
   rewrite <- seq_rt_absorb_r; eauto with rel. 
 Qed.
 
 Lemma seq_rt_absorb_lt A (r r': relation A) (T: transitive r) :
-  r ;; clos_refl_trans r' ⊆ r ∪ r ;; minus_rel r' r ;; clos_refl_trans r'.
+  r ⨾ clos_refl_trans r' ⊆ r ∪ r ⨾ minus_rel r' r ⨾ clos_refl_trans r'.
 Proof.
   by rewrite seq_rt_absorb_l, minus_seq_l, seqA.
 Qed.
 
 Lemma seq_ct_absorb_lt A (r r': relation A) (T: transitive r) :
-  r ;; clos_trans r' ⊆ r ∪ r ;; minus_rel r' r ;; clos_refl_trans r'.
+  r ⨾ clos_trans r' ⊆ r ∪ r ⨾ minus_rel r' r ⨾ clos_refl_trans r'.
 Proof.
   by rewrite seq_ct_absorb_l, minus_seq_l, seqA.
 Qed.
 
 Lemma seq_rt_absorb_rt A (r r': relation A) (T: transitive r') :
-  clos_refl_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel r r' ;; r'.
+  clos_refl_trans r ⨾ r' ⊆ r' ∪ clos_refl_trans r ⨾ minus_rel r r' ⨾ r'.
 Proof.
   by rewrite seq_rt_absorb_r, minus_seq_r. 
 Qed.
 
 Lemma seq_ct_absorb_rt A (r r': relation A) (T: transitive r') :
-  clos_trans r ;; r' ⊆ r' ∪ clos_refl_trans r ;; minus_rel r r' ;; r'.
+  clos_trans r ⨾ r' ⊆ r' ∪ clos_refl_trans r ⨾ minus_rel r r' ⨾ r'.
 Proof.
   by rewrite seq_ct_absorb_r, minus_seq_r. 
 Qed.
@@ -962,7 +962,7 @@ Qed.
 Lemma acyclic_via_expand_minus :
   forall X (r r' : relation X)
     (IRR1: irreflexive r)
-    (IRR2: irreflexive (minus_rel (r ;; r) r ;; clos_refl_trans r)),
+    (IRR2: irreflexive (minus_rel (r ⨾ r) r ⨾ clos_refl_trans r)),
     acyclic r.
 Proof.
   unfold acyclic; ins; rewrite ct_begin. 
@@ -971,9 +971,9 @@ Qed.
 
 Lemma acyclic_seq_via_expand_minus :
   forall X (r r' : relation X)
-    (IRR1: irreflexive (r ;; r'))
-    (IRR2: irreflexive (minus_rel (r ;; r' ;; r) r ;; r' ;; clos_refl_trans (r ;; r'))),
-    acyclic (r ;; r').
+    (IRR1: irreflexive (r ⨾ r'))
+    (IRR2: irreflexive (minus_rel (r ⨾ r' ⨾ r) r ⨾ r' ⨾ clos_refl_trans (r ⨾ r'))),
+    acyclic (r ⨾ r').
 Proof.
   unfold acyclic; ins; rewrite ct_end, <- seqA. 
   rewrite seq_rt_absorb_r, !seqA; relsf. 

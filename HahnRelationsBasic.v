@@ -98,6 +98,7 @@ Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
 Notation "P \ Q" := (minus_rel P Q) (at level 50).
 Notation "P ⨾ Q" := (seq P Q) (at level 45, right associativity).
 Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
+Notation "∅₂" := (fun _ _ => False).
 
 Notation "a ^? " := (clos_refl a) (at level 1, format "a ^?").
 Notation "a ^*" := (clos_refl_trans a) (at level 1, format "a ^*").
@@ -269,7 +270,7 @@ Proof.
 Qed.
 
 Lemma irreflexive_seqC :
-  irreflexive (r ;; r') <-> irreflexive (r' ;; r).
+  irreflexive (r ⨾ r') <-> irreflexive (r' ⨾ r).
 Proof.
   unfold irreflexive, seq; repeat split; 
   try red; ins; desf; eauto.
@@ -311,7 +312,7 @@ Proof. vauto. Qed.
 Lemma reflexive_cr : reflexive (clos_refl r).
 Proof. vauto. Qed.
 
-Lemma reflexive_seq : reflexive r -> reflexive r' -> reflexive (r ;; r').
+Lemma reflexive_seq : reflexive r -> reflexive r' -> reflexive (r ⨾ r').
 Proof. vauto. Qed.
 
 
@@ -330,7 +331,7 @@ Qed.
 Lemma upward_closed_seq P :
   upward_closed r P ->
   upward_closed r' P ->
-  upward_closed (r ;; r') P.
+  upward_closed (r ⨾ r') P.
 Proof.
   unfold seq; red; ins; desf; eauto.
 Qed.
@@ -398,13 +399,13 @@ Proof.
   unfold Union, inclusion; intros; desf; eauto.
 Qed.
 
-Lemma inclusion_seq_mon s s' : r ⊆ r' -> s ⊆ s' -> r ;; s ⊆ r' ;; s'.
+Lemma inclusion_seq_mon s s' : r ⊆ r' -> s ⊆ s' -> r ⨾ s ⊆ r' ⨾ s'.
 Proof.
   unfold inclusion, seq; ins; desf; eauto.
 Qed.
 
 Lemma inclusion_seq_refl :
-  r ⊆ r'' -> r' ⊆ r'' -> transitive r'' -> r ;; clos_refl r' ⊆ r''.
+  r ⊆ r'' -> r' ⊆ r'' -> transitive r'' -> r ⨾ clos_refl r' ⊆ r''.
 Proof.
   unfold inclusion, seq, clos_refl; ins; desf; eauto.
 Qed.
@@ -509,13 +510,13 @@ Qed.
 Lemma inclusion_t_ind : r ⊆ r' -> transitive r' -> clos_trans r ⊆ r'.
 Proof. unfold seq; induction 3; eauto. Qed.
 
-Lemma inclusion_t_ind_left : r ⊆ r' -> r;; r' ⊆ r' -> clos_trans r ⊆ r'.
+Lemma inclusion_t_ind_left : r ⊆ r' -> r⨾ r' ⊆ r' -> clos_trans r ⊆ r'.
 Proof. 
   unfold seq, inclusion; ins.
   apply clos_trans_t1n in H1; induction H1; eauto.
 Qed.
 
-Lemma inclusion_t_ind_right : r ⊆ r' -> r';; r ⊆ r' -> clos_trans r ⊆ r'.
+Lemma inclusion_t_ind_right : r ⊆ r' -> r'⨾ r ⊆ r' -> clos_trans r ⊆ r'.
 Proof. 
   unfold seq, inclusion; ins.
   apply clos_trans_tn1 in H1; induction H1; eauto.
@@ -558,40 +559,40 @@ Lemma inclusion_rt_ind :
 Proof. unfold seq, eqv_rel; induction 4; eauto. Qed.
 
 Lemma inclusion_rt_ind_left :
-  reflexive r' -> r;; r' ⊆ r' -> clos_refl_trans r ⊆ r'.
+  reflexive r' -> r⨾ r' ⊆ r' -> clos_refl_trans r ⊆ r'.
 Proof. 
   unfold seq, eqv_rel, inclusion; ins.
   apply clos_rt_rt1n in H1; induction H1; eauto.
 Qed.
 
 Lemma inclusion_rt_ind_right :
-  reflexive r' -> r';; r ⊆ r' -> clos_refl_trans r ⊆ r'.
+  reflexive r' -> r'⨾ r ⊆ r' -> clos_refl_trans r ⊆ r'.
 Proof. 
   unfold seq, eqv_rel, inclusion; ins.
   apply clos_rt_rtn1 in H1; induction H1; eauto.
 Qed.
 
 Lemma inclusion_seq_trans t : 
-  transitive t -> r ⊆ t -> r' ⊆ t -> r;; r' ⊆ t.
+  transitive t -> r ⊆ t -> r' ⊆ t -> r⨾ r' ⊆ t.
 Proof.
   unfold seq; red; ins; desf; eauto.
 Qed.
 
 Lemma inclusion_seq_rt : 
   r ⊆ clos_refl_trans r'' -> r' ⊆ clos_refl_trans r'' -> 
-  r;; r' ⊆ clos_refl_trans r''.
+  r⨾ r' ⊆ clos_refl_trans r''.
 Proof.
   apply inclusion_seq_trans; vauto. 
 Qed.
 
 Lemma inclusion_seq_l :
-  r ⊆ r' -> reflexive r'' -> r ⊆ r' ;; r''.
+  r ⊆ r' -> reflexive r'' -> r ⊆ r' ⨾ r''.
 Proof. 
   unfold seq, eqv_rel, inclusion; ins; eauto 8. 
 Qed.
 
 Lemma inclusion_seq_r :
-  reflexive r' -> r ⊆ r'' -> r ⊆ r' ;; r''.
+  reflexive r' -> r ⊆ r'' -> r ⊆ r' ⨾ r''.
 Proof. 
   unfold seq, eqv_rel, inclusion; ins; eauto 8. 
 Qed.

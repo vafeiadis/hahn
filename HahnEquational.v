@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import Classical NPeano Omega Permutation List Setoid.
-Require Import HahnBase HahnList HahnRelationsBasic.
+Require Import HahnBase HahnList HahnRelationsBasic HahnSets.
 
 Set Implicit Arguments.
 
@@ -154,6 +154,12 @@ Proof.
   unfold same_relation, seq; ins; desf; split; red; ins; desf; eauto.
 Qed.
 
+Add Parametric Morphism X : (@immediate X) with signature 
+  same_relation ==> same_relation as immediate_more.
+Proof.
+  ins; rewrite !immediateE; rewrite H; eauto.
+Qed.
+
 Add Parametric Morphism X : (@eqv_dom_rel X) with signature 
   (@Permutation _) ==> same_relation as eqv_dom_rel_more.
 Proof.
@@ -238,27 +244,27 @@ Section PropertiesSeqUnion.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
 
-  Lemma seqA r1 r2 r3 : (r1 ;; r2) ;; r3 ≡ r1 ;; (r2 ;; r3).
+  Lemma seqA r1 r2 r3 : (r1 ⨾ r2) ⨾ r3 ≡ r1 ⨾ (r2 ⨾ r3).
   Proof.
     unfold seq; split; red; ins; desf; eauto. 
   Qed.
 
-  Lemma seq_false_l r : (fun _ _ => False) ;; r ≡ (fun _ _ => False).
+  Lemma seq_false_l r : ∅₂ ⨾ r ≡ ∅₂. 
   Proof.
     split; unfold seq, inclusion; ins; desf. 
   Qed.
 
-  Lemma seq_false_r r : r ;; (fun _ _ => False) ≡ (fun _ _ => False).
+  Lemma seq_false_r r : r ⨾ ∅₂ ≡ ∅₂. 
   Proof.
     split; unfold seq, inclusion; ins; desf. 
   Qed.
 
-  Lemma seq_id_l r :  <| fun _ => True |> ;; r ≡ r.
+  Lemma seq_id_l r :  ⦗fun _ => True⦘ ⨾ r ≡ r.
   Proof.
     unfold eqv_rel, seq; split; red; ins; desf; eauto.
   Qed.
 
-  Lemma seq_id_r r : r ;; <| fun _ => True |> ≡ r.
+  Lemma seq_id_r r : r ⨾ ⦗fun _ => True⦘ ≡ r.
   Proof.
     unfold eqv_rel, seq; split; red; ins; desf; eauto.
   Qed.
@@ -283,72 +289,72 @@ Section PropertiesSeqUnion.
     split; eauto with rel.
   Qed.
 
-  Lemma union_false_r r : r ∪ (fun _ _ => False) ≡ r.
+  Lemma union_false_r r : r ∪ ∅₂ ≡ r.
   Proof.
     split; unfold union, inclusion; ins; desf; eauto.
   Qed.
 
-  Lemma union_false_l r : (fun _ _ => False) ∪ r ≡ r.
+  Lemma union_false_l r : ∅₂ ∪ r ≡ r.
   Proof.
     by rewrite unionC, union_false_r.
   Qed.
 
-  Lemma seq_union_l r1 r2 r : (r1 ∪ r2) ;; r ≡ (r1 ;; r) ∪ (r2 ;; r).
+  Lemma seq_union_l r1 r2 r : (r1 ∪ r2) ⨾ r ≡ (r1 ⨾ r) ∪ (r2 ⨾ r).
   Proof.
     unfold seq, union; split; red; ins; desf; eauto. 
   Qed.
 
-  Lemma seq_union_r r r1 r2 : r ;; (r1 ∪ r2) ≡ (r ;; r1) ∪ (r ;; r2). 
+  Lemma seq_union_r r r1 r2 : r ⨾ (r1 ∪ r2) ≡ (r ⨾ r1) ∪ (r ⨾ r2). 
   Proof.
     unfold seq, union; split; red; ins; desf; eauto. 
   Qed.
 
-  Lemma seq_Union_l rr r : Union rr ;; r ≡ Union (fun n => rr n ;; r).
+  Lemma seq_Union_l rr r : Union rr ⨾ r ≡ Union (fun n => rr n ⨾ r).
   Proof.
     unfold seq, Union; split; red; ins; desf; eauto. 
   Qed.
 
-  Lemma seq_Union_r r rr : r ;; Union rr ≡ Union (fun n => r ;; rr n).
+  Lemma seq_Union_r r rr : r ⨾ Union rr ≡ Union (fun n => r ⨾ rr n).
   Proof.
     unfold seq, Union; split; red; ins; desf; eauto. 
   Qed.
 
   Lemma minus_union_l r1 r2 r : 
-    minus_rel (r1 ∪ r2) r ≡ minus_rel r1 r ∪ minus_rel r2 r.
+    (r1 ∪ r2) \ r ≡ minus_rel r1 r ∪ minus_rel r2 r.
   Proof.
     unfold minus_rel, union; split; red; ins; desf; eauto. 
   Qed.
 
-  Lemma minusK r : minus_rel r r ≡ (fun _ _ => False).
+  Lemma minusK r : r \ r ≡ ∅₂.
   Proof.
     unfold minus_rel; split; red; intuition. 
   Qed.
 
-  Lemma seq_eqvK (dom : A -> Prop) : <| dom |>;; <| dom |> ≡ <| dom |>.
+  Lemma seq_eqvK (dom : A -> Prop) : ⦗dom⦘ ⨾ ⦗dom⦘ ≡ ⦗dom⦘.
   Proof.
     unfold eqv_rel, seq; split; red; ins; desf; eauto.
   Qed.
 
   Lemma seq_eqvK_l (dom1 dom2 : A -> Prop) (IMP: forall x, dom2 x -> dom1 x) : 
-    <| dom1 |>;; <| dom2 |> ≡ <| dom2 |>.
+    ⦗dom1⦘ ⨾ ⦗dom2⦘ ≡ ⦗dom2⦘.
   Proof.
     unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
   Qed.
 
   Lemma seq_eqvK_r (dom1 dom2 : A -> Prop) (IMP: forall x, dom1 x -> dom2 x) : 
-    <| dom1 |>;; <| dom2 |> ≡ <| dom1 |>.
+    ⦗dom1⦘ ⨾ ⦗dom2⦘ ≡ ⦗dom1⦘.
   Proof.
     unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
   Qed.
 
   Lemma seq_eqvC (doma domb : A -> Prop) : 
-    <| doma |> ;; <| domb |> ≡ <| domb |> ;; <| doma |>.
+    ⦗doma⦘ ⨾ ⦗domb⦘ ≡ ⦗domb⦘ ⨾ ⦗doma⦘.
   Proof.
     unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
   Qed.
 
   Lemma seq_eqv (doma domb : A -> Prop) : 
-    <| doma |> ;; <| domb |> ≡ <| fun x => doma x /\ domb x |>.
+    ⦗doma⦘ ⨾ ⦗domb⦘ ≡ ⦗fun x => doma x /\ domb x⦘.
   Proof.
     unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
   Qed.
@@ -372,13 +378,13 @@ Section PropertiesClos.
   Variable A : Type.
   Implicit Types r rel : relation A.
 
-  Lemma rtE r : r ^* ≡ <| fun _ => True |> ∪ r ^+.
+  Lemma rtE r : r ^* ≡ ⦗ fun _ => True ⦘ ∪ r⁺.
   Proof.
     unfold eqv_rel, union, same_relation, inclusion.
     split; ins; rewrite clos_refl_transE in *; tauto.
   Qed.
 
-  Lemma crE r : r ^? ≡ <| fun _ => True |> ∪ r.
+  Lemma crE r : r ^? ≡ ⦗ fun _ => True ⦘ ∪ r.
   Proof.
     unfold eqv_rel, union, same_relation, inclusion, clos_refl.
     split; ins; tauto.
@@ -396,34 +402,34 @@ Section PropertiesClos.
       unfold eqv_rel, seq; red; ins; desf; vauto.
   Qed.
 
-  Lemma ct_begin r : r ^+ ≡ r ;; r ^*.
+  Lemma ct_begin r : r⁺ ≡ r ⨾ r ^*.
   Proof.
     unfold seq; split; red; ins; desf; rewrite t_step_rt in *; eauto.
   Qed.
 
-  Lemma ct_end r : r ^+ ≡ r ^* ;; r.
+  Lemma ct_end r : r⁺ ≡ r ^* ⨾ r.
   Proof.
     unfold seq; split; red; ins; desf; rewrite t_rt_step in *; eauto.
   Qed.
 
-  Lemma ctEE r : r ^+ ≡ Union (fun n => r ^^ (S n)).
+  Lemma ctEE r : r⁺ ≡ Union (fun n => r ^^ (S n)).
   Proof.
     by rewrite ct_end, rtEE, seq_Union_l.
   Qed.
 
   Lemma rt_begin rel : 
-    rel ^* ≡ <| fun _ => True |> ∪ rel ;; rel ^*.
+    rel ^* ≡ ⦗ fun _ => True ⦘ ∪ rel ⨾ rel ^*.
   Proof.
     rewrite <- ct_begin, <- rtE; vauto. 
   Qed.
 
   Lemma rt_end rel : 
-    rel ^* ≡ <| fun _ => True |> ∪ rel ^* ;; rel.
+    rel ^* ≡ ⦗ fun _ => True ⦘ ∪ rel ^* ⨾ rel.
   Proof.
     rewrite <- ct_end, <- rtE; vauto. 
   Qed.
 
-  Lemma ct_of_trans r (T: transitive r) : r ^+ ≡ r.
+  Lemma ct_of_trans r (T: transitive r) : r⁺ ≡ r.
   Proof.
     split; eauto with rel. 
   Qed.
@@ -433,47 +439,47 @@ Section PropertiesClos.
     rewrite rtE, crE, ct_of_trans; vauto.
   Qed.
 
-  Lemma cr_ct rel : rel ^? ;; rel ^+ ≡ rel ^+.
+  Lemma cr_ct rel : rel ^? ⨾ rel⁺ ≡ rel⁺.
   Proof.
     unfold seq, clos_refl; split; red; ins; desf; eauto using t_trans, t_step. 
   Qed.
 
-  Lemma cr_rt rel : rel ^? ;; rel ^* ≡ rel ^*.
+  Lemma cr_rt rel : rel ^? ⨾ rel ^* ≡ rel ^*.
   Proof.
     unfold seq, clos_refl; split; red; ins; desf; eauto using rt_trans, rt_step.
   Qed.
 
-  Lemma ct_rt rel : rel ^+ ;; rel ^* ≡ rel ^+.
+  Lemma ct_rt rel : rel⁺ ⨾ rel ^* ≡ rel⁺.
   Proof.
     unfold seq; split; red; ins; desf; eauto using t_rt_trans, rt_refl. 
   Qed.
 
-  Lemma ct_ct rel : rel ^+ ;; rel ^+ ⊆ rel ^+.
+  Lemma ct_ct rel : rel⁺ ⨾ rel⁺ ⊆ rel⁺.
   Proof.
     unfold seq; red; ins; desf; eauto using t_trans.
   Qed.
 
-  Lemma ct_cr rel : rel ^+ ;; rel ^? ≡ rel ^+.
+  Lemma ct_cr rel : rel⁺ ⨾ rel ^? ≡ rel⁺.
   Proof.
     unfold seq, clos_refl; split; red; ins; desf; eauto using t_trans, t_step. 
   Qed.
 
-  Lemma rt_rt rel : rel ^* ;; rel ^* ≡ rel ^*.
+  Lemma rt_rt rel : rel ^* ⨾ rel ^* ≡ rel ^*.
   Proof.
     unfold seq; split; red; ins; desf; eauto using rt_trans, rt_refl. 
   Qed.
 
-  Lemma rt_ct rel : rel ^* ;; rel ^+ ≡ rel ^+.
+  Lemma rt_ct rel : rel ^* ⨾ rel⁺ ≡ rel⁺.
   Proof.
     unfold seq; split; red; ins; desf; eauto using rt_t_trans, rt_refl. 
   Qed.
 
-  Lemma rt_cr rel : rel ^* ;; rel ^? ≡ rel ^*.
+  Lemma rt_cr rel : rel ^* ⨾ rel ^? ≡ rel ^*.
   Proof.
     unfold seq, clos_refl; split; red; ins; desf; eauto using rt_trans, rt_step.
   Qed.
 
-  Lemma cr_of_ct rel : (rel ^+) ^? ≡ rel ^*. 
+  Lemma cr_of_ct rel : (rel⁺) ^? ≡ rel ^*. 
   Proof.
     by rewrite rt_begin, ct_begin, crE.
   Qed.
@@ -488,24 +494,24 @@ Section PropertiesClos.
     by rewrite rtE, <- crE, cr_of_cr.
   Qed.
 
-  Lemma ct_of_ct rel: (rel ^+) ^+ ≡ rel ^+. 
+  Lemma ct_of_ct rel: (rel⁺)⁺ ≡ rel⁺. 
   Proof.
     split; eauto with rel.
   Qed.
 
-  Lemma ct_of_cr rel: (rel ^?) ^+ ≡ rel ^*. 
+  Lemma ct_of_cr rel: (rel ^?)⁺ ≡ rel ^*. 
   Proof.
     split; eauto with rel.
     apply inclusion_rt_ind_left; vauto.
     rewrite ct_begin at 2; eauto with rel.
   Qed.
 
-  Lemma ct_of_rt rel: (rel ^*) ^+ ≡ rel ^*. 
+  Lemma ct_of_rt rel: (rel ^*)⁺ ≡ rel ^*. 
   Proof.
     split; eauto with rel.
   Qed.
 
-  Lemma rt_of_ct rel : (rel ^+) ^* ≡ rel ^*. 
+  Lemma rt_of_ct rel : (rel⁺) ^* ≡ rel ^*. 
   Proof.
     split; eauto using inclusion_rt_rt2 with rel.
   Qed.
@@ -530,12 +536,12 @@ Section PropertiesClos.
     by rewrite unionC, cr_union_l, unionC.
   Qed.
 
-  Lemma seq_rtE_r r r' : r ;; r' ^* ≡ r ∪ (r ;; r') ;; r' ^*.
+  Lemma seq_rtE_r r r' : r ⨾ r' ^* ≡ r ∪ (r ⨾ r') ⨾ r' ^*.
   Proof.
     by rewrite rt_begin at 1; rewrite ?seq_union_r, ?seq_id_r, ?seqA.
   Qed.
 
-  Lemma seq_rtE_l r r' : r' ^* ;; r ≡ r ∪ (r' ^* ;; r' ;; r).
+  Lemma seq_rtE_l r r' : r' ^* ⨾ r ≡ r ∪ (r' ^* ⨾ r' ⨾ r).
   Proof.
     by rewrite rt_end at 1; rewrite ?seq_union_l, ?seq_id_l, ?seqA.
   Qed.
@@ -567,14 +573,14 @@ Section good_ctx_lemmas.
   Qed.
 
   Lemma good_ctx_seq_l P (GP : good_ctx P) r : 
-    good_ctx (fun x => P x ;; r).
+    good_ctx (fun x => P x ⨾ r).
   Proof. 
     cdes GP; split; unnw; ins; [by do 2 red; ins; rewrite H|]. 
     by rewrite CUN, seq_Union_l.
   Qed.
 
   Lemma good_ctx_seq_r P (GP : good_ctx P) r : 
-    good_ctx (fun x => r ;; P x).
+    good_ctx (fun x => r ⨾ P x).
   Proof. 
     cdes GP; split; unnw; ins; [by do 2 red; ins; rewrite H|]. 
     by rewrite CUN, seq_Union_r.
@@ -594,15 +600,15 @@ Section good_ctx_lemmas.
     rewrite CUN0, CUN; apply inclusion_Union_l; vauto.
   Qed.
 
-  Lemma seq_pow_l r n : r ^^ n ;; r ≡ r ;; r ^^ n.
+  Lemma seq_pow_l r n : r ^^ n ⨾ r ≡ r ⨾ r ^^ n.
   Proof.
     induction n; ins; autorewrite with rel; try done.
     by rewrite IHn at 1; rewrite seqA.
   Qed.
 
   Lemma rt_ind_left P (G: good_ctx P) r r' : 
-    P <| fun _ => True |> ⊆ r' -> 
-    (forall k, P k ⊆ r' -> P (r ;; k) ⊆ r') ->
+    P ⦗ fun _ => True ⦘ ⊆ r' -> 
+    (forall k, P k ⊆ r' -> P (r ⨾ k) ⊆ r') ->
     P ( r ^* ) ⊆ r'.
   Proof.
     ins; cdes G; rewrite (proj1 (rtEE _)).
@@ -611,8 +617,8 @@ Section good_ctx_lemmas.
   Qed.
 
   Lemma rt_ind_right P (G: good_ctx P) r r' : 
-    P <| fun _ => True |> ⊆ r' -> 
-    (forall k, P k ⊆ r' -> P (k ;; r) ⊆ r') -> 
+    P ⦗ fun _ => True ⦘ ⊆ r' -> 
+    (forall k, P k ⊆ r' -> P (k ⨾ r) ⊆ r') -> 
     P ( r ^* ) ⊆ r'.
   Proof.
     ins; cdes G; rewrite (proj1 (rtEE _)).
@@ -621,17 +627,17 @@ Section good_ctx_lemmas.
   Qed.
 
   Lemma ct_ind_left P (G: good_ctx P) r r' : 
-    P r ⊆ r' -> (forall k, P k ⊆ r' -> P (r ;; k) ⊆ r') -> P ( r ^+ ) ⊆ r'.
+    P r ⊆ r' -> (forall k, P k ⊆ r' -> P (r ⨾ k) ⊆ r') -> P ( r⁺ ) ⊆ r'.
   Proof.
     ins; cdes G; rewrite (proj1 (ct_end _)).
-    apply rt_ind_left with (P := fun x => P (x ;; r)); ins;
+    apply rt_ind_left with (P := fun x => P (x ⨾ r)); ins;
       eauto using good_ctx_compose, good_ctx_seq_l, good_ctx_id.
       by rewrite (proj1 (seq_id_l _)). 
     by rewrite (proj1 (seqA _ _ _)); eauto.
   Qed.
 
   Lemma ct_ind_right P (G: good_ctx P) r r' : 
-    P r ⊆ r' -> (forall k, P k ⊆ r' -> P (k ;; r) ⊆ r') -> P ( r ^+ ) ⊆ r'.
+    P r ⊆ r' -> (forall k, P k ⊆ r' -> P (k ⨾ r) ⊆ r') -> P ( r⁺ ) ⊆ r'.
   Proof.
     ins; cdes G; rewrite (proj1 (ctEE _)).
     etransitivity; [eapply CUN|apply inclusion_Union_l]; ins.
@@ -639,8 +645,8 @@ Section good_ctx_lemmas.
     by rewrite (proj1 (seq_id_l _)). 
   Qed.
 
-  Lemma ct_ind_left_helper P (G: good_ctx P) x r (EQ: x = r ^+) r' : 
-    P r ⊆ r' -> (forall k, P k ⊆ r' -> P (r ;; k) ⊆ r') -> P x ⊆ r'.
+  Lemma ct_ind_left_helper P (G: good_ctx P) x r (EQ: x = r⁺) r' : 
+    P r ⊆ r' -> (forall k, P k ⊆ r' -> P (r ⨾ k) ⊆ r') -> P x ⊆ r'.
   Proof.
     by subst; apply ct_ind_left.
   Qed.
@@ -656,31 +662,31 @@ Section ExtraPropertiesClos.
   Implicit Types r rel : relation A.
 
   Lemma ct_seq_swap r r' :
-    (r ;; r') ^+ ;; r ≡ r ;; (r' ;; r) ^+.
+    (r ⨾ r')⁺ ⨾ r ≡ r ⨾ (r' ⨾ r)⁺.
   Proof.
     split.
-     { apply ct_ind_left with (P := fun x => x ;; _); auto with rel;
+     { apply ct_ind_left with (P := fun x => x ⨾ _); auto with rel;
        ins; rewrite seqA; eauto with rel.
        rewrite ct_begin, H, ?seqA; eauto with rel. }
-     apply ct_ind_right with (P := fun x => _ ;; x); auto with rel;
+     apply ct_ind_right with (P := fun x => _ ⨾ x); auto with rel;
      ins; rewrite <- seqA; eauto with rel.
      rewrite ct_end, H, <- ?seqA; eauto with rel.
   Qed.
 
   Lemma rt_seq_swap r r' :
-    (r ;; r') ^* ;; r ≡ r ;; (r' ;; r) ^*.
+    (r ⨾ r') ^* ⨾ r ≡ r ⨾ (r' ⨾ r) ^*.
   Proof.
     by rewrite !rtE; autorewrite with rel rel_full; rewrite ct_seq_swap. 
   Qed.
 
   Lemma ct_rotl r r' :
-    (r ;; r') ^+ ≡ r ;; (r' ;; r) ^* ;; r'.
+    (r ⨾ r')⁺ ≡ r ⨾ (r' ⨾ r) ^* ⨾ r'.
   Proof.
     by rewrite rt_seq_swap, ct_begin, seqA.
   Qed.
 
   Lemma crt_double r : 
-    r ^* ≡ r ^? ;; (r ;; r) ^*.
+    r ^* ≡ r ^? ⨾ (r ⨾ r) ^*.
   Proof.
     split; [|by eauto 7 using inclusion_seq_trans, inclusion_rt_rt2 with rel].
     apply inclusion_rt_ind_left; eauto with rel.
@@ -695,25 +701,25 @@ End ExtraPropertiesClos.
 (******************************************************************************)
 
 Lemma seq_eqv_r A (rel : relation A) dom : 
-  rel ;; eqv_rel dom ≡ (fun x y => rel x y /\ dom y). 
+  rel ⨾ ⦗dom⦘ ≡ (fun x y => rel x y /\ dom y). 
 Proof.
   unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto.
 Qed.
 
 Lemma seq_eqv_l A (rel : relation A) dom : 
-  eqv_rel dom ;; rel ≡ (fun x y => dom x /\ rel x y). 
+  ⦗dom⦘ ⨾ rel ≡ (fun x y => dom x /\ rel x y). 
 Proof.
   unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto.
 Qed.
 
 Lemma inclusion_seq_eqv_l A (rel : relation A) dom : 
-  <| dom |>;; rel ⊆ rel.
+  ⦗dom⦘ ⨾ rel ⊆ rel.
 Proof.
   unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto.
 Qed.
 
 Lemma inclusion_seq_eqv_r A (rel : relation A) dom : 
-  rel ;; <| dom |> ⊆ rel.
+  rel ⨾ ⦗dom⦘ ⊆ rel.
 Proof.
   unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto.
 Qed.
@@ -743,7 +749,7 @@ Proof.
 Qed.
 
 Lemma ct_restr X (f : X -> Prop) rel (UC: upward_closed rel f) :
-  (restr_rel f rel) ^+ ≡ restr_rel f (rel ^+).
+  (restr_rel f rel)⁺ ≡ restr_rel f (rel⁺).
 Proof.
   split; unfold union, restr_rel, inclusion; ins; desf; eauto.
     split; [|by apply clos_trans_restrD in H].
@@ -769,7 +775,7 @@ Proof.
 Qed.
 
 Lemma restr_eq_seq_eqv_rel X (rel : relation X) (B : Type) (f : X -> B) dom :
-  restr_eq_rel f (rel;; <| dom |>) ≡ restr_eq_rel f rel;; <| dom |>.
+  restr_eq_rel f (rel⨾ ⦗dom⦘) ≡ restr_eq_rel f rel⨾ ⦗dom⦘.
 Proof.
   ins; rewrite !seq_eqv_r; unfold restr_eq_rel.
   split; red; ins; desf.
@@ -781,61 +787,61 @@ Qed.
 (******************************************************************************)
 
 Lemma transp_inv  X (r : relation X) :
-  transp (transp r) ≡ r.
+  r⁻¹ ⁻¹ ≡ r.
 Proof. 
   unfold transp; split; red; intuition.
 Qed.
 
 Lemma transp_union  X (r1 r2 : relation X) :
-  transp (r1 ∪ r2) ≡ transp r1 ∪ transp r2.
+  (r1 ∪ r2)⁻¹ ≡ r1⁻¹ ∪ r2⁻¹.
 Proof. 
   unfold transp, union; split; red; intuition.
 Qed.
 
 Lemma transp_seq  X (r1 r2 : relation X) :
-  transp (r1 ;; r2) ≡ transp r2 ;; transp r1.
+  (r1 ⨾ r2)⁻¹ ≡ r2⁻¹ ⨾ r1⁻¹.
 Proof. 
   unfold transp, seq; split; red; ins; desf; eauto. 
 Qed.
 
 Lemma transp_inter  X (r1 r2 : relation X) :
-  transp (inter_rel r1 r2) ≡ inter_rel (transp r1) (transp r2).
+  (r1 ∩ r2)⁻¹ ≡ r1⁻¹ ∩ r2⁻¹.
 Proof. 
   unfold transp, inter_rel; split; red; intuition.
 Qed.
 
 Lemma transp_minus  X (r1 r2 : relation X) :
-  transp (minus_rel r1 r2) ≡ minus_rel (transp r1) (transp r2).
+  (r1 \ r2)⁻¹ ≡ r1⁻¹ \ r2⁻¹.
 Proof. 
   unfold transp, minus_rel; split; red; intuition.
 Qed.
 
 Lemma transp_rt  X (r : relation X) :
-  transp (r ^*) ≡ (transp r) ^*.
+  (r ^*) ⁻¹ ≡ (r⁻¹) ^*.
 Proof. 
   unfold transp, seq; split; red; ins; induction H; vauto. 
 Qed.
 
 Lemma transp_ct  X (r : relation X) :
-  transp (r ^+) ≡ (transp r) ^+.
+  (r⁺)⁻¹ ≡ (r⁻¹)⁺.
 Proof. 
   unfold transp, seq; split; red; ins; induction H; vauto. 
 Qed.
 
 Lemma transp_cr  X (r : relation X) :
-  transp (clos_refl r) ≡ clos_refl (transp r).
+  (r^?)⁻¹ ≡ (r⁻¹)^?.
 Proof. 
   unfold transp, clos_refl; split; red; intuition. 
 Qed.
 
 Lemma transitive_transp X (r : relation X) : 
-  transitive r -> transitive (transp r).
+  transitive r -> transitive (r⁻¹).
 Proof.
   unfold transp, transitive; eauto.
 Qed.
 
 Lemma inclusion_transpE A (r r': relation A) :
-  transp r ⊆ transp r' -> r ⊆ r'.
+  r⁻¹ ⊆ r'⁻¹ -> r ⊆ r'.
 Proof. 
   by unfold transp, inclusion; intuition.
 Qed.
@@ -854,7 +860,7 @@ Proof.
 Qed.
 
 Lemma acyclic_seqC A (r r' : relation A) :
-  acyclic (r ;; r') <-> acyclic (r' ;; r).
+  acyclic (r ⨾ r') <-> acyclic (r' ⨾ r).
 Proof.
   by unfold acyclic; rewrite ct_rotl, irreflexive_seqC, !seqA, <- ct_end.
 Qed.
@@ -865,7 +871,7 @@ Lemma clos_trans_imm :
          (T: transitive R) L (ND: NoDup L) a b
          (D: forall c, R a c -> R c b -> In c L)
          (REL: R a b),
-    (immediate R) ^+ a b.
+    (immediate R)⁺ a b.
 Proof.
   intros until 3; induction ND; ins; vauto.
   destruct (classic (R a x /\ R x b)) as [|N]; desf;
@@ -873,9 +879,34 @@ Proof.
   forward (by eapply (D c); eauto) as K; desf; exfalso; eauto.
 Qed.
 
+Lemma ct_imm1 :
+  forall X (R : relation X) (I: irreflexive R) (T: transitive R)
+       acts (FIN : dom_rel R ⊆₁ (fun x => In x acts)),
+    R ≡ (immediate R)⁺.
+Proof.
+  split; cycle 1.
+    by rewrite immediateE, inclusion_minus_rel; auto with rel.
+  assert (M: forall x y, R x y -> In x (undup acts)). 
+    by ins; eapply in_undup_iff, FIN; vauto.
+  red; ins; eapply clos_trans_imm; eauto.
+Qed.
+
+Lemma ct_imm2 :
+  forall X (R : relation X) (I: irreflexive R) (T: transitive R)
+       acts (FIN : codom_rel R ⊆₁ (fun x => In x acts)),
+    R ≡ (immediate R)⁺.
+Proof.
+  split; cycle 1.
+    by rewrite immediateE, inclusion_minus_rel; auto with rel.
+  assert (M: forall x y, R x y -> In y (undup acts)). 
+    by ins; eapply in_undup_iff, FIN; vauto.
+  red; ins; eapply clos_trans_imm; eauto.
+Qed.
+
+
 Lemma immediate_clos_trans_elim A (r : relation A) a b : 
-  immediate (r ^+) a b ->
-  r a b /\ (forall c, r ^+ a c -> r ^+ c b -> False).
+  immediate (r⁺) a b ->
+  r a b /\ (forall c, r⁺ a c -> r⁺ c b -> False).
 Proof.
   unfold immediate; ins; desf; split; ins.
   apply t_step_rt in H; desf.
@@ -883,7 +914,7 @@ Proof.
 Qed.
 
 Lemma clos_trans_immediate1 A (r : relation A) (T: transitive r) a b :
-  (immediate r) ^+ a b -> r a b.
+  (immediate r)⁺ a b -> r a b.
 Proof.
   unfold immediate; induction 1; desf; eauto.
 Qed.
@@ -892,7 +923,7 @@ Lemma clos_trans_immediate2 A (r : relation A)
       (T: transitive r) (IRR: irreflexive r) dom
       (D: forall a b (R: r a b), In b dom) a b :
   r a b ->
-  (immediate r) ^+ a b.
+  (immediate r)⁺ a b.
 Proof.
   assert (D': forall c, r a c -> r c b -> In c dom).
     by ins; apply D in H; desf.
@@ -913,7 +944,7 @@ Lemma clos_trans_imm2 :
          (T: transitive R) L a b
          (D: forall c, R a c -> R c b -> In c L)
          (REL: R a b),
-    (immediate R) ^+ a b.
+    (immediate R)⁺ a b.
 Proof.
   ins; eapply clos_trans_imm with (L := undup L); ins;
   try rewrite in_undup_iff; eauto using nodup_undup.
@@ -935,7 +966,7 @@ Qed.
 
 Lemma acyclic_case_split A (R : relation A) f :
   acyclic R <->
-  acyclic (restr_rel f R) /\ (forall x (NEG: ~ f x) (CYC: R ^+ x x), False).
+  acyclic (restr_rel f R) /\ (forall x (NEG: ~ f x) (CYC: R⁺ x x), False).
 Proof.
   unfold restr_rel; repeat split; repeat red; ins; desc; eauto.
     by eapply H, clos_trans_mon; eauto; instantiate; ins; desf. 
@@ -950,7 +981,7 @@ Proof.
 Qed.
 
 Lemma seqA2 X (r r' r'' : relation X) x y :
-  ((r;; r');; r'') x y <-> (r;; r';; r'') x y.
+  ((r⨾ r')⨾ r'') x y <-> (r⨾ r'⨾ r'') x y.
 Proof.
   unfold seq; split; ins; desf; eauto 8.
 Qed.
@@ -958,7 +989,7 @@ Qed.
 Lemma inclusion_t_r_t A (rel rel' rel'': relation A) : 
   rel ⊆ rel'' ->
   rel' ⊆ rel'' ^* ->
-  rel ^+ ;; rel' ⊆ rel'' ^+.
+  rel⁺ ⨾ rel' ⊆ rel''⁺.
 Proof.
   by ins; rewrite H, H0, ct_rt.
 Qed.
@@ -966,7 +997,7 @@ Qed.
 Lemma inclusion_r_t_t A (rel rel' rel'': relation A) : 
   rel ⊆ rel'' ^* ->
   rel' ⊆ rel'' ->
-  rel ;; rel' ^+ ⊆ rel'' ^+.
+  rel ⨾ rel'⁺ ⊆ rel''⁺.
 Proof.
   by ins; rewrite H, H0, rt_ct.
 Qed.
@@ -974,19 +1005,19 @@ Qed.
 Lemma inclusion_step2_ct A (rel rel' rel'': relation A) : 
   rel ⊆ rel'' ->
   rel' ⊆ rel'' ->
-  rel ;; rel' ⊆ rel'' ^+.
+  rel ⨾ rel' ⊆ rel''⁺.
 Proof.
   ins; rewrite H, H0, <- ct_ct; eauto with rel.
 Qed.
 
 Lemma clos_trans_union_ct A (rel rel' : relation A) : 
-  (rel ^+ ∪ rel') ^+ ≡ (rel ∪ rel') ^+.
+  (rel⁺ ∪ rel')⁺ ≡ (rel ∪ rel')⁺.
 Proof.  
   split; eauto 8 with rel.
 Qed.
 
 Lemma inclusion_ct_seq_eqv_l A dom (rel : relation A) :
-  (<| dom |> ;; rel) ^+ ⊆ <| dom |> ;; rel ^+.
+  (⦗dom⦘ ⨾ rel)⁺ ⊆ ⦗dom⦘ ⨾ rel⁺.
 Proof.
   by rewrite ct_begin, seqA, inclusion_seq_eqv_l with (rel:=rel), <- ct_begin.
 Qed.
