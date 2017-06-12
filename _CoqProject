@@ -1,6 +1,5 @@
--R "." Top
 Hahn.v 
-HahnBase.v HahnFun.v HahnList.v 
+HahnBase.v HahnFun.v HahnList.v HahnSets.v
 HahnRelationsBasic.v HahnEquational.v  HahnRewrite.v
 HahnDom.v HahnMaxElt.v HahnFuneq.v
 HahnTotalList.v HahnTotalExt.v

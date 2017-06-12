@@ -127,6 +127,13 @@ Proof.
   rewrite in_app_iff, IHll; clear; split; ins; desf; eauto.
 Qed.
 
+Lemma flatten_app A (l l' : list (list A)) :
+  flatten (l ++ l') = flatten l ++ flatten l'.
+Proof.
+  by induction l; ins; desf; ins; rewrite appA, IHl. 
+Qed.
+
+
 (** List disjointness *)
 (******************************************************************************)
 

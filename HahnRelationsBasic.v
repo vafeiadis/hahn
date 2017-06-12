@@ -72,16 +72,13 @@ Section RelDefs.
     fun x y => rel x y /\ f x = f y.
 
   Definition seq : relation A :=
-  fun x y => exists z, rel x z /\ rel' z y.
+    fun x y => exists z, rel x z /\ rel' z y.
 
   Definition clos_refl : relation A := fun x y => x = y \/ rel x y.
 
   Definition dom_rel := fun x => exists y, rel x y.
   Definition codom_rel := fun y => exists x, rel x y.
 
-  Definition restr_dom := fun x y => rel x y /\ cond y.
-  Definition restr_codom := fun x y => rel x y /\ cond y.
-  
   Definition functional := forall x y z, rel x y -> rel x z -> y=z. 
 End RelDefs.
 
@@ -96,6 +93,7 @@ Definition Union A B (r: A -> relation B) x y :=
 
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
+Notation "P ∩ Q" := (inter_rel P Q) (at level 40, left associativity).
 Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
 Notation "P \ Q" := (minus_rel P Q) (at level 50).
 Notation "P ⨾ Q" := (seq P Q) (at level 45, right associativity).
