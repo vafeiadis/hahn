@@ -3,16 +3,16 @@
 ## Tactics to solve a goal
 
 - `done` solves trivial goals (adapted from SSReflect).
-- `edone` solves trivial goals with [eassumption] or [done]
-- `by tac` is a shorthand for [tac; done]
-- `eby tac` is a shorthand for [tac; edone]
+- `edone` solves trivial goals with `eassumption` or `done`.
+- `by tac` is a shorthand for `tac; done`.
+- `eby tac` is a shorthand for `tac; edone`.
 - `vauto` tries to solve the goal by up to two nested econstructor calls.
 - `basic_solver` solves simple goals containing relational operators.
 
 ## Generic simplification tactics
 
-- `simpls = simpl in *; try done`
-- `ins = intros; simpls`
+- `simpls` is shorthand for `simpl in *; try done`.
+- `ins` is shorthand for `intros; simpls`.
 - `clarify` simplifies the goal by simple injections/rewrites.
 - `clarsimp` is similar, but also does a few further rewrites.
 - `clarassoc` does further rewrites with associativity lemmas.
@@ -23,7 +23,7 @@
 
 ## Specialized simplification tactics
 
-- `in_simp` simplifies `In x list` assumptions 
+- `in_simp` simplifies `In x list` assumptions.
 - `rels` simplifies goals with relational operators.
 - `relsf` also does case splits.
 
@@ -31,7 +31,7 @@
  
 - `forward eapply H [with ...] as Name` generates subgoals for all the premises of `H`;
   the final subgoal names the conclusion of `H` as `Name`.
-- `exploit H` is similar to `forward eapply H` (adapted from CompCert).
+- `exploit H` is similar to `forward eapply H` (adapted from CompCert, deprecated).
 
 ## Backward reasoning 
 
@@ -44,7 +44,6 @@
 - `seq_rewrite H` rewrites with an equivalence lemma up to associativity of `seq`
 - `sin_rewrite H` rewrites with an inclusion lemma up to associativity of `seq`
 - `arewrite EQ` generates a subgoal to prove `EQ` and seq/sin-rewrites with `EQ`
-- `arewrite_false term` is shorthand for `arewrite (term <--> fun _ _ => False)`
-- `arewrite_id term` is shorthand for `arewrite (term <<= <| fun _ => True |>)`
-- `case_union x y` case splits on relations of the form `_ ;; (x U y) ;; _`
-
+- `arewrite_false term` is shorthand for `arewrite (term ≡ ∅₂)`
+- `arewrite_id term` is shorthand for `arewrite (term ⊆ ⦗fun _ => True⦘)`
+- `case_union x y` case splits on relations of the form `_ ⨾ (x ∪ y) ⨾ _`
