@@ -107,7 +107,7 @@ End Equality.
 Export Equality.Exports.
 
 Definition eq_op T := Equality.op (Equality.class T).
-Implicit Arguments eq_op [[T]].
+Arguments eq_op {T}.
 
 Lemma eqE : forall T x, eq_op x = Equality.op (Equality.class T) x.
 Proof. done. Qed.
@@ -263,8 +263,10 @@ Tactic Notation "econs" int_or_var(x) := econstructor x.
 
 Definition  NW (P: unit -> Prop) : Prop := P tt.
 
-Notation "<< x : t >>" := (NW (fun x => t)) (at level 80, x ident, no associativity).
-Notation "<< t >>" := (NW (fun _ => t)) (at level 79, no associativity).
+Notation "⟪ x : t ⟫" := (NW (fun x => t)) (at level 80, x ident, no associativity).
+Notation "<< x : t >>" := (NW (fun x => t)) 
+  (at level 80, x ident, no associativity, only parsing).
+Notation "⟪ t ⟫" := (NW (fun _ => t)) (at level 79, no associativity, format "⟪ t ⟫").
 
 Ltac unnw := unfold NW in *.
 Ltac rednw := red; unnw.
@@ -449,6 +451,24 @@ Ltac hacksimp :=
    | |- context[match ?p with _ => _ end] => solve [destruct p; hahn__hacksimp1]
    | _ => solve [f_equal; clarsimp]
    end.
+
+(* ************************************************************************** *)
+(** ** Unification helpers *)
+(* ************************************************************************** *)
+
+Tactic Notation "pattern_lhs" uconstr(term) :=
+  match goal with 
+    |- _ ?lhs _ =>
+    let P := fresh in
+    pose (P := lhs); pattern term in P; change lhs with P; subst P
+  end.
+
+Tactic Notation "pattern_rhs" uconstr(term) :=
+  match goal with 
+    |- _ _ ?rhs =>
+    let P := fresh in
+    pose (P := rhs); pattern term in P; change rhs with P; subst P
+  end.
 
 (* ************************************************************************** *)
 (** ** Exploiting a hypothesis *)

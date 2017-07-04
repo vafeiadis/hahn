@@ -98,21 +98,26 @@ Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
 Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
 Notation "P \ Q" := (minus_rel P Q) (at level 50).
-Notation "P ;; Q" := (seq P Q) (at level 45, right associativity).
-Notation "<| a |>" := (eqv_rel a).
-(* Notation "[ a ]" := (eqv_rel a). *)
-Notation "a ^? " := (clos_refl a) (at level 1).
-Notation "a ^+ " := (clos_trans a) (at level 1).
-Notation "a ^* " := (clos_refl_trans a) (at level 1).
-Notation "a ^^ n" := (pow_rel a n) (at level 1).
-Notation "a ^{-1} " := (transp a) (at level 1).
+Notation "P ⨾ Q" := (seq P Q) (at level 45, right associativity).
+Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
 
+Notation "a ^? " := (clos_refl a) (at level 1, format "a ^?").
+Notation "a ^*" := (clos_refl_trans a) (at level 1, format "a ^*").
+Notation "a ^^ n" := (pow_rel a n) (at level 1).
+
+Notation "a ⁺" := (clos_trans a) (at level 1, format "a ⁺").
+(*Notation "a ＊" := (clos_refl_trans a) (at level 1, format "a ＊"). *)
+Notation "a ⁻¹" := (transp a) (at level 1, format "a ⁻¹"). 
 Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
 
 (* Alternative non-unicode notations *)
 
 Notation "P +++ Q" := (union P Q) (at level 50, left associativity, only parsing).
+Notation "P ;; Q" := (seq P Q) (at level 45, right associativity, only parsing).
+Notation "<| a |>" := (eqv_rel a) (only parsing).
+Notation "a ^+" := (clos_trans a) (at level 1, only parsing).
+Notation "a ^{-1} " := (transp a) (at level 1, only parsing).
 Notation "a <<= b" := (inclusion a b)  (at level 60, only parsing).
 Notation "a <--> b" := (same_relation a b)  (at level 60, only parsing).
 
@@ -135,6 +140,12 @@ Variables A B : Type.
 Variable dom : A -> Prop.
 Variable f: A -> B.
 Variables r r' r'' : relation A.
+
+Lemma immediateE : immediate r ≡ r \ r ⨾ r.
+Proof.
+  unfold immediate, seq, minus_rel.
+  repeat split; try red; ins; desf; eauto.
+Qed.
 
 Lemma clos_trans_mon a b :
   clos_trans r a b ->
@@ -587,6 +598,41 @@ Proof.
   unfold seq, eqv_rel, inclusion; ins; eauto 8. 
 Qed.
 
+(** Lemmas about functional relations *)
+(******************************************************************************)
+
+Lemma functional_alt :
+  functional r <-> r⁻¹ ⨾ r ⊆ ⦗fun _ : A => True⦘.
+Proof.
+  unfold functional, seq, transp, eqv_rel, inclusion.
+  split; ins; desf; [|apply H]; eauto.
+Qed.
+
+Lemma functional_eqv_rel :
+  functional ⦗dom⦘.
+Proof.
+  unfold functional, eqv_rel; ins; desf.
+Qed.
+
+Lemma functional_seq  :
+  functional r ->
+  functional r' ->
+  functional (r ⨾ r').
+Proof.
+  unfold functional, seq; ins; desf.
+  assert (z0 = z1); subst; eauto.
+Qed.
+
+Lemma functional_union  :
+  functional r ->
+  functional r' ->
+  (forall x, dom_rel r x -> dom_rel r' x -> False) ->
+  functional (r ∪ r').
+Proof.
+  unfold functional, union, dom_rel; ins; desf; eauto;
+    try solve [exfalso; eauto].
+Qed.
+
 End BasicProperties.
 
 
@@ -620,7 +666,6 @@ Proof.
   apply clos_trans_of_transitive; vauto.
 Qed.
 
-
 Lemma clos_trans_of_clos_trans1 A (r r' : relation A) x y :
   clos_trans (fun a b => clos_trans r a b \/ r' a b) x y <->
   clos_trans (fun a b => r a b \/ r' a b) x y.
@@ -629,22 +674,4 @@ Proof.
   eauto using clos_trans, clos_trans_mon.
 Qed.
 
-(** Lemmas about functional relations *)
-(******************************************************************************)
-
-Lemma functional_alt A (r : relation A) :
-   functional r <-> r^{-1} ;; r ⊆ <| fun _ => True |>.
-Proof.
-unfold functional, seq, transp, eqv_rel, inclusion.
-split; ins; desf; [|apply H]; eauto.
-Qed.
-
-Lemma functional_seq A (r r': relation A) :
-  functional r ->
-  functional r' ->
-  functional (r ;; r').
-Proof.
-unfold functional, seq.
-ins; desf; assert (z0 =z1); subst; eauto.
-Qed.
 

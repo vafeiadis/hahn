@@ -112,7 +112,7 @@ Proof.
   unfold tot_ext_nat; red; ins; desf.
   destruct (le_lt_dec k k0) as [LE|LE]; [|apply Nat.lt_le_incl in LE];
     [exists k0|exists k]; eapply tot_ext_trans; eauto;
-    rewrite (list_seq_split _ LE), rev_app_distr; eauto using tot_ext_extends_dom.
+    rewrite (seq_split _ LE), rev_app_distr; eauto using tot_ext_extends_dom.
 Qed.
 
 Lemma tot_ext_nat_irr : 
