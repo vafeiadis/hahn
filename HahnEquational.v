@@ -786,6 +786,12 @@ Proof.
   unfold transp; split; red; intuition.
 Qed.
 
+Lemma transp_eqv_rel  X (dom: X -> Prop) : 
+  transp <| dom |> ≡ <| dom |>.
+Proof.
+  unfold eqv_rel, transp; split; red; ins; desf.
+Qed.
+
 Lemma transp_union  X (r1 r2 : relation X) :
   transp (r1 ∪ r2) ≡ transp r1 ∪ transp r2.
 Proof. 
@@ -840,7 +846,7 @@ Proof.
   by unfold transp, inclusion; intuition.
 Qed.
 
-Hint Rewrite transp_inv: rel.
+Hint Rewrite transp_inv transp_eqv_rel: rel.
 
 
 (** Misc properties *)

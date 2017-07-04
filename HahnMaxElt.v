@@ -184,6 +184,54 @@ Proof.
   rewrite crE; relsf; rewrite seq_singl_max; relsf. 
 Qed.
 
+Lemma seq_eqv_max r : 
+  <| max_elt r |> ;; r ≡ (fun _ _ => False).
+Proof.
+  basic_solver.
+Qed.
+
+Lemma seq_eqv_max_t r :
+  <| max_elt r |> ;; clos_trans r ≡ (fun _ _ => False).
+Proof.
+  rewrite ct_begin; seq_rewrite seq_eqv_max; basic_solver.
+Qed.
+
+Lemma seq_eqv_max_rt r :
+  <| max_elt r |> ;; clos_refl_trans r <--> <| max_elt r |>.
+Proof.
+  rewrite rtE; relsf; rewrite seq_eqv_max_t; relsf.
+Qed.
+
+Lemma seq_eqv_max_r r :
+  <| max_elt r |> ;; clos_refl r <--> <| max_elt r |>.
+Proof.
+  rewrite crE; relsf; rewrite seq_eqv_max; relsf.
+Qed.
+
+Lemma transp_seq_eqv_max r : 
+  r^{-1} ;; <| max_elt r |> ≡ (fun _ _ => False).
+Proof.
+  basic_solver.
+Qed.
+
+Lemma transp_seq_eqv_max_t r :
+  clos_trans r^{-1} ;; <| max_elt r |> ≡ (fun _ _ => False).
+Proof.
+  rewrite ct_end, !seqA; seq_rewrite transp_seq_eqv_max; basic_solver.
+Qed.
+
+Lemma transp_seq_eqv_max_rt r :
+  clos_refl_trans r^{-1} ;; <| max_elt r |>  <--> <| max_elt r |>.
+Proof.
+  rewrite rtE; relsf; rewrite transp_seq_eqv_max_t; relsf.
+Qed.
+
+Lemma transp_seq_eqv_max_r r :
+  clos_refl r^{-1} ;; <| max_elt r |> <--> <| max_elt r |>.
+Proof.
+  rewrite crE; relsf; rewrite transp_seq_eqv_max; relsf.
+Qed.
+
 Lemma seq_wmax r r' b 
       (MAX: wmax_elt r' b) (COD: forall x y, r x y -> y = b) :
     r;; r' ⊆ r.
