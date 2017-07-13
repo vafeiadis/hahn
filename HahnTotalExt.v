@@ -139,14 +139,14 @@ Qed.
 (******************************************************************************)
 (** Successor-preserving linear extension *)
 
-Definition Successor A (R S: relation A) :=
-  << FUN: functional S >> /\
-  << INJ: functional S^{-1} >> /\
-  << SUC: S^{-1} ;; R ⊆ R^? >> /\
-  << INC: S ⊆ R >>.
+Definition Successor A (r s: relation A) :=
+  << FUN: functional s >> /\
+  << INJ: functional s⁻¹ >> /\
+  << SUC: s⁻¹ ⨾ r ⊆ r^? >> /\
+  << INC: s ⊆ r >>.
 
 Lemma succ_helper X (R S: relation X) (SUC: S^{-1} ;; R ⊆ R^?):
-  S^{-1}^* ;; (R \ S^+) ⊆ (R \ S^+).
+  S⁻¹^* ⨾ (R \ S^+) ⊆ (R \ S^+).
 Proof.
 eapply rt_ind_left with (P:= fun __ => __ ;; (R \ S^+)); relsf.
 intros k IH.
@@ -161,10 +161,10 @@ by intro; apply H1; eapply t_trans; try edone; econs.
 Qed.
 
 Definition tot_ext_suc X (dom : list X) (R S : relation X) : relation X := 
-  S^+ ∪ S^* ;; <| max_elt S |> ;; tot_ext dom R ;; <| max_elt S |> ;; S^{-1}^*.
+  S^+ ∪ S^* ⨾ ⦗max_elt S⦘ ;; tot_ext dom R ;; ⦗max_elt S⦘ ;; S^{-1}^*.
 
 Lemma functional_path A (S: relation A) (FUN: functional S):
-  S^{-1}^*;; S^* ⊆ S^* ∪ S^{-1}^*.
+  S⁻¹^*;; S^* ⊆ S^* ∪ S⁻¹^*.
 Proof.
 (*   pattern_lhs (S^{-1}). *)
   eapply rt_ind_left with (P:= fun __ => __ ;; S^*); relsf.
@@ -178,7 +178,7 @@ Proof.
 Qed.
 
 Lemma functional_path_transp A (S: relation A) (FUN: functional S^{-1}):
-  S^*;; S^{-1}^* ⊆ S^* ∪ (S^{-1})^*.
+  S^*;; S⁻¹^* ⊆ S^* ∪ (S⁻¹)^*.
 Proof.
 rewrite functional_path with (S:=S^{-1}); [rels|done].
 Qed.
@@ -208,7 +208,7 @@ apply rt_begin; right; eexists; eauto.
 Qed.
 
 Lemma last_functional A (S: relation A) (FUN: functional S): 
-  functional (S^* ;; <| max_elt S |>).
+  functional (S^* ;; ⦗max_elt S⦘).
 Proof.
   apply functional_alt.
   rewrite transp_seq; relsf.
@@ -220,7 +220,7 @@ Proof.
 Qed.
 
 Lemma dom_helper X dom (S: relation X)
-  (IN: S ⊆ <| fun x => In x dom |> ;; S ;; <| fun x => In x dom |>)
+  (IN: S ⊆ ⦗fun x => In x dom⦘ ;; S ;; ⦗fun x => In x dom⦘)
   a (INa: In a dom): forall b, S ^* a b -> In b dom.
 Proof.
   ins; apply clos_refl_transE in H; desf.
@@ -230,8 +230,8 @@ Qed.
 
 Lemma last_exists_rewrite X dom (S: relation X) 
 (ACYC: acyclic S)
-(IN: S ⊆ <| fun x => In x dom |> ;; S ;; <| fun x => In x dom |>):
-<| fun _ => True |> ⊆ S^* ;; <| max_elt S |> ;; S^{-1}^*.
+(IN: S ⊆ ⦗fun x => In x dom⦘ ;; S ;; ⦗fun x => In x dom⦘):
+⦗fun _ => True⦘ ⊆ S^* ;; ⦗max_elt S⦘ ;; S^{-1}^*.
 Proof.
 unfold inclusion, eqv_rel, seq; ins; desf.
 destruct (classic (In y dom)) as [INy|NINy]; cycle 1.
@@ -260,7 +260,7 @@ repeat apply inclusion_union_l.
   sin_rewrite functional_path; [relsf | apply SUC].
   seq_rewrite seq_eqv_max_rt; relsf.
   seq_rewrite transp_seq_eqv_max_rt; relsf.
-  arewrite_id (<| max_elt S |>) at 2; relsf.
+  arewrite_id (⦗max_elt S⦘) at 2; relsf.
   sin_rewrite rewrite_trans; [rels| apply tot_ext_trans].
 Qed.
 
@@ -283,7 +283,7 @@ Qed.
 
 Lemma tot_ext_suc_total X dom (R S: relation X) 
   (ACYC: acyclic R) (SUC: Successor R S)
-  (IN: S ⊆ <| fun x => In x dom |> ;; S ;; <| fun x => In x dom |>):
+  (IN: S ⊆ ⦗fun x => In x dom⦘ ;; S ;; ⦗fun x => In x dom⦘):
  is_total (fun x => In x dom) (tot_ext_suc dom R S).
 Proof.
 ins; red; ins.
@@ -318,12 +318,12 @@ Qed.
 
 Lemma tot_ext_suc_extends X dom (R S: relation X) 
   (ACYC: acyclic R) (SUC: Successor R S) 
-  (IN: S ⊆ <| fun x => In x dom |> ;; S ;; <| fun x => In x dom |>) :
+  (IN: S ⊆ ⦗fun x => In x dom⦘ ;; S ;; ⦗fun x => In x dom⦘) :
   R ⊆ tot_ext_suc dom R S.
 Proof.
 arewrite (R ⊆ (R \ S^+) ∪ S^+).
   by apply inclusion_union_minus.
-arewrite (R \ S ^+ ⊆ <| fun _ => True |> ;; (R \ S ^+) ;; <| fun _ => True |>).
+arewrite (R \ S ^+ ⊆ ⦗fun _ => True⦘ ;; (R \ S ^+) ;; ⦗fun _ => True⦘).
   basic_solver.
 rewrite !last_exists_rewrite with (S:=S); [|cdes SUC; rewrite INC; done| edone].
 rewrite !seqA.
@@ -373,4 +373,12 @@ Proof.
   unfold tot_ext_nat; split; red; ins; desf; exists k;
   eapply tot_ext_more; try eassumption; symmetry; eauto.
 Qed.
+
+Add Parametric Morphism X : (@tot_ext_suc X) with signature
+  eq ==> same_relation ==> same_relation ==> same_relation as tot_ext_suc_more.
+Proof.
+  by unfold tot_ext_suc; ins; rewrite H, H0. 
+Qed.
+
+
 
