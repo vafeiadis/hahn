@@ -26,6 +26,9 @@ Section SetDefs.
 
 End SetDefs.
 
+Arguments set_empty {A}.
+Arguments set_full {A}.
+
 Notation "P ∪₁ Q" := (set_union P Q) (at level 50, left associativity).
 Notation "P ∩₁ Q" := (set_inter P Q) (at level 40, left associativity).
 Notation "P \₁ Q" := (set_minus P Q) (at level 50).
@@ -83,10 +86,10 @@ Section SetProperties.
   Lemma set_union_empty_r s : s ∪₁ ∅₁ ≡₁ s.
   Proof. u. Qed.
 
-  Lemma set_union_full_l s : @set_full _ ∪₁ s ≡₁ @set_full _.
+  Lemma set_union_full_l s : set_full ∪₁ s ≡₁ set_full.
   Proof. u. Qed.
 
-  Lemma set_union_full_r s : s ∪₁ @set_full _ ≡₁ @set_full _.
+  Lemma set_union_full_r s : s ∪₁ set_full ≡₁ set_full.
   Proof. u. Qed.
 
   Lemma set_union_inter_l s s' s'' : (s ∩₁ s') ∪₁ s'' ≡₁ (s ∪₁ s'') ∩₁ (s' ∪₁ s'').
@@ -112,10 +115,10 @@ Section SetProperties.
   Lemma set_inter_empty_r s : s ∩₁ ∅₁ ≡₁ ∅₁.
   Proof. u. Qed.
 
-  Lemma set_inter_full_l s : @set_full _ ∩₁ s ≡₁ s.
+  Lemma set_inter_full_l s : set_full ∩₁ s ≡₁ s.
   Proof. u. Qed.
 
-  Lemma set_inter_full_r s : s ∩₁ @set_full _ ≡₁ s.
+  Lemma set_inter_full_r s : s ∩₁ set_full ≡₁ s.
   Proof. u. Qed.
 
   Lemma set_inter_union_l s s' s'' : (s ∪₁ s') ∩₁ s'' ≡₁ (s ∩₁ s'') ∪₁ (s' ∩₁ s'').
@@ -179,10 +182,10 @@ Section SetProperties.
   Lemma set_subset_empty_r s : s ⊆₁ ∅₁ <-> s ≡₁ ∅₁.
   Proof. u. Qed.
 
-  Lemma set_subset_full_l s : @set_full _ ⊆₁ s <-> s ≡₁ @set_full _.
+  Lemma set_subset_full_l s : set_full ⊆₁ s <-> s ≡₁ set_full.
   Proof. u. Qed.
 
-  Lemma set_subset_full_r s : s ⊆₁ @set_full _.
+  Lemma set_subset_full_r s : s ⊆₁ set_full.
   Proof. u. Qed.
 
   Lemma set_subset_union_l s s' s'' : s ∪₁ s' ⊆₁ s'' <-> s ⊆₁ s'' /\ s' ⊆₁ s''.

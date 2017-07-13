@@ -103,6 +103,12 @@ Proof.
   unfold inclusion, transp; eauto.
 Qed.
 
+Add Parametric Morphism X : (@eqv_rel X) with signature
+  @set_subset _ ==> inclusion as eqv_rel_mori.
+Proof.
+  unfold inclusion, set_subset, eqv_rel; ins; desf; eauto.
+Qed.
+
 (** Second, for equivalence. *)
 
 Lemma same_relation_exp A (r r' : relation A) (EQ: r ≡ r') :
@@ -233,6 +239,13 @@ Add Parametric Morphism X : (@functional X) with signature
 Proof.
   unfold same_relation, inclusion, functional; ins; desf; red; ins; desf; eauto.
 Qed.
+
+Add Parametric Morphism X : (@eqv_rel X) with signature
+  @set_equiv _ ==> same_relation as eqv_rel_more.
+Proof.
+  unfold same_relation, inclusion, set_equiv, eqv_rel; firstorder. 
+Qed.
+
 
 (******************************************************************************)
 (** Basic properties of sequential composition and relational union *)
@@ -792,6 +805,12 @@ Proof.
   unfold transp; split; red; intuition.
 Qed.
 
+Lemma transp_eqv_rel  X (dom: X -> Prop) : 
+  transp ⦗dom⦘ ≡ ⦗dom⦘.
+Proof.
+  unfold eqv_rel, transp; split; red; ins; desf.
+Qed.
+
 Lemma transp_union  X (r1 r2 : relation X) :
   (r1 ∪ r2)⁻¹ ≡ r1⁻¹ ∪ r2⁻¹.
 Proof.
@@ -846,7 +865,7 @@ Proof.
   by unfold transp, inclusion; intuition.
 Qed.
 
-Hint Rewrite transp_inv: rel.
+Hint Rewrite transp_inv transp_eqv_rel: rel.
 
 
 (** Misc properties *)

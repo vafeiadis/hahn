@@ -2,7 +2,7 @@
 (** * Maximal elements of relations *)
 (******************************************************************************)
 
-Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnRewrite.
+Require Import HahnBase HahnList HahnSets HahnRelationsBasic HahnEquational HahnRewrite.
 Require Import Classical NPeano Omega Setoid.
 
 Set Implicit Arguments.
@@ -20,6 +20,18 @@ Section BasicProperties.
 Variable A : Type.
 Variables r r' r'' : relation A.
 Variable a : A.
+
+Lemma set_subset_max_elt (S: r' ⊆ r) : max_elt r ⊆₁ max_elt r'.
+Proof. unfold max_elt, inclusion, set_subset in *; intuition; eauto. Qed.
+
+Lemma set_subset_wmax_elt (S: r' ⊆ r) : wmax_elt r ⊆₁ wmax_elt r'.
+Proof. unfold wmax_elt, inclusion, set_subset in *; intuition; eauto. Qed.
+
+Lemma set_equiv_max_elt (S: r ≡ r') : max_elt r ≡₁ max_elt r'.
+Proof. unfold max_elt, same_relation, set_equiv in *; intuition; eauto. Qed.
+
+Lemma set_equiv_wmax_elt (S: r ≡ r') : wmax_elt r ≡₁ wmax_elt r'.
+Proof. unfold wmax_elt, same_relation, set_equiv in *; intuition; eauto. Qed.
 
 Lemma max_elt_weaken : max_elt r a -> wmax_elt r a.
 Proof.
@@ -184,6 +196,54 @@ Proof.
   rewrite crE; relsf; rewrite seq_singl_max; relsf.
 Qed.
 
+Lemma seq_eqv_max r : 
+  ⦗max_elt r⦘ ;; r ≡ (∅₂).
+Proof.
+  basic_solver.
+Qed.
+
+Lemma seq_eqv_max_t r :
+  ⦗max_elt r⦘ ;; clos_trans r ≡ (∅₂).
+Proof.
+  rewrite ct_begin; seq_rewrite seq_eqv_max; basic_solver.
+Qed.
+
+Lemma seq_eqv_max_rt r :
+  ⦗max_elt r⦘ ;; clos_refl_trans r <--> ⦗max_elt r⦘.
+Proof.
+  rewrite rtE; relsf; rewrite seq_eqv_max_t; relsf.
+Qed.
+
+Lemma seq_eqv_max_r r :
+  ⦗max_elt r⦘ ;; clos_refl r <--> ⦗max_elt r⦘.
+Proof.
+  rewrite crE; relsf; rewrite seq_eqv_max; relsf.
+Qed.
+
+Lemma transp_seq_eqv_max r : 
+  r^{-1} ;; ⦗max_elt r⦘ ≡ (∅₂).
+Proof.
+  basic_solver.
+Qed.
+
+Lemma transp_seq_eqv_max_t r :
+  clos_trans r^{-1} ;; ⦗max_elt r⦘ ≡ (∅₂).
+Proof.
+  rewrite ct_end, !seqA; seq_rewrite transp_seq_eqv_max; basic_solver.
+Qed.
+
+Lemma transp_seq_eqv_max_rt r :
+  clos_refl_trans r^{-1} ;; ⦗max_elt r⦘  <--> ⦗max_elt r⦘.
+Proof.
+  rewrite rtE; relsf; rewrite transp_seq_eqv_max_t; relsf.
+Qed.
+
+Lemma transp_seq_eqv_max_r r :
+  clos_refl r^{-1} ;; ⦗max_elt r⦘ <--> ⦗max_elt r⦘.
+Proof.
+  rewrite crE; relsf; rewrite transp_seq_eqv_max; relsf.
+Qed.
+
 Lemma seq_wmax r r' b
       (MAX: wmax_elt r' b) (COD: forall x y, r x y -> y = b) :
     r⨾ r' ⊆ r.
@@ -263,3 +323,10 @@ Proof.
 Qed.
 
 End MoreProperties.
+
+Require Import Morphisms.
+
+Instance max_elt_Proper A : Proper (_ ==> _) _ := set_subset_max_elt (A:=A).
+Instance wmax_elt_Proper A : Proper (_ ==> _) _ := set_subset_wmax_elt (A:=A).
+Instance max_elt_Propere A : Proper (_ ==> _) _ := set_equiv_max_elt (A:=A).
+Instance wmax_elt_Propere A : Proper (_ ==> _) _ := set_equiv_wmax_elt (A:=A).
