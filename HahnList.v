@@ -2,22 +2,22 @@
 (** * Lemmas about lists and permutations *)
 (******************************************************************************)
 
-Require Import HahnBase ClassicalDescription Omega Setoid Sorted. 
+Require Import HahnBase ClassicalDescription Omega Setoid Sorted.
 Require Export List Permutation.
 
 Set Implicit Arguments.
 
-(** This file contains a number of basic definitions and lemmas about lists 
-    that are missing from the standard library, and a few properties of 
+(** This file contains a number of basic definitions and lemmas about lists
+    that are missing from the standard library, and a few properties of
     classical logic. *)
 
 (** Very basic lemmas *)
 (******************************************************************************)
 
-Definition appA := app_ass.  
+Definition appA := app_ass.
 
 Lemma in_cons_iff A (a b : A) l : In b (a :: l) <-> a = b \/ In b l.
-Proof. done. Qed. 
+Proof. done. Qed.
 
 Lemma In_split2 :
   forall A (x: A) l (IN: In x l),
@@ -39,8 +39,8 @@ Proof.
   eapply IHl in H; desf; eexists (_ :: _), _; split; ins.
 Qed.
 
-Lemma app_nth A n l l' (d : A) : 
-  nth n (l ++ l') d = 
+Lemma app_nth A n l l' (d : A) :
+  nth n (l ++ l') d =
   if le_lt_dec (length l) n then nth (n - length l) l' d else nth n l d.
 Proof.
   desf; eauto using app_nth1, app_nth2.
@@ -67,7 +67,7 @@ Proof.
   induction P; ins; desf; vauto.
 Qed.
 
-Add Parametric Morphism A : (@filter A) with 
+Add Parametric Morphism A : (@filter A) with
   signature eq ==> (@Permutation A) ==> (@Permutation A)
       as filter_mor.
 Proof.
@@ -78,7 +78,7 @@ Qed.
 (******************************************************************************)
 
 Fixpoint filterP A (f: A -> Prop) l :=
-  match l with 
+  match l with
     | nil => nil
     | x :: l => if excluded_middle_informative (f x) then x :: filterP f l else filterP f l
   end.
@@ -102,7 +102,7 @@ Proof.
   induction P; ins; desf; vauto.
 Qed.
 
-Add Parametric Morphism A : (@filterP A) with 
+Add Parametric Morphism A : (@filterP A) with
   signature eq ==> (@Permutation A) ==> (@Permutation A)
       as filterP_mor.
 Proof.
@@ -114,15 +114,15 @@ Qed.
 (******************************************************************************)
 
 Fixpoint flatten A (l: list (list A)) :=
-  match l with 
-    | nil => nil 
-    | x :: l' => x ++ flatten l' 
+  match l with
+    | nil => nil
+    | x :: l' => x ++ flatten l'
   end.
 
 Lemma in_flatten_iff A (x: A) ll :
   In x (flatten ll) <-> exists l, In l ll /\ In x l.
 Proof.
-  induction ll; ins. 
+  induction ll; ins.
     by split; ins; desf.
   rewrite in_app_iff, IHll; clear; split; ins; desf; eauto.
 Qed.
@@ -130,15 +130,15 @@ Qed.
 Lemma flatten_app A (l l' : list (list A)) :
   flatten (l ++ l') = flatten l ++ flatten l'.
 Proof.
-  by induction l; ins; desf; ins; rewrite appA, IHl. 
+  by induction l; ins; desf; ins; rewrite appA, IHl.
 Qed.
 
 
 (** List disjointness *)
 (******************************************************************************)
 
-Definition disjoint A (l1 l2 : list A) := 
-  forall a (IN1: In a l1) (IN2: In a l2), False. 
+Definition disjoint A (l1 l2 : list A) :=
+  forall a (IN1: In a l1) (IN2: In a l2), False.
 
 
 (** Remove duplicate list elements (classical) *)
@@ -164,7 +164,7 @@ Lemma nodup_map:
   (forall x y, In x l -> In y l -> x <> y -> f x <> f y) ->
   NoDup (map f l).
 Proof.
-  induction 1; ins; vauto. 
+  induction 1; ins; vauto.
   constructor; eauto.
   intro; rewrite in_map_iff in *; desf.
   edestruct H1; try eapply H2; eauto.
@@ -176,20 +176,20 @@ Lemma nodup_append_commut:
   NoDup (a ++ b) -> NoDup (b ++ a).
 Proof.
   intro A.
-  assert (forall (x: A) (b: list A) (a: list A), 
-           NoDup (a ++ b) -> ~(In x a) -> ~(In x b) -> 
+  assert (forall (x: A) (b: list A) (a: list A),
+           NoDup (a ++ b) -> ~(In x a) -> ~(In x b) ->
            NoDup (a ++ x :: b)).
     induction a; simpl; intros.
     constructor; auto.
     inversion H. constructor. red; intro.
     elim (in_app_or _ _ _ H6); intro.
     elim H4. apply in_or_app. tauto.
-    elim H7; intro. subst a. elim H0. left. auto. 
+    elim H7; intro. subst a. elim H0. left. auto.
     elim H4. apply in_or_app. tauto.
     auto.
   induction a; simpl; intros.
   rewrite <- app_nil_end. auto.
-  inversion H0. apply H. auto. 
+  inversion H0. apply H. auto.
   red; intro; elim H3. apply in_or_app. tauto.
   red; intro; elim H3. apply in_or_app. tauto.
 Qed.
@@ -203,10 +203,10 @@ Lemma nodup_app:
   NoDup (l1 ++ l2) <->
   NoDup l1 /\ NoDup l2 /\ disjoint l1 l2.
 Proof.
-  induction l1; ins. 
+  induction l1; ins.
     by split; ins; desf; vauto.
   rewrite !nodup_cons, IHl1, in_app_iff; unfold disjoint.
-  ins; intuition (subst; eauto). 
+  ins; intuition (subst; eauto).
 Qed.
 
 Lemma nodup_append:
@@ -231,28 +231,28 @@ Proof.
   generalize nodup_app; firstorder.
 Qed.
 
-Lemma nodup_filter A (l: list A) (ND: NoDup l) f : NoDup (filter f l). 
-Proof. 
+Lemma nodup_filter A (l: list A) (ND: NoDup l) f : NoDup (filter f l).
+Proof.
   induction l; ins; inv ND; desf; eauto using NoDup.
   econstructor; eauto; rewrite in_filter_iff; tauto.
 Qed.
 
-Lemma nodup_filterP A (l: list A) (ND: NoDup l) f : NoDup (filterP f l). 
-Proof. 
+Lemma nodup_filterP A (l: list A) (ND: NoDup l) f : NoDup (filterP f l).
+Proof.
   induction l; ins; inv ND; desf; eauto using NoDup.
   econstructor; eauto; rewrite in_filterP_iff; tauto.
 Qed.
 
 Hint Resolve nodup_filter nodup_filterP.
 
-Lemma Permutation_nodup A ( l l' : list A) : 
+Lemma Permutation_nodup A ( l l' : list A) :
   Permutation l l' -> NoDup l -> NoDup l'.
 Proof.
-  induction 1; eauto; rewrite !nodup_cons in *; ins; desf; intuition. 
+  induction 1; eauto; rewrite !nodup_cons in *; ins; desf; intuition.
   eby symmetry in H; eapply H0; eapply Permutation_in.
 Qed.
 
-Lemma nodup_eq_one A (x : A) l : 
+Lemma nodup_eq_one A (x : A) l :
    NoDup l -> In x l -> (forall y (IN: In y l), y = x) -> l = x :: nil.
 Proof.
   destruct l; ins; f_equal; eauto.
@@ -268,13 +268,13 @@ Proof.
   induction l; ins; rewrite !nodup_cons, in_map_iff in *; desf; eauto 8.
 Qed.
 
-Lemma In_NoDup_Permutation A (a : A) l (IN: In a l) (ND : NoDup l) : 
+Lemma In_NoDup_Permutation A (a : A) l (IN: In a l) (ND : NoDup l) :
   exists l', Permutation l (a :: l') /\ ~ In a l'.
 Proof.
   induction l; ins; desf; inv ND; eauto.
   destruct IHl as (l' & ? & ?); eauto.
   destruct (classic (a0 = a)); desf.
-  eexists (a0 :: l'); split; try red; ins; desf. 
+  eexists (a0 :: l'); split; try red; ins; desf.
   eapply Permutation_trans, perm_swap; eauto.
 Qed.
 
@@ -300,7 +300,7 @@ Lemma Permutation_undup A (l l' : list A) :
 Proof.
   ins; eapply NoDup_Permutation; ins; rewrite !in_undup_iff.
   split; eauto using Permutation_in, Permutation_sym.
-Qed. 
+Qed.
 
 Lemma in_split_perm A (x : A) l (IN: In x l) :
   exists l', Permutation l (x :: l').
@@ -309,16 +309,16 @@ Proof.
   exists (a :: l'); rewrite H0; vauto.
 Qed.
 
-Lemma NoDup_eq_simpl A l1 (a : A) l1' l2 l2'  
+Lemma NoDup_eq_simpl A l1 (a : A) l1' l2 l2'
       (ND : NoDup (l1 ++ a :: l1'))
       (L : l1 ++ a :: l1' = l2 ++ a :: l2') :
       l1 = l2 /\ l1' = l2'.
 Proof.
-  revert l2 L; induction l1; ins; destruct l2; ins; desf. 
+  revert l2 L; induction l1; ins; destruct l2; ins; desf.
     by exfalso; inv ND; eauto using in_or_app, in_eq, in_cons.
     by exfalso; inv ND; eauto using in_or_app, in_eq, in_cons.
-  inv ND; eapply IHl1 in H0; desf. 
-Qed. 
+  inv ND; eapply IHl1 in H0; desf.
+Qed.
 
 
 (** Lemmas about list concatenation *)
@@ -328,7 +328,7 @@ Lemma in_concat_iff A (a: A) ll :
   In a (concat ll) <-> exists l, In a l /\ In l ll.
 Proof.
   induction ll; ins; [by split; ins; desf|].
-  rewrite in_app_iff, IHll; split; ins; desf; eauto. 
+  rewrite in_app_iff, IHll; split; ins; desf; eauto.
 Qed.
 
 Lemma in_concat A (a: A) l ll :
@@ -339,15 +339,15 @@ Proof.
   rewrite in_concat_iff; eauto.
 Qed.
 
-Add Parametric Morphism X : (@concat X) with 
+Add Parametric Morphism X : (@concat X) with
   signature (@Permutation (list X)) ==> (@Permutation X)
       as concat_more.
 Proof.
-  induction 1; rewrite ?concat_cons,  ?app_assoc; 
-  eauto using Permutation, Permutation_app, Permutation_app_comm. 
+  induction 1; rewrite ?concat_cons,  ?app_assoc;
+  eauto using Permutation, Permutation_app, Permutation_app_comm.
 Qed.
 
-Lemma NoDup_concat_simpl A (a : A) l1 l2 ll  
+Lemma NoDup_concat_simpl A (a : A) l1 l2 ll
       (ND: NoDup (concat ll))
       (K: In l1 ll) (K' : In a l1)
       (L: In l2 ll) (L' : In a l2) :
@@ -374,9 +374,9 @@ Section map_filter.
   Variable f : A -> option B.
 
   Fixpoint map_filter l :=
-    match l with 
+    match l with
       | nil => nil
-      | x :: l => match f x with 
+      | x :: l => match f x with
                     | None => map_filter l
                     | Some b => b :: map_filter l
                   end
@@ -396,11 +396,11 @@ Section map_filter.
   Qed.
 
   Lemma nodup_map_filter l :
-    NoDup l -> 
+    NoDup l ->
     (forall x y z, In x l -> In y l -> f x = Some z -> f y = Some z -> x = y) ->
     NoDup (map_filter l).
   Proof.
-    induction l; ins; desf; rewrite ?nodup_cons, ?in_map_filter in *; 
+    induction l; ins; desf; rewrite ?nodup_cons, ?in_map_filter in *;
       desf; splits; eauto.
     by intro; desf; eauto; rewrite (H0 a a0 b) in H; eauto.
   Qed.
@@ -411,8 +411,8 @@ End map_filter.
 (** Lemmas about sorting *)
 (******************************************************************************)
 
-Lemma sorted_perm_eq : forall A (cmp: A -> A -> Prop) 
-  (TRANS: transitive _ cmp) 
+Lemma sorted_perm_eq : forall A (cmp: A -> A -> Prop)
+  (TRANS: transitive _ cmp)
   (ANTIS: antisymmetric _ cmp)
   l l' (P: Permutation l l')
   (S : StronglySorted cmp l) (S' : StronglySorted cmp l'), l = l'.
@@ -432,7 +432,7 @@ Qed.
 (******************************************************************************)
 
 Fixpoint dprod A B al (f : A -> list B) :=
-  match al with 
+  match al with
     | nil => nil
     | a :: al => map (fun b => (a, b)) (f a) ++ dprod al f
   end.
@@ -465,7 +465,7 @@ Proof.
 Qed.
 
 (*
-Lemma seq_split : 
+Lemma seq_split :
   forall l a,
   a < l ->
   exists l', Permutation (seq 0 l) (a :: l') /\ ~ In a l'.
@@ -475,7 +475,7 @@ Qed.
 *)
 
 Lemma seq_split :
-  forall x a y, 
+  forall x a y,
     x <= y ->
     seq a y = seq a x ++ seq (x + a) (y - x).
 Proof.
@@ -484,7 +484,7 @@ Proof.
   f_equal; rewrite IHx; repeat (f_equal; try omega).
 Qed.
 
-Lemma seq_split_gen : 
+Lemma seq_split_gen :
   forall l n a,
   n <= a < n + l ->
   seq n l = seq n (a - n) ++ a :: seq (S a) (l + n - a - 1).
@@ -498,7 +498,7 @@ Proof.
   ins; repeat (f_equal; try omega).
 Qed.
 
-Lemma seq_split0 : 
+Lemma seq_split0 :
   forall l a,
   a < l ->
   seq 0 l = seq 0 a ++ a :: seq (S a) (l - a - 1).
@@ -511,21 +511,21 @@ Global Opaque seq.
 (** [mk_list] *)
 (******************************************************************************)
 
-Fixpoint mk_list n A (f: nat -> A) := 
-  match n with 
+Fixpoint mk_list n A (f: nat -> A) :=
+  match n with
       0 => nil
     | S n => mk_list n f ++ f n :: nil
-  end. 
+  end.
 
 Lemma mk_listE n A (f: nat -> A) :
   mk_list n f = map f (seq 0 n).
 Proof.
   induction n; ins; rewrite IHn.
-  rewrite seq_split with (x:=n) (y:=S n); try omega. 
+  rewrite seq_split with (x:=n) (y:=S n); try omega.
   by rewrite map_app, plus_0_r, <- minus_Sn_m, minus_diag.
 Qed.
 
-Lemma in_mk_list_iff A (x: A) n f : 
+Lemma in_mk_list_iff A (x: A) n f :
   In x (mk_list n f) <-> exists m, m < n /\ x = f m.
 Proof.
   induction n; ins; try (rewrite in_app_iff, IHn; clear IHn); desc;
@@ -534,17 +534,17 @@ Proof.
   left; repeat eexists; ins; omega.
 Qed.
 
-Lemma mk_list_length A n (f : nat -> A) : 
+Lemma mk_list_length A n (f : nat -> A) :
   length (mk_list n f) = n.
 Proof.
   induction n; ins; rewrite app_length; ins; omega.
 Qed.
 
-Lemma mk_list_nth A i n f (d : A) : 
+Lemma mk_list_nth A i n f (d : A) :
   nth i (mk_list n f) d = if le_lt_dec n i then d else f i.
 Proof.
-  induction n; ins; desf; rewrite app_nth; desf; 
-  rewrite mk_list_length in *; desf; try omega. 
+  induction n; ins; desf; rewrite app_nth; desf;
+  rewrite mk_list_length in *; desf; try omega.
     apply nth_overflow; ins; omega.
   by assert (i = n) by omega; desf; rewrite minus_diag.
 Qed.
@@ -554,10 +554,10 @@ Qed.
 (******************************************************************************)
 
 Fixpoint max_of_list l :=
-  match l with 
+  match l with
       nil => 0
     | n :: l => max n (max_of_list l)
-  end. 
+  end.
 
 Lemma max_of_list_app l l' :
   max_of_list (l ++ l') = max (max_of_list l) (max_of_list l').
@@ -568,19 +568,19 @@ Qed.
 (** Miscellaneous *)
 (******************************************************************************)
 
-Lemma perm_from_subset : 
+Lemma perm_from_subset :
   forall A (l : list A) l',
     NoDup l' ->
     (forall x, In x l' -> In x l) ->
-    exists l'', Permutation l (l' ++ l''). 
+    exists l'', Permutation l (l' ++ l'').
 Proof.
   induction l; ins; vauto.
     by destruct l'; ins; vauto; exfalso; eauto.
   destruct (classic (In a l')).
 
     eapply In_split in H1; desf; rewrite ?nodup_app, ?nodup_cons in *; desf.
-    destruct (IHl (l1 ++ l2)); ins. 
-      by rewrite ?nodup_app, ?nodup_cons in *; desf; repeat split; ins; red; 
+    destruct (IHl (l1 ++ l2)); ins.
+      by rewrite ?nodup_app, ?nodup_cons in *; desf; repeat split; ins; red;
          eauto using in_cons.
       by specialize (H0 x); rewrite in_app_iff in *; ins; desf;
          destruct (classic (a = x)); subst; try tauto; exfalso; eauto using in_eq.
@@ -593,7 +593,7 @@ Proof.
 Qed.
 
 
-Lemma list_prod_app A (l l' : list A) B (m : list B) : 
+Lemma list_prod_app A (l l' : list A) B (m : list B) :
   list_prod (l ++ l') m = list_prod l m ++ list_prod l' m.
 Proof.
   by induction l; ins; rewrite IHl, app_assoc.
@@ -605,29 +605,29 @@ Proof.
   induction l; ins.
 Qed.
 
-Lemma list_prod_cons_r A (l : list A) B a (m : list B) : 
+Lemma list_prod_cons_r A (l : list A) B a (m : list B) :
   Permutation (list_prod l (a :: m)) (map (fun x => (x,a)) l ++ list_prod l m).
 Proof.
   induction l; ins.
   eapply Permutation_cons; ins.
   eapply Permutation_trans; [by apply Permutation_app; eauto|].
-  rewrite !app_assoc; eauto using Permutation_app, Permutation_app_comm. 
+  rewrite !app_assoc; eauto using Permutation_app, Permutation_app_comm.
 Qed.
 
-Lemma list_prod_app_r A (l : list A) B (m m' : list B) : 
+Lemma list_prod_app_r A (l : list A) B (m m' : list B) :
   Permutation (list_prod l (m ++ m')) (list_prod l m ++ list_prod l m').
 Proof.
   induction m; ins; ins.
     by rewrite list_prod_nil_r.
-  rewrite list_prod_cons_r. 
+  rewrite list_prod_cons_r.
   eapply Permutation_trans; [by eapply Permutation_app, IHm|].
-  rewrite app_assoc; apply Permutation_app; ins. 
+  rewrite app_assoc; apply Permutation_app; ins.
   symmetry; apply list_prod_cons_r.
 Qed.
 
 
-Lemma Permutation_listprod_r A (l : list A) B (m m' : list B) : 
-  Permutation m m' -> 
+Lemma Permutation_listprod_r A (l : list A) B (m m' : list B) :
+  Permutation m m' ->
   Permutation (list_prod l m) (list_prod l m').
 Proof.
   ins; revert l; induction H; ins; eauto using Permutation.
@@ -637,7 +637,7 @@ Proof.
   symmetry.
   rewrite list_prod_cons_r.
   eapply Permutation_trans; [by apply Permutation_app, list_prod_cons_r|].
-  rewrite !app_assoc; eauto using Permutation_app, Permutation_app_comm. 
+  rewrite !app_assoc; eauto using Permutation_app, Permutation_app_comm.
 Qed.
 
 
@@ -646,9 +646,9 @@ Ltac in_simp :=
   repeat first [
     rewrite in_flatten_iff in *; desc; clarify |
     rewrite in_map_iff in *; desc; clarify |
-    rewrite in_seq0_iff in *; desc; clarify | 
-    rewrite in_mk_list_iff in *; desc; clarify | 
-    rewrite in_filter_iff in *; desc; clarify | 
+    rewrite in_seq0_iff in *; desc; clarify |
+    rewrite in_mk_list_iff in *; desc; clarify |
+    rewrite in_filter_iff in *; desc; clarify |
     rewrite in_filterP_iff in *; desc; clarify ].
 
 

@@ -14,28 +14,28 @@ Section one_extension.
 
   Variable X : Type.
   Variable elem : X.
-  Variable rel : relation X.
+  Variable r : relation X.
 
-  Definition one_ext : relation X := 
+  Definition one_ext : relation X :=
     fun x y =>
-      clos_trans rel x y 
-      \/ clos_refl_trans rel x elem /\ ~ clos_refl_trans rel y elem.
+      clos_trans r x y
+      \/ clos_refl_trans r x elem /\ ~ clos_refl_trans r y elem.
 
-  Lemma one_ext_extends x y : rel x y -> one_ext x y. 
+  Lemma one_ext_extends x y : r x y -> one_ext x y.
   Proof. vauto. Qed.
 
   Lemma one_ext_trans : transitive one_ext.
-  Proof. 
-    red; ins; unfold one_ext in *; desf; desf; 
+  Proof.
+    red; ins; unfold one_ext in *; desf; desf;
       intuition eauto using clos_trans_in_rt, t_trans, rt_trans.
   Qed.
- 
-  Lemma one_ext_irr : acyclic rel -> irreflexive one_ext.
+
+  Lemma one_ext_irr : acyclic r -> irreflexive one_ext.
   Proof.
     red; ins; unfold one_ext in *; desf; eauto using clos_trans_in_rt.
   Qed.
 
-  Lemma one_ext_total_elem : 
+  Lemma one_ext_total_elem :
     forall x, x <> elem -> one_ext elem x \/ one_ext x elem.
   Proof.
     unfold one_ext; ins; rewrite !clos_refl_transE; tauto.
@@ -46,32 +46,32 @@ End one_extension.
 (******************************************************************************)
 (** Extend an order to make it total on a list of elements. *)
 
-Fixpoint tot_ext X (dom : list X) (rel : relation X) : relation X :=
-  match dom with 
-    | nil => clos_trans rel
-    | x::l => one_ext x (tot_ext l rel) 
+Fixpoint tot_ext X (dom : list X) (r : relation X) : relation X :=
+  match dom with
+    | nil => clos_trans r
+    | x::l => one_ext x (tot_ext l r)
   end.
 
-Lemma tot_ext_extends : 
-  forall X dom (rel : relation X) x y, rel x y -> tot_ext dom rel x y. 
-Proof. 
+Lemma tot_ext_extends :
+  forall X dom (r : relation X) x y, r x y -> tot_ext dom r x y.
+Proof.
   induction dom; ins; eauto using t_step, one_ext_extends.
 Qed.
 
-Lemma tot_ext_trans X dom (rel : relation X) :  transitive (tot_ext dom rel).
-Proof. 
-  induction dom; ins; vauto; apply one_ext_trans. 
+Lemma tot_ext_trans X dom (r : relation X) :  transitive (tot_ext dom r).
+Proof.
+  induction dom; ins; vauto; apply one_ext_trans.
 Qed.
 
-Lemma tot_ext_irr : 
-  forall X (dom : list X) rel, acyclic rel -> irreflexive (tot_ext dom rel).
+Lemma tot_ext_irr :
+  forall X (dom : list X) r, acyclic r -> irreflexive (tot_ext dom r).
 Proof.
   induction dom; ins.
   apply one_ext_irr, trans_irr_acyclic; eauto using tot_ext_trans.
 Qed.
 
-Lemma tot_ext_total : 
-  forall X (dom : list X) rel, is_total (fun x => In x dom) (tot_ext dom rel).
+Lemma tot_ext_total :
+  forall X (dom : list X) r, is_total (fun x => In x dom) (tot_ext dom r).
 Proof.
   induction dom; red; ins; desf.
   eapply one_ext_total_elem in NEQ; desf; eauto.
@@ -80,16 +80,16 @@ Proof.
 Qed.
 
 Lemma tot_ext_inv :
-  forall X dom rel (x y : X),
-    acyclic rel -> tot_ext dom rel x y -> ~ rel y x.
+  forall X dom r (x y : X),
+    acyclic r -> tot_ext dom r x y -> ~ r y x.
 Proof.
   red; ins; eapply tot_ext_irr, tot_ext_trans, tot_ext_extends; eauto.
 Qed.
 
-Lemma tot_ext_extends_dom 
-  X dom dom' (rel : relation X) x y :  
-    tot_ext dom rel x y ->
-    tot_ext (dom' ++ dom) rel x y.
+Lemma tot_ext_extends_dom
+  X dom dom' (r : relation X) x y :
+    tot_ext dom r x y ->
+    tot_ext (dom' ++ dom) r x y.
 Proof.
   induction dom'; ins; eauto using one_ext_extends.
 Qed.
@@ -97,40 +97,40 @@ Qed.
 (******************************************************************************)
 (** Extend an order on [nat] to make it total. *)
 
-Definition tot_ext_nat rel (x y: nat) := 
-  exists k, tot_ext (rev (List.seq 0 k)) rel x y.
+Definition tot_ext_nat r (x y: nat) :=
+  exists k, tot_ext (rev (List.seq 0 k)) r x y.
 
-Lemma tot_ext_nat_extends (rel : relation nat) x y : 
-  rel x y -> tot_ext_nat rel x y. 
+Lemma tot_ext_nat_extends (r : relation nat) x y :
+  r x y -> tot_ext_nat r x y.
 Proof.
   exists 0; eauto using tot_ext_extends.
 Qed.
 
-Lemma tot_ext_nat_trans rel :  transitive (tot_ext_nat rel).
-Proof. 
+Lemma tot_ext_nat_trans r :  transitive (tot_ext_nat r).
+Proof.
   unfold tot_ext_nat; red; ins; desf.
   destruct (le_lt_dec k k0) as [LE|LE]; [|apply Nat.lt_le_incl in LE];
     [exists k0|exists k]; eapply tot_ext_trans; eauto;
     rewrite (seq_split _ LE), rev_app_distr; eauto using tot_ext_extends_dom.
 Qed.
 
-Lemma tot_ext_nat_irr : 
-  forall rel, acyclic rel -> irreflexive (tot_ext_nat rel).
+Lemma tot_ext_nat_irr :
+  forall r, acyclic r -> irreflexive (tot_ext_nat r).
 Proof.
   red; unfold tot_ext_nat; ins; desf; eapply tot_ext_irr; eauto.
 Qed.
 
-Lemma tot_ext_nat_total : 
-  forall rel, is_total (fun _ => true) (tot_ext_nat rel).
+Lemma tot_ext_nat_total :
+  forall r, is_total (fun _ => True) (tot_ext_nat r).
 Proof.
   unfold tot_ext_nat; red; ins.
-  eapply tot_ext_total with (rel:=rel) (dom := rev (List.seq 0 (S (a + b)))) in NEQ;
+  eapply tot_ext_total with (r:=r) (dom := rev (List.seq 0 (S (a + b)))) in NEQ;
     desf; eauto; rewrite <- in_rev, in_seq; omega.
 Qed.
 
 Lemma tot_ext_nat_inv :
-  forall rel x y,
-    acyclic rel -> tot_ext_nat rel x y -> ~ rel y x.
+  forall r x y,
+    acyclic r -> tot_ext_nat r x y -> ~ r y x.
 Proof.
   red; ins; eapply tot_ext_nat_irr, tot_ext_nat_trans, tot_ext_nat_extends; eauto.
 Qed.
@@ -138,20 +138,20 @@ Qed.
 (******************************************************************************)
 (** Add support for rewriting *)
 
-Add Parametric Morphism X : (@one_ext X) with signature 
+Add Parametric Morphism X : (@one_ext X) with signature
   eq ==> same_relation ==> same_relation as one_ext_more.
 Proof.
-  unfold one_ext, same_relation, inclusion; intuition; 
-  eauto 8 using clos_trans_mon, clos_refl_trans_mon. 
+  unfold one_ext, same_relation, inclusion; intuition;
+  eauto 8 using clos_trans_mon, clos_refl_trans_mon.
 Qed.
 
-Add Parametric Morphism X : (@tot_ext X) with signature 
+Add Parametric Morphism X : (@tot_ext X) with signature
   eq ==> same_relation ==> same_relation as tot_ext_more.
 Proof.
-  induction y; ins; eauto using clos_trans_more, one_ext_more. 
+  induction y; ins; eauto using clos_trans_more, one_ext_more.
 Qed.
 
-Add Parametric Morphism : tot_ext_nat with signature 
+Add Parametric Morphism : tot_ext_nat with signature
   same_relation ==> same_relation as tot_ext_nat_more.
 Proof.
   unfold tot_ext_nat; split; red; ins; desf; exists k;

@@ -6,8 +6,8 @@ Require Import HahnBase HahnList HahnRelationsBasic.
 
 Set Implicit Arguments.
 
-(** We define three constructions: 
-- [total_order_from_list] constructs a total order from a list of elements. 
+(** We define three constructions:
+- [total_order_from_list] constructs a total order from a list of elements.
 - [mk_tou] constructs a union of total orders from a list of element lists.
 - [mk_po] constructs a program order for [init ; (l1 || .. || ln)].
 *)
@@ -22,7 +22,7 @@ Definition mk_po A init ll (x y: A) :=
   In x init /\ In y (concat ll) \/ mk_tou ll x y.
 
 (******************************************************************************)
-(** We now prove several properties of these definitions. 
+(** We now prove several properties of these definitions.
 We start with [total_order_from_list]. *)
 
 
@@ -56,7 +56,7 @@ Lemma total_order_from_list_insert :
     total_order_from_list (l1 ++ l2) x y ->
     total_order_from_list (l1 ++ a :: l2) x y.
 Proof.
-  ins; rewrite total_order_from_list_app, total_order_from_list_cons in *; 
+  ins; rewrite total_order_from_list_app, total_order_from_list_cons in *;
   ins; desf; eauto.
 Qed.
 
@@ -66,12 +66,12 @@ Lemma total_order_from_list_remove :
     x <> a -> y <> a ->
     total_order_from_list (l1 ++ l2) x y.
 Proof.
-  ins; rewrite total_order_from_list_app, total_order_from_list_cons in *; 
+  ins; rewrite total_order_from_list_app, total_order_from_list_cons in *;
   ins; desf; eauto.
 Qed.
 
 Lemma total_order_from_list_swap :
-  forall A (l1: list A) a b l2 x y, 
+  forall A (l1: list A) a b l2 x y,
     total_order_from_list (l1 ++ a :: b :: l2) x y ->
     (x = a -> b = y -> False) ->
     total_order_from_list (l1 ++ b :: a :: l2) x y.
@@ -126,12 +126,12 @@ Lemma total_order_from_list_helper A (l : list A) (ND: NoDup l) :
     (forall x, total_order_from_list l a x <-> x = b \/ total_order_from_list l b x) /\
     (forall x, total_order_from_list l x b <-> x = a \/ total_order_from_list l x a).
 Proof.
-  unfold immediate; ins; desf. 
+  unfold immediate; ins; desf.
   red in IMM; desf.
   assert (l2 = nil); desf; ins.
   { destruct l2 as [|c ?]; ins; destruct (IMM0 c).
     eexists l1, nil, _; ins; eauto.
-    eexists (l1 ++ a :: nil), _, _; rewrite <- app_assoc; ins; eauto. 
+    eexists (l1 ++ a :: nil), _, _; rewrite <- app_assoc; ins; eauto.
   }
   rewrite nodup_app, !nodup_cons in *; desc.
   intuition;
@@ -150,13 +150,13 @@ Lemma mk_tou_trans A (ll : list (list A)) (ND: NoDup (concat ll)) x y z :
   mk_tou ll y z ->
   mk_tou ll x z.
 Proof.
-  unfold mk_tou; ins; desf. 
+  unfold mk_tou; ins; desf.
   assert (l0 = l); subst.
-    by eapply NoDup_concat_simpl; 
+    by eapply NoDup_concat_simpl;
        eauto using total_order_from_list_in1, total_order_from_list_in2.
   apply in_split_perm in H0; desc.
   rewrite H0, concat_cons, nodup_app in ND; desc.
-  eauto using total_order_from_list_trans. 
+  eauto using total_order_from_list_trans.
 Qed.
 
 Lemma mk_tou_irreflexive A (ll : list (list A)) (ND: NoDup (concat ll)) :
@@ -194,9 +194,9 @@ Proof.
   apply in_split in H; desf; red in H1; desf.
   destruct l3 as [|c ?]; ins; eauto.
   edestruct (H0 c); eexists; split; eauto using in_or_app, in_eq.
-    by eexists _, nil, _; ins. 
+    by eexists _, nil, _; ins.
   by eexists (_ ++ _ :: nil), _, _; rewrite <- app_assoc; ins.
-Qed. 
+Qed.
 
 Lemma mk_tou_immediate A ll1 l1 l2 ll2 (a b : A) :
   NoDup (concat (ll1 ++ (l1 ++ a :: b :: l2) :: ll2)) ->
@@ -205,22 +205,22 @@ Proof.
   unfold mk_tou; red; ins; split; ins; desf.
   by eexists; split; eauto using in_or_app, in_eq; eexists _, nil, _.
   assert (l0 = l); subst.
-    by eapply NoDup_concat_simpl; 
+    by eapply NoDup_concat_simpl;
        eauto using total_order_from_list_in1, total_order_from_list_in2.
   assert (l = l1 ++ a :: b :: l2); subst.
     by eapply NoDup_concat_simpl with (a:=a);
        eauto using in_or_app, in_eq, total_order_from_list_in1.
   rewrite concat_app, concat_cons in H.
-  apply nodup_append_right, nodup_append_left in H. 
+  apply nodup_append_right, nodup_append_left in H.
   unfold total_order_from_list in *; desf.
   apply NoDup_eq_simpl in R3; desf.
   destruct l3; ins; desf.
     by rewrite R0, nodup_app, nodup_cons in *; desf; eauto using in_or_app, in_eq.
-  replace (l0 ++ a :: a0 :: l3 ++ c :: l4) 
+  replace (l0 ++ a :: a0 :: l3 ++ c :: l4)
     with ((l0 ++ a :: a0 :: l3) ++ c :: l4) in R0
     by (rewrite <- app_assoc; done).
-  eapply NoDup_eq_simpl in R0; desf. 
-    by rewrite !nodup_app, !nodup_cons in *; desf; 
+  eapply NoDup_eq_simpl in R0; desf.
+    by rewrite !nodup_app, !nodup_cons in *; desf;
        eauto 8 using in_or_app, in_eq, in_cons.
   rewrite <- app_assoc; ins.
 Qed.
@@ -236,7 +236,7 @@ Proof.
   clear IMM0; assert (X:=IMM1); apply total_order_from_list_in in X; desc.
   intuition; desf; eauto.
     assert (l0 = l); [|by subst; rewrite H in *; desf; eauto].
-    by eauto using NoDup_concat_simpl, total_order_from_list_in1. 
+    by eauto using NoDup_concat_simpl, total_order_from_list_in1.
 
     eexists; split; eauto.
     assert (l0 = l); [|by subst; rewrite H in *; desf; eauto].
@@ -249,7 +249,7 @@ Proof.
 
     eexists; split; eauto.
     assert (l0 = l); [|by subst; rewrite H0 in *; desf; eauto].
-    by eauto using NoDup_concat_simpl, total_order_from_list_in2. 
+    by eauto using NoDup_concat_simpl, total_order_from_list_in2.
 Qed.
 
 Lemma mk_tou_insert :
@@ -272,7 +272,7 @@ Proof.
 Qed.
 
 Lemma mk_tou_swap :
-  forall A ll1 (l1: list A) a b l2 ll2 x y, 
+  forall A ll1 (l1: list A) a b l2 ll2 x y,
     mk_tou (ll1 ++ (l1 ++ a :: b :: l2) :: ll2) x y ->
     (x = a -> b = y -> False) ->
     mk_tou (ll1 ++ (l1 ++ b :: a :: l2) :: ll2) x y.
@@ -303,11 +303,11 @@ Proof. red; ins; eauto using mk_po_trans. Qed.
 
 Lemma mk_po_irreflexive A (init : list A) ll
   (ND: NoDup (init ++ concat ll)) x :
-  mk_po init ll x x -> 
+  mk_po init ll x x ->
   False.
 Proof.
-  unfold mk_po; ins; rewrite nodup_app in *; desf; eauto. 
-  eapply mk_tou_irreflexive; eauto. 
+  unfold mk_po; ins; rewrite nodup_app in *; desf; eauto.
+  eapply mk_tou_irreflexive; eauto.
 Qed.
 
 Lemma mk_po_helper A init (ll : list (list A)) (ND: NoDup (init ++ concat ll)) :
@@ -360,7 +360,7 @@ Lemma mk_po_immediate A init ll1 l1 l2 ll2 (a b : A) :
   NoDup (init ++ concat (ll1 ++ (l1 ++ a :: b :: l2) :: ll2)) ->
   immediate (mk_po init (ll1 ++ (l1 ++ a :: b :: l2) :: ll2)) a b.
 Proof.
-  rewrite nodup_app; unfold mk_po; ins; desc. 
+  rewrite nodup_app; unfold mk_po; ins; desc.
   unfold mk_po; split; ins; desf;
     eauto 7 using in_concat, in_or_app, in_eq, in_cons, mk_tou_in1, mk_tou_in2.
     right; apply mk_tou_immediate; eauto.
@@ -389,7 +389,7 @@ Proof.
 Qed.
 
 Lemma mk_po_swap :
-  forall A init ll1 (l1: list A) a b l2 ll2 x y, 
+  forall A init ll1 (l1: list A) a b l2 ll2 x y,
     mk_po init (ll1 ++ (l1 ++ a :: b :: l2) :: ll2) x y ->
     (x = a -> b = y -> False) ->
     mk_po init (ll1 ++ (l1 ++ b :: a :: l2) :: ll2) x y.
@@ -406,37 +406,37 @@ Qed.
 Section ReorderSection.
 
 Variable A : Type.
-Implicit Types po : relation A. 
+Implicit Types po : relation A.
 Implicit Types a b : A.
 
-Definition reorder po a b x y := 
+Definition reorder po a b x y :=
   po x y /\ ~ (x = a /\ y = b) \/ x = b /\ y = a.
 
 Lemma reorderK po a b (NIN: ~ po b a) (IN: po a b) :
-  reorder (reorder po a b) b a <--> po. 
+  reorder (reorder po a b) b a ≡ po.
 Proof.
-  unfold reorder; split; red; ins; desf; intuition. 
+  unfold reorder; split; red; ins; desf; intuition.
   destruct (classic (x = a)); desf; destruct (classic (y = b)); desf; intuition;
   left; intuition; desf.
-Qed. 
+Qed.
 
-Lemma Permutation_reord i ll1 l1 a b l2 ll2 : 
+Lemma Permutation_reord i ll1 l1 a b l2 ll2 :
   Permutation (i ++ concat (ll1 ++ (l1 ++ b :: a :: l2) :: ll2))
               (i ++ concat (ll1 ++ (l1 ++ a :: b :: l2) :: ll2)).
 Proof.
-  rewrite !concat_app, !concat_cons; ins; 
+  rewrite !concat_app, !concat_cons; ins;
   eauto using Permutation_app, perm_swap.
 Qed.
 
 Lemma mk_po_reorder init ll1 l1 a b l2 ll2 :
   NoDup (init ++ concat (ll1 ++ (l1 ++ b :: a :: l2) :: ll2)) ->
-  reorder (mk_po init (ll1 ++ (l1 ++ a :: b :: l2) :: ll2)) a b <-->
+  reorder (mk_po init (ll1 ++ (l1 ++ a :: b :: l2) :: ll2)) a b ≡
   mk_po init (ll1 ++ (l1 ++ b :: a :: l2) :: ll2).
 Proof.
   unfold reorder; split; red; ins; desf; eauto using mk_po_swap, mk_po_trivial.
   destruct (classic (x = b /\ y = a)); eauto 8 using mk_po_swap, mk_po_trivial.
   left; split; ins; desf; eauto using mk_po_swap, mk_po_trivial.
-  intro; desf; eauto 8 using mk_po_trans, mk_po_trivial, mk_po_irreflexive. 
+  intro; desf; eauto 8 using mk_po_trans, mk_po_trivial, mk_po_irreflexive.
 Qed.
 
 End ReorderSection.

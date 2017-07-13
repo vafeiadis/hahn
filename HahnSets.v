@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase HahnList.
-Require Import Classical Relations. 
+Require Import Classical Relations.
 
 Set Implicit Arguments.
 
@@ -34,10 +34,10 @@ Notation "a ⊆₁ b" := (set_subset a b) (at level 60).
 Notation "a ≡₁ b" := (set_equiv a b)  (at level 60).
 
 Section SetProperties.
-  Local Ltac u := 
+  Local Ltac u :=
     unfold set_union, set_inter, set_minus, set_compl,
-           set_equiv, set_subset, set_empty, set_full, 
-           reflexive, transitive in *; 
+           set_equiv, set_subset, set_empty, set_full,
+           reflexive, transitive in *;
     ins; try solve [tauto | firstorder].
 
   Variable A : Type.
@@ -204,7 +204,7 @@ Section SetProperties.
   Proof. u. Qed.
 
   (** Properties of set equivalence. *)
- 
+
   Lemma set_equivE s s' : s ≡₁ s' <-> s ⊆₁ s' /\ s' ⊆₁ s.
   Proof. u; firstorder. Qed.
 

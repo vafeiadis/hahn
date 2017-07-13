@@ -12,7 +12,7 @@ Definition funeq (R : relation A) := forall a b (H: R a b), f a = f b.
 Lemma funeq_union R T (H1: funeq R) (H2: funeq T) : funeq (R ∪ T).
 Proof. unfold funeq, union in *; ins; desf; eauto. Qed.
 
-Lemma funeq_seq R T (H1: funeq R) (H2: funeq T) : funeq (R ;; T).
+Lemma funeq_seq R T (H1: funeq R) (H2: funeq T) : funeq (R ⨾ T).
 Proof. eby red; ins; destruct H; desc; etransitivity; [apply H1 | apply H2]. Qed.
 
 Lemma funeq_ct R (H: funeq R) : funeq R^+.
@@ -33,7 +33,7 @@ Proof. unfold funeq, restr_eq_rel in *; ins; desf; eauto. Qed.
 Lemma funeq_restr_eq_rel R : funeq (restr_eq_rel f R).
 Proof. by red; ins; red in H; desc; subst. Qed.
 
-Lemma funeq_eqv_rel dom : funeq <| dom |>.
+Lemma funeq_eqv_rel dom : funeq ⦗dom⦘.
 Proof. by red; ins; red in H; desc; subst. Qed.
 
 Lemma funeq_transp R (H: funeq R) : funeq R^{-1}.
@@ -43,7 +43,7 @@ Lemma funeq_minus R T (H: funeq R) : funeq (R \ T).
 Proof. unfold funeq, minus_rel in *; ins; desf; eauto. Qed.
 
 Lemma funeq_irreflexive R T (H: funeq R)
-  (IRR: irreflexive (restr_eq_rel f T ;; R)) : irreflexive (T ;; R).
+  (IRR: irreflexive (restr_eq_rel f T ⨾ R)) : irreflexive (T ⨾ R).
 Proof.
   unfold funeq, irreflexive, seq, restr_eq_rel in *.
   ins; desf; eauto 8 using eq_sym.
@@ -53,7 +53,7 @@ End FunEq.
 
 Hint Resolve
  funeq_union funeq_seq funeq_ct funeq_cr funeq_rt
- funeq_restr funeq_restr_eq funeq_restr_eq_rel 
+ funeq_restr funeq_restr_eq funeq_restr_eq_rel
  funeq_eqv_rel funeq_transp funeq_minus : rel.
 
 

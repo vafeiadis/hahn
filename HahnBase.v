@@ -44,28 +44,28 @@ Hint Resolve hahn__true_is_true hahn__not_false_is_true.
 
 (** Set up for basic simplification *)
 
-Create HintDb hahn discriminated. 
+Create HintDb hahn discriminated.
 
 (** Adaptation of the ss-reflect "[done]" tactic. *)
 
-Ltac hahn__basic_done := 
+Ltac hahn__basic_done :=
   solve [trivial with hahn | apply sym_equal; trivial | discriminate | contradiction].
 
 Ltac done := trivial with hahn; hnf; intros;
-  solve [try hahn__basic_done; split; 
-         try hahn__basic_done; split; 
-         try hahn__basic_done; split; 
-         try hahn__basic_done; split; 
+  solve [try hahn__basic_done; split;
+         try hahn__basic_done; split;
+         try hahn__basic_done; split;
+         try hahn__basic_done; split;
          try hahn__basic_done; split; hahn__basic_done
     | match goal with H : ~ _ |- _ => solve [case H; trivial] end].
 
 (** A variant of the ssr "done" tactic that performs "eassumption". *)
 
 Ltac edone := try eassumption; trivial; hnf; intros;
-  solve [try eassumption; try hahn__basic_done; split; 
-         try eassumption; try hahn__basic_done; split; 
-         try eassumption; try hahn__basic_done; split; 
-         try eassumption; try hahn__basic_done; split; 
+  solve [try eassumption; try hahn__basic_done; split;
+         try eassumption; try hahn__basic_done; split;
+         try eassumption; try hahn__basic_done; split;
+         try eassumption; try hahn__basic_done; split;
          try eassumption; try hahn__basic_done; split;
          try eassumption; hahn__basic_done
     | match goal with H : ~ _ |- _ => solve [case H; trivial] end].
@@ -79,30 +79,30 @@ Tactic Notation "eby" tactic(tac) := (tac; edone).
 
 Module Equality.
 
-  Definition axiom T (e : T -> T -> bool) := 
+  Definition axiom T (e : T -> T -> bool) :=
     forall x y, reflect (x = y) (e x y).
-  
+
   Structure mixin_of T := Mixin {op : T -> T -> bool; _ : axiom op}.
   Notation class_of := mixin_of (only parsing).
-  
+
   Section ClassDef.
-  
+
     Structure type := Pack {sort; _ : class_of sort; _ : Type}.
 
-    Definition class cT' := 
+    Definition class cT' :=
       match cT' return class_of (sort cT') with @Pack _ c _ => c end.
-  
+
     Definition pack (T: Type) c := @Pack T c T.
-  
+
   End ClassDef.
-  
+
   Module Exports.
     Coercion sort : type >-> Sortclass.
     Notation eqType := type.
     Notation EqMixin := Mixin.
     Notation EqType T m := (@pack T m).
   End Exports.
-  
+
 End Equality.
 Export Equality.Exports.
 
@@ -125,7 +125,7 @@ Notation "x != y" := (negb (x == y))
 Notation "x != y :> T" := (negb (x == y :> T))
   (at level 70, y at next level) : bool_scope.
 
-Lemma hahn__internal_eqP : 
+Lemma hahn__internal_eqP :
   forall (T: eqType) (x y : T), reflect (x = y) (x == y).
 Proof. apply eqP. Qed.
 
@@ -156,7 +156,7 @@ Definition eqn := match tt with tt => eqn_rec end.
 
 Lemma eqnP: forall x y, reflect (x = y) (eqn x y).
 Proof.
-  induction x; destruct y; try (constructor; done). 
+  induction x; destruct y; try (constructor; done).
   change (eqn (S x) (S y)) with (eqn x y).
   case IHx; constructor; congruence.
 Qed.
@@ -179,7 +179,7 @@ Lemma hahn__andb_split : forall b1 b2, b1 && b2 -> b1 /\ b2.
 Proof. by intros [] []. Qed.
 
 Lemma hahn__nandb_split : forall b1 b2, b1 && b2 = false -> b1 = false \/ b2 = false.
-Proof. intros [] []; auto. Qed. 
+Proof. intros [] []; auto. Qed.
 
 Lemma hahn__orb_split : forall b1 b2, b1 || b2 -> b1 \/ b2.
 Proof. intros [] []; auto. Qed.
@@ -196,7 +196,7 @@ Proof. by intros until 0; case eqP. Qed.
 
 (** Set up for basic simplification: database of reflection lemmas *)
 
-Create HintDb hahn_refl discriminated.  
+Create HintDb hahn_refl discriminated.
 
 Hint Resolve hahn__internal_eqP neqP : hahn_refl.
 
@@ -209,7 +209,7 @@ Ltac hahn__complaining_inj f H :=
 Ltac hahn__clarify1 :=
   try subst;
   repeat match goal with
-  | [H: is_true (andb _ _) |- _] => 
+  | [H: is_true (andb _ _) |- _] =>
       let H' := fresh H in case (hahn__andb_split H); clear H; intros H' H
   | [H: is_true (negb ?x) |- _] => rewrite (hahn__negb_rewrite H) in *
   | [H: is_true ?x        |- _] => rewrite H in *
@@ -246,7 +246,7 @@ Ltac simpls  := simpl in *; try done.
 Ltac ins := simpl in *; try done; intros.
 
 Ltac hahn__clarsimp1 :=
-  clarify; (autorewrite with hahn_trivial hahn in * ); 
+  clarify; (autorewrite with hahn_trivial hahn in * );
   (autorewrite with hahn_trivial in * ); try done;
   clarify; auto 1 with hahn.
 
@@ -264,7 +264,7 @@ Tactic Notation "econs" int_or_var(x) := econstructor x.
 Definition  NW (P: unit -> Prop) : Prop := P tt.
 
 Notation "⟪ x : t ⟫" := (NW (fun x => t)) (at level 80, x ident, no associativity).
-Notation "<< x : t >>" := (NW (fun x => t)) 
+Notation "<< x : t >>" := (NW (fun x => t))
   (at level 80, x ident, no associativity, only parsing).
 Notation "⟪ t ⟫" := (NW (fun _ => t)) (at level 79, no associativity, format "⟪ t ⟫").
 
@@ -303,7 +303,7 @@ Ltac desc :=
       destruct H as [x' y'];
       match p with | NW _ => red in x' | _ => idtac end;
       match q with | NW _ => red in y' | _ => idtac end
-    | H : is_true (_ && _) |- _ => 
+    | H : is_true (_ && _) |- _ =>
           let H' := fresh H in case (hahn__andb_split H); clear H; intros H H'
     | H : (_ || _) = false |- _ =>
           let H' := fresh H in case (hahn__norb_split H); clear H; intros H H'
@@ -328,7 +328,7 @@ Ltac des :=
       destruct H as [x' y'];
       match p with | NW _ => red in x' | _ => idtac end;
       match q with | NW _ => red in y' | _ => idtac end
-    | H : is_true (_ && _) |- _ => 
+    | H : is_true (_ && _) |- _ =>
         let H' := fresh H in case (hahn__andb_split H); clear H; intros H H'
     | H : (_ || _) = false |- _ =>
         let H' := fresh H in case (hahn__norb_split H); clear H; intros H H'
@@ -354,64 +354,64 @@ Ltac cdes H :=
 
 Ltac des_if_asm :=
   clarify;
-  repeat 
-    match goal with 
-      | H: context[ match ?x with _ => _ end ] |- _ => 
+  repeat
+    match goal with
+      | H: context[ match ?x with _ => _ end ] |- _ =>
         match (type of x) with
           | { _ } + { _ } => destruct x; clarify
-          | bool => 
+          | bool =>
             let Heq := fresh "Heq" in
             let P := fresh in
             evar(P: Prop);
-            assert (Heq: reflect P x) by (subst P; trivial with hahn_refl); 
+            assert (Heq: reflect P x) by (subst P; trivial with hahn_refl);
             subst P; destruct Heq as [Heq|Heq]
           | _ => let Heq := fresh "Heq" in destruct x as [] eqn: Heq; clarify
-        end 
+        end
     end.
 
 Ltac des_if_goal :=
   clarify;
-  repeat 
-    match goal with 
-      | |- context[match ?x with _ => _ end] => 
+  repeat
+    match goal with
+      | |- context[match ?x with _ => _ end] =>
         match (type of x) with
           | { _ } + { _ } => destruct x; clarify
-          | bool => 
+          | bool =>
             let Heq := fresh "Heq" in
             let P := fresh in
             evar(P: Prop);
-            assert (Heq: reflect P x) by (subst P; trivial with hahn_refl); 
+            assert (Heq: reflect P x) by (subst P; trivial with hahn_refl);
             subst P; destruct Heq as [Heq|Heq]
           | _ => let Heq := fresh "Heq" in destruct x as [] eqn: Heq; clarify
-        end 
+        end
     end.
 
 Ltac des_if :=
   clarify;
-  repeat 
-    match goal with 
-      | |- context[match ?x with _ => _ end] => 
+  repeat
+    match goal with
+      | |- context[match ?x with _ => _ end] =>
         match (type of x) with
           | { _ } + { _ } => destruct x; clarify
-          | bool => 
+          | bool =>
             let Heq := fresh "Heq" in
             let P := fresh in
             evar(P: Prop);
-            assert (Heq: reflect P x) by (subst P; trivial with hahn_refl); 
+            assert (Heq: reflect P x) by (subst P; trivial with hahn_refl);
             subst P; destruct Heq as [Heq|Heq]
           | _ => let Heq := fresh "Heq" in destruct x as [] eqn: Heq; clarify
-        end 
-      | H: context[ match ?x with _ => _ end ] |- _ => 
+        end
+      | H: context[ match ?x with _ => _ end ] |- _ =>
         match (type of x) with
           | { _ } + { _ } => destruct x; clarify
-          | bool => 
+          | bool =>
             let Heq := fresh "Heq" in
             let P := fresh in
             evar(P: Prop);
-            assert (Heq: reflect P x) by (subst P; trivial with hahn_refl); 
+            assert (Heq: reflect P x) by (subst P; trivial with hahn_refl);
             subst P; destruct Heq as [Heq|Heq]
           | _ => let Heq := fresh "Heq" in destruct x as [] eqn: Heq; clarify
-        end 
+        end
     end.
 
 Ltac des_eqrefl :=
@@ -433,7 +433,7 @@ Ltac desf_asm := clarify; des; des_if_asm.
 
 Ltac desf := clarify; des; des_if.
 
-Ltac clarassoc := clarsimp; autorewrite with hahn_trivial hahn hahnA in *; try done. 
+Ltac clarassoc := clarsimp; autorewrite with hahn_trivial hahn hahnA in *; try done.
 
 Ltac hahn__hacksimp1 :=
    clarsimp;
@@ -457,14 +457,14 @@ Ltac hacksimp :=
 (* ************************************************************************** *)
 
 Tactic Notation "pattern_lhs" uconstr(term) :=
-  match goal with 
+  match goal with
     |- _ ?lhs _ =>
     let P := fresh in
     pose (P := lhs); pattern term in P; change lhs with P; subst P
   end.
 
 Tactic Notation "pattern_rhs" uconstr(term) :=
-  match goal with 
+  match goal with
     |- _ _ ?rhs =>
     let P := fresh in
     pose (P := rhs); pattern term in P; change rhs with P; subst P
