@@ -6,10 +6,12 @@ about lists and binary relations.
 - HahnBase.v : basic tactics used throughout the development
 - HahnFun.v : functional update
 - HahnList.v : lemmas about lists
+- HahnSets.v : lemmas about sets (i.e., unary relations)
 - HahnRelationsBasic.v : binary relations
 - HahnRewrite.v : support for rewriting equivalent relations
 - HahnDom.v : (co)domain of a relation
 - HahnMaxElt.v : maximal elements of a relation
+- HahnMinPath.v : minimal paths/cycles over relations
 - HahnPath.v : paths over relations
 - HahnTotalExt.v : extension of a partial order to a total order.
 - HahnTotalList.v : building finite relations for program order.
