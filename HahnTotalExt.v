@@ -13,11 +13,11 @@ Set Implicit Arguments.
 
 Section one_extension.
 
-  Variable X : Type.
-  Variable elem : X.
-  Variable r : relation X.
+  Variable A : Type.
+  Variable elem : A.
+  Variable r : relation A.
 
-  Definition one_ext : relation X :=
+  Definition one_ext : relation A :=
     fun x y =>
       clos_trans r x y
       \/ clos_refl_trans r x elem /\ ~ clos_refl_trans r y elem.
@@ -47,32 +47,32 @@ End one_extension.
 (******************************************************************************)
 (** Extend an order to make it total on a list of elements. *)
 
-Fixpoint tot_ext X (dom : list X) (r : relation X) : relation X :=
+Fixpoint tot_ext A (dom : list A) (r : relation A) : relation A :=
   match dom with
     | nil => clos_trans r
     | x::l => one_ext x (tot_ext l r)
   end.
 
 Lemma tot_ext_extends :
-  forall X dom (r : relation X) x y, r x y -> tot_ext dom r x y.
+  forall A dom (r : relation A) x y, r x y -> tot_ext dom r x y.
 Proof.
   induction dom; ins; eauto using t_step, one_ext_extends.
 Qed.
 
-Lemma tot_ext_trans X dom (r : relation X) :  transitive (tot_ext dom r).
+Lemma tot_ext_trans A dom (r : relation A) :  transitive (tot_ext dom r).
 Proof.
   induction dom; ins; vauto; apply one_ext_trans.
 Qed.
 
 Lemma tot_ext_irr :
-  forall X (dom : list X) r, acyclic r -> irreflexive (tot_ext dom r).
+  forall A (dom : list A) r, acyclic r -> irreflexive (tot_ext dom r).
 Proof.
   induction dom; ins.
   apply one_ext_irr, trans_irr_acyclic; eauto using tot_ext_trans.
 Qed.
 
 Lemma tot_ext_total :
-  forall X (dom : list X) r, is_total (fun x => In x dom) (tot_ext dom r).
+  forall A (dom : list A) r, is_total (fun x => In x dom) (tot_ext dom r).
 Proof.
   induction dom; red; ins; desf.
   eapply one_ext_total_elem in NEQ; desf; eauto.
@@ -81,14 +81,14 @@ Proof.
 Qed.
 
 Lemma tot_ext_inv :
-  forall X dom r (x y : X),
+  forall A dom r (x y : A),
     acyclic r -> tot_ext dom r x y -> ~ r y x.
 Proof.
   red; ins; eapply tot_ext_irr, tot_ext_trans, tot_ext_extends; eauto.
 Qed.
 
 Lemma tot_ext_extends_dom
-  X dom dom' (r : relation X) x y :
+  A dom dom' (r : relation A) x y :
     tot_ext dom r x y ->
     tot_ext (dom' ++ dom) r x y.
 Proof.
@@ -145,29 +145,28 @@ Definition Successor A (r s: relation A) :=
   << SUC: s⁻¹ ⨾ r ⊆ r^? >> /\
   << INC: s ⊆ r >>.
 
-Lemma succ_helper X (R S: relation X) (SUC: S^{-1} ;; R ⊆ R^?):
-  S⁻¹^* ⨾ (R \ S^+) ⊆ (R \ S^+).
+Lemma succ_helper A (r s: relation A) (SUC: s⁻¹ ;; r ⊆ r^?):
+  s⁻¹^* ⨾ (r \ s⁺) ⊆ r \ s⁺.
 Proof.
-eapply rt_ind_left with (P:= fun __ => __ ;; (R \ S^+)); relsf.
+eapply rt_ind_left with (P:= fun __ => __ ;; (r \ s⁺)); relsf.
 intros k IH.
 rewrite !seqA, IH; relsf.
 unfold seq, transp, minus_rel, clos_refl, inclusion in *.
 ins; desf; splits.
-assert (x = y \/ R x y).
+assert (x = y \/ r x y).
   by eauto.
 desf.
 by exfalso; apply H1; econs.
 by intro; apply H1; eapply t_trans; try edone; econs.
 Qed.
 
-Definition tot_ext_suc X (dom : list X) (R S : relation X) : relation X := 
-  S^+ ∪ S^* ⨾ ⦗max_elt S⦘ ;; tot_ext dom R ;; ⦗max_elt S⦘ ;; S^{-1}^*.
+Definition tot_ext_suc A (dom : list A) (r s : relation A) : relation A := 
+  s⁺ ∪ s^* ⨾ ⦗max_elt s⦘ ;; tot_ext dom r ;; ⦗max_elt s⦘ ;; s⁻¹^*.
 
-Lemma functional_path A (S: relation A) (FUN: functional S):
-  S⁻¹^*;; S^* ⊆ S^* ∪ S⁻¹^*.
+Lemma functional_path A (s: relation A) (FUN: functional s):
+  (s⁻¹)^* ⨾ s^* ⊆ s^* ∪ (s⁻¹)^*.
 Proof.
-(*   pattern_lhs (S^{-1}). *)
-  eapply rt_ind_left with (P:= fun __ => __ ;; S^*); relsf.
+  eapply rt_ind_left with (P:= fun __ => __ ;; s^*); relsf.
   intros k IH.
   rewrite !seqA, IH; relsf.
   apply inclusion_union_l.
@@ -177,38 +176,38 @@ Proof.
   rewrite rt_begin at 2; relsf.
 Qed.
 
-Lemma functional_path_transp A (S: relation A) (FUN: functional S^{-1}):
-  S^*;; S⁻¹^* ⊆ S^* ∪ (S⁻¹)^*.
+Lemma functional_path_transp A (s: relation A) (FUN: functional s⁻¹):
+  s^*;; s⁻¹^* ⊆ s^* ∪ (s⁻¹)^*.
 Proof.
-rewrite functional_path with (S:=S^{-1}); [rels|done].
+  rewrite functional_path with (s:=s^{-1}); [rels|done].
 Qed.
 
-Lemma last_exists A dom (S: relation A) (ACYC: acyclic S)
-  a (DOM: forall c, S^* a c -> In c dom):
-  exists b, S^* a b /\ max_elt S b.
+Lemma last_exists A dom (s: relation A) (ACYC: acyclic s)
+  a (DOM: forall c, s^* a c -> In c dom):
+  exists b, s^* a b /\ max_elt s b.
 Proof.
-revert a DOM.
-induction dom using (well_founded_ind (well_founded_ltof _ (@length _))).
-ins; destruct (classic (exists a1, S a a1)); cycle 1.
-  by exists a; eexists; splits; [vauto| red; eauto].
-assert (INa: In a dom).
-  by apply DOM; vauto.
-desc; apply in_split in INa; desf.
-assert(exists b, S ^* a1 b /\ max_elt S b).
-  { eapply (H (l1 ++ l2)).
-    * unfold ltof; rewrite !app_length; simpl; omega.
-    * ins.
-      assert(INc: In c (l1 ++ a :: l2)).
-        by eapply DOM; eapply rt_trans; vauto.
-      rewrite in_app_iff in *; simpls; desf; eauto.
-      exfalso; eapply ACYC; eapply t_step_rt; eauto.
-  }
-unfold seq in *; desc; exists b; splits; try done.
-apply rt_begin; right; eexists; eauto.
+  revert a DOM.
+  induction dom using (well_founded_ind (well_founded_ltof _ (@length _))).
+  ins; destruct (classic (exists a1, s a a1)); cycle 1.
+    by exists a; eexists; splits; [vauto| red; eauto].
+  assert (INa: In a dom).
+    by apply DOM; vauto.
+  desc; apply in_split in INa; desf.
+  assert(exists b, s ^* a1 b /\ max_elt s b).
+    { eapply (H (l1 ++ l2)).
+      * unfold ltof; rewrite !app_length; simpl; omega.
+      * ins.
+        assert(INc: In c (l1 ++ a :: l2)).
+          by eapply DOM; eapply rt_trans; vauto.
+        rewrite in_app_iff in *; simpls; desf; eauto.
+        exfalso; eapply ACYC; eapply t_step_rt; eauto.
+    }
+  unfold seq in *; desc; exists b; splits; try done.
+  apply rt_begin; right; eexists; eauto.
 Qed.
 
-Lemma last_functional A (S: relation A) (FUN: functional S): 
-  functional (S^* ;; ⦗max_elt S⦘).
+Lemma last_functional A (s: relation A) (FUN: functional s): 
+  functional (s^* ⨾ ⦗max_elt s⦘).
 Proof.
   apply functional_alt.
   rewrite transp_seq; relsf.
@@ -219,19 +218,19 @@ Proof.
   basic_solver.
 Qed.
 
-Lemma dom_helper X dom (S: relation X)
-  (IN: S ⊆ ⦗fun x => In x dom⦘ ;; S ;; ⦗fun x => In x dom⦘)
-  a (INa: In a dom): forall b, S ^* a b -> In b dom.
+Lemma dom_helper A dom (s: relation A)
+  (IN: s ⊆ ⦗fun x => In x dom⦘ ⨾ s ⨾ ⦗fun x => In x dom⦘)
+  a (INa: In a dom) b (H: s ^* a b) : In b dom.
 Proof.
   ins; apply clos_refl_transE in H; desf.
   apply t_rt_step in H; desc.
   apply IN in H0; revert H0; basic_solver.
 Qed.
 
-Lemma last_exists_rewrite X dom (S: relation X) 
-(ACYC: acyclic S)
-(IN: S ⊆ ⦗fun x => In x dom⦘ ;; S ;; ⦗fun x => In x dom⦘):
-⦗fun _ => True⦘ ⊆ S^* ;; ⦗max_elt S⦘ ;; S^{-1}^*.
+Lemma last_exists_rewrite A dom (s: relation A) 
+      (ACYC: acyclic s)
+      (IN: s ⊆ ⦗fun x : A => In x dom⦘ ⨾ s ⨾ ⦗fun x : A => In x dom⦘):
+  ⦗fun _ => True⦘ ⊆ s^* ;; ⦗max_elt s⦘ ;; s⁻¹^*.
 Proof.
 unfold inclusion, eqv_rel, seq; ins; desf.
 destruct (classic (In y dom)) as [INy|NINy]; cycle 1.
@@ -241,32 +240,31 @@ destruct (classic (In y dom)) as [INy|NINy]; cycle 1.
 - generalize (last_exists dom ACYC (dom_helper dom IN INy)); ins; desc.
   exists b; splits; eauto.
   exists b; splits; eauto.
-  apply transp_rt with (r:=S); vauto.
+  apply transp_rt with (r:=s); vauto.
 Qed.
 
-Lemma tot_ext_suc_trans X dom (R S: relation X) (SUC: Successor R S) :  
-  transitive (tot_ext_suc dom R S).
+Lemma tot_ext_suc_trans A dom (r s: relation A) (SUC: Successor r s) :  
+  transitive (tot_ext_suc dom r s).
 Proof.
 unfold tot_ext_suc.
 apply transitiveI; relsf.
-repeat apply inclusion_union_l.
+repeat apply inclusion_union_l; eauto with rel.
 - by rewrite ct_ct; rels.
 - rewrite inclusion_t_rt at 1.
   rewrite !seqA, functional_path; [relsf | apply SUC].
   rewrite seq_eqv_max_rt.
   basic_solver 16.
-- basic_solver 16.
 - rewrite !seqA.
   sin_rewrite functional_path; [relsf | apply SUC].
   seq_rewrite seq_eqv_max_rt; relsf.
   seq_rewrite transp_seq_eqv_max_rt; relsf.
-  arewrite_id (⦗max_elt S⦘) at 2; relsf.
+  arewrite_id (⦗max_elt s⦘) at 2; relsf.
   sin_rewrite rewrite_trans; [rels| apply tot_ext_trans].
 Qed.
 
 
-Lemma tot_ext_suc_irr X dom (R S: relation X) (SUC: Successor R S) 
-  (ACYC: acyclic R): irreflexive (tot_ext_suc dom R S).
+Lemma tot_ext_suc_irr A dom (r s: relation A) (SUC: Successor r s) 
+  (ACYC: acyclic r): irreflexive (tot_ext_suc dom r s).
 Proof.
 red in SUC; desc.
 unfold tot_ext_suc; ins.
@@ -281,62 +279,62 @@ rewrite irreflexive_union; splits.
   generalize (tot_ext_irr dom ACYC); basic_solver.
 Qed.
 
-Lemma tot_ext_suc_total X dom (R S: relation X) 
-  (ACYC: acyclic R) (SUC: Successor R S)
-  (IN: S ⊆ ⦗fun x => In x dom⦘ ;; S ;; ⦗fun x => In x dom⦘):
- is_total (fun x => In x dom) (tot_ext_suc dom R S).
+Lemma tot_ext_suc_total A dom (r s: relation A) 
+  (ACYC: acyclic r) (SUC: Successor r s)
+  (IN: s ⊆ ⦗fun x => In x dom⦘ ;; s ;; ⦗fun x => In x dom⦘):
+ is_total (fun x => In x dom) (tot_ext_suc dom r s).
 Proof.
 ins; red; ins.
-assert (ACYC': acyclic S).
+assert (ACYC': acyclic s).
   by cdes SUC; rewrite INC; done.
 generalize (last_exists dom ACYC' (dom_helper dom IN IWa)); ins; desc.
 generalize (last_exists dom ACYC' (dom_helper dom IN IWb)); ins; desc.
 destruct (classic (b0=b1)) as [EQ1|NEQ1]; subst.
-- assert (XX: (S^* ∪ S^{-1}^*) a b).
+- assert (XX: (s^* ∪ s^{-1}^*) a b).
     apply functional_path_transp; [apply SUC |].
     exists b1; splits.
     by generalize H; basic_solver.
-    by apply transp_rt with (r:=S); generalize H0; basic_solver.
+    by apply transp_rt with (r:=s); generalize H0; basic_solver.
   unfold union in XX; desf; apply clos_refl_transE in XX; desf.
   by left; unfold tot_ext_suc; basic_solver 2.
   by right; unfold tot_ext_suc; apply transp_ct in XX; basic_solver 2.
-- assert (tot_ext dom R b0 b1 \/ tot_ext dom R b1 b0); desf.
-  * generalize (tot_ext_total dom R); intro TOT; eapply TOT; try done.
+- assert (tot_ext dom r b0 b1 \/ tot_ext dom r b1 b0); desf.
+  * generalize (tot_ext_total dom r); intro TOT; eapply TOT; try done.
     + eby eapply dom_helper with (a:=a).
     + eby eapply dom_helper with (a:=b).
   * left; red; right.
     unfold seq in H, H0; desc.
     do 4 (eexists; splits; eauto).
     by apply transp_eqv_rel; eauto.
-    by apply transp_rt with (r:=S); generalize H0; basic_solver 2.
+    by apply transp_rt with (r:=s); generalize H0; basic_solver 2.
   * right; red; right.
     unfold seq in H, H0; desc.
     do 4 (eexists; splits; eauto).
     by apply transp_eqv_rel; eauto.
-    by apply transp_rt with (r:=S); generalize H0; basic_solver 2.
+    by apply transp_rt with (r:=s); generalize H0; basic_solver 2.
 Qed.
 
-Lemma tot_ext_suc_extends X dom (R S: relation X) 
-  (ACYC: acyclic R) (SUC: Successor R S) 
-  (IN: S ⊆ ⦗fun x => In x dom⦘ ;; S ;; ⦗fun x => In x dom⦘) :
-  R ⊆ tot_ext_suc dom R S.
+Lemma tot_ext_suc_extends A dom (r s: relation A) 
+  (ACYC: acyclic r) (SUC: Successor r s) 
+  (IN: s ⊆ ⦗fun x => In x dom⦘ ;; s ;; ⦗fun x => In x dom⦘) :
+  r ⊆ tot_ext_suc dom r s.
 Proof.
-arewrite (R ⊆ (R \ S^+) ∪ S^+).
+arewrite (r ⊆ (r \ s^+) ∪ s^+).
   by apply inclusion_union_minus.
-arewrite (R \ S ^+ ⊆ ⦗fun _ => True⦘ ;; (R \ S ^+) ;; ⦗fun _ => True⦘).
+arewrite (r \ s ^+ ⊆ ⦗fun _ => True⦘ ;; (r \ s ^+) ;; ⦗fun _ => True⦘).
   basic_solver.
-rewrite !last_exists_rewrite with (S:=S); [|cdes SUC; rewrite INC; done| edone].
+rewrite !last_exists_rewrite with (s:=s); [|cdes SUC; rewrite INC; done| edone].
 rewrite !seqA.
 sin_rewrite succ_helper; [|by apply SUC].
 rewrite inclusion_minus_rel.
 cdes SUC; rewrite INC at 3; rels.
 unfold tot_ext_suc.
-rewrite inclusion_t_ind with (r' := tot_ext dom R); 
+rewrite inclusion_t_ind with (r' := tot_ext dom r); 
   [auto with rel | red; eapply tot_ext_extends | apply tot_ext_trans].
 Qed.
 
-Lemma tot_ext_suc_suc X dom (R S: relation X) (SUC: Successor R S) : 
-  Successor (tot_ext_suc dom R S) S.
+Lemma tot_ext_suc_suc A dom (r s: relation A) (SUC: Successor r s) : 
+  Successor (tot_ext_suc dom r s) s.
 Proof.
   unfold Successor, tot_ext_suc in *; ins; desf; splits; auto with rel.
   relsf.
@@ -345,7 +343,7 @@ Proof.
     rewrite functional_alt in FUN; sin_rewrite FUN; basic_solver.
   - rewrite rt_begin at 1; relsf.
     apply inclusion_union_l; ins.
-    * arewrite (S^{-1} ⊆ (S^{-1})^*) at 1.
+    * arewrite (s^{-1} ⊆ (s^{-1})^*) at 1.
       seq_rewrite transp_seq_eqv_max_rt; rels; basic_solver 20.
     * rewrite !seqA.
       rewrite functional_alt in FUN; sin_rewrite FUN; rels.
@@ -354,14 +352,14 @@ Qed.
 (******************************************************************************)
 (** Add support for rewriting *)
 
-Add Parametric Morphism X : (@one_ext X) with signature
+Add Parametric Morphism A : (@one_ext A) with signature
   eq ==> same_relation ==> same_relation as one_ext_more.
 Proof.
   unfold one_ext, same_relation, inclusion; intuition;
   eauto 8 using clos_trans_mon, clos_refl_trans_mon.
 Qed.
 
-Add Parametric Morphism X : (@tot_ext X) with signature
+Add Parametric Morphism A : (@tot_ext A) with signature
   eq ==> same_relation ==> same_relation as tot_ext_more.
 Proof.
   induction y; ins; eauto using clos_trans_more, one_ext_more.
@@ -374,11 +372,8 @@ Proof.
   eapply tot_ext_more; try eassumption; symmetry; eauto.
 Qed.
 
-Add Parametric Morphism X : (@tot_ext_suc X) with signature
+Add Parametric Morphism A : (@tot_ext_suc A) with signature
   eq ==> same_relation ==> same_relation ==> same_relation as tot_ext_suc_more.
 Proof.
   by unfold tot_ext_suc; ins; rewrite H, H0. 
 Qed.
-
-
-

@@ -28,6 +28,8 @@ End SetDefs.
 
 Arguments set_empty {A}.
 Arguments set_full {A}.
+Arguments set_subset {A}.
+Arguments set_equiv {A}.
 
 Notation "P ∪₁ Q" := (set_union P Q) (at level 50, left associativity).
 Notation "P ∩₁ Q" := (set_inter P Q) (at level 40, left associativity).

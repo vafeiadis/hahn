@@ -5,170 +5,9 @@
 Require Import Classical.
 Require Import HahnBase HahnList HahnRelationsBasic.
 Require Import HahnEquational HahnMaxElt HahnRewrite.
+Require Import HahnDom HahnMinPath.
 
 Set Implicit Arguments.
-
-(** Minimum cycle lemma *)
-
-Lemma min_cycle X (r r' : relation X) (dom : X -> Prop)
-    (TOT: is_total dom r')
-    (T : transitive r')
-    (INCL: r' ⊆ r⁺)
-    (INV: irreflexive (r ⨾ r')) :
-    acyclic r <->
-    acyclic (restr_rel (fun x => ~ dom x) r) /\
-    (forall x (CYC: r x x) (D: dom x), False) /\
-    (forall c1 b1 (R: r c1 b1) b2
-       (S : r'^? b1 b2) c2
-       (R': r b2 c2) (S': (restr_rel (fun x => ~ dom x) r)^* c2 c1)
-       (D1 : dom b1) (D2: dom b2) (ND1: ~ dom c1) (ND2: ~ dom c2), False).
-Proof.
-  split; intros A; repeat split; ins; desc; eauto.
-    by intros x P; eapply A, clos_trans_mon; eauto; unfold restr_rel; ins; desf.
-    by eauto using t_step.
-    eapply (A c1), t_trans, rt_t_trans, t_rt_trans; eauto using t_step;
-      try (by eapply clos_refl_trans_mon; eauto; unfold restr_rel; ins; desf).
-    by red in S; desf; eauto using clos_refl_trans, clos_trans_in_rt.
-  assert (INCL': forall a b (R: r a b) (D: dom a) (D': dom b), r' a b).
-    by unfold seq, same_relation, inclusion in INV; ins; destruct (classic (a = b)) as [|N];
-       [|eapply TOT in N]; desf; exfalso; eauto.
-  intros x P.
-
-  assert (J: clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) x x \/
-             r' x x /\ dom x /\ dom x \/
-          dom x /\ (exists m n k, clos_refl r' x m /\ r m n /\
-            clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) n k
-            /\ clos_refl r k x
-            /\ dom m /\ ~ dom n /\ ~ dom k) \/
-          (exists k m,
-            clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) x k /\
-            r k m /\ clos_refl r' m x /\
-            ~ dom k /\ dom m /\ dom x) \/
-          (exists k m m' n,
-            clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) x k /\
-            r k m /\ clos_refl r' m m' /\ r m' n /\
-            clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) n x /\
-            ~ dom k /\ dom m /\ dom m' /\ ~ dom n)).
-    by vauto.
-  revert P J; generalize x at 1 4 6 8 11 13 14 16.
-  unfold restr_rel in *; ins; apply clos_trans_tn1 in P; induction P; eauto.
-  { rename x0 into x; desf; eauto.
-    destruct (classic (dom x)); rewrite clos_refl_transE in *; desf; eauto using clos_trans.
-      by destruct (clos_trans_restrD J); desf.
-    by destruct (clos_trans_restrD J); eapply A, t_trans, t_step; vauto.
-    by eapply INV; vauto.
-
-    unfold clos_refl in J3; desf.
-      by eapply A1 with (c1 := x) (b2 := m); eauto using rt_trans, rt_step.
-    destruct (classic (dom x)).
-      by eapply A1 with (c1 := k) (b2 := m); eauto;
-         unfold clos_refl in *; desf; eauto.
-    by eapply A1 with (c1 := x) (b2 := m); eauto using rt_trans, rt_step.
-
-    destruct (classic (dom y)).
-      by rewrite clos_refl_transE in J; desf;
-         destruct (clos_trans_restrD J); desf.
-    by eapply A1 with (c1 := k) (b2 := x); eauto 8 using rt_trans, rt_step.
-
-    destruct (classic (dom x)).
-      by rewrite clos_refl_transE in J3; desf; destruct (clos_trans_restrD J3); desf.
-    destruct (classic (dom y)).
-      by rewrite clos_refl_transE in J; desf; destruct (clos_trans_restrD J); desf.
-    by eapply A1 with (c1 := k) (b2 := m'); eauto 8 using rt_trans, rt_step.
-  }
-  eapply clos_tn1_trans in P; desf.
-  {
-    destruct (classic (dom y)).
-      rewrite clos_refl_transE in J; desf.
-        destruct (classic (dom x0)).
-          by eapply IHP; right; left; eauto using t_step.
-        eapply IHP; do 2 right; left; split; ins.
-        by eexists y,x0,x0; repeat eexists; vauto; eauto using clos_trans_in_rt.
-      destruct (clos_trans_restrD J).
-      apply IHP; right; right; left; split; ins.
-      by eexists y,z,x0; repeat eexists; vauto; eauto using clos_trans_in_rt.
-    rewrite clos_refl_transE in J; desf.
-      destruct (classic (dom x0)).
-        eapply IHP; do 3 right; left.
-        by eexists y,x0; repeat eexists; vauto; eauto using clos_trans_in_rt.
-      by eapply IHP; left; vauto.
-    by destruct (clos_trans_restrD J); eapply IHP; left;
-       eauto 8 using rt_trans, rt_step, clos_trans_in_rt.
-  }
-  {
-    destruct (classic (dom y)).
-      by apply IHP; eauto 8 using clos_trans.
-    apply IHP; do 3 right; left; eexists y, z;
-    repeat eexists; vauto; eauto using clos_trans_in_rt.
-  }
-  { destruct (classic (dom y)).
-      by eapply IHP; do 2 right; left; split; ins; eexists m; repeat eexists;
-         eauto; red in J0; red; desf; eauto.
-    destruct (classic (dom x0)).
-
-    destruct (classic (m = x0)) as [|NEQ]; subst.
-      by eapply IHP; do 3 right; left; eexists y,z; repeat eexists; vauto.
-    eapply TOT in NEQ; desf.
-      by eapply IHP; do 3 right; left; eexists y,z; repeat eexists; vauto;
-         eauto; red; red in J0; desf; eauto.
-    by red in J3; desf; eapply A1 with (c1 := k) (b2 := m);
-       eauto 8 using rt_trans, rt_step, clos_trans_in_rt.
-
-    by eapply IHP; do 4 right; eexists y,z; repeat eexists; vauto;
-       unfold clos_refl in *; desf; vauto.
-  }
-
-  { destruct (classic (dom z)).
-      by rewrite clos_refl_transE in J; desf;
-         destruct (clos_trans_restrD J); desf.
-    destruct (classic (y = m)) as [|NEQ]; desf.
-      by unfold clos_refl in *; desf; eauto.
-    destruct (classic (dom y)).
-      eapply TOT in NEQ; desf.
-        by unfold clos_refl in *; desf;
-           apply IHP; right; left; eauto using t_rt_trans, t_step.
-      by eapply A1 with (c1 := k) (b2 := y);
-         eauto 8 using rt_trans, rt_step, clos_trans_in_rt.
-    by eapply IHP; do 3 right; left; eexists k, m; repeat eexists; vauto.
-  }
-
-    destruct (classic (dom x0)).
-      by rewrite clos_refl_transE in J3; desf; destruct (clos_trans_restrD J3); desf.
-    destruct (classic (dom z)).
-      by rewrite clos_refl_transE in J; desf; destruct (clos_trans_restrD J); desf.
-    destruct (classic (y = m)) as [|NEQ]; desf.
-      by eapply IHP; do 2 right; left; split; ins; eexists m', n; repeat eexists; vauto.
-    destruct (classic (dom y)).
-      eapply TOT in NEQ; desf.
-        by unfold clos_refl in *; desf; eapply IHP; do 2 right; left; split; ins;
-           eexists m', n; repeat eexists; vauto;
-           eauto using rt_trans, clos_trans_in_rt.
-      by eapply A1 with (c1 := k) (b2 := y);
-         eauto 8 using rt_trans, rt_step, clos_trans_in_rt.
-    by eapply IHP; do 4 right; eexists k,m,m'; repeat eexists; vauto.
-Qed.
-
-Lemma min_cycle1 X (r r' : relation X) (d : X -> Prop)
-    nd (ND: nd = fun x => ~ d x)
-    (TOT: is_total d r')
-    (T : transitive r')
-    (INCL: r' ⊆ r^+)
-    (INV: irreflexive (r ⨾ r')) :
-    acyclic r <->
-    acyclic (⦗nd⦘ ⨾ r ⨾ ⦗nd⦘) /\
-    irreflexive (⦗d⦘ ⨾ r ⨾ ⦗d⦘) /\
-    irreflexive (⦗nd⦘ ⨾ r ⨾ ⦗d⦘ ⨾ r'^? ⨾ ⦗d⦘ ⨾
-                 r ⨾ ⦗nd⦘ ⨾ (⦗nd⦘ ⨾ r ⨾ ⦗nd⦘)^*).
-Proof.
-  assert (AA: restr_rel nd r ≡ ⦗nd⦘⨾ r⨾ ⦗nd⦘).
-    by red; unfold seq, eqv_rel, restr_rel, inclusion in *; split; ins; desf; eauto 10.
-  forward (eapply min_cycle; eauto) as N; subst; rewrite N, <- !AA; clear.
-  unfold irreflexive, seq, eqv_rel;
-  split; ins; desf; splits; ins; desf; eauto.
-    by eapply H0; eauto 10.
-  by apply (H1 c1); repeat eexists; eauto.
-Qed.
-
 
 (******************************************************************************)
 
@@ -184,7 +23,7 @@ Proof.
 Qed.
 
 Lemma cycle_decomp_u1 X (r : relation X) a b c :
-  clos_trans (r ∪ singl_rel a b) c c ->
+  (r ∪ singl_rel a b)⁺ c c ->
   r⁺ c c \/ r^* b a.
 Proof.
   ins; apply path_decomp_u1 in H.
@@ -201,8 +40,7 @@ Proof.
 Qed.
 
 Lemma path_decomp_u1_max X (r : relation X) a b (MAX: max_elt r b) :
-  clos_trans (r ∪ singl_rel a b) ≡
-  r⁺ ∪ r^* ⨾ singl_rel a b.
+  (r ∪ singl_rel a b)⁺ ≡ r⁺ ∪ r^* ⨾ singl_rel a b.
 Proof.
   rewrite path_decomp_u1, seq_singl_max_rt; vauto.
 Qed.
@@ -219,23 +57,22 @@ Qed.
 (******************************************************************************)
 
 Lemma path_decomp_u_total :
-  forall X (r : relation X) dom r' (T: is_total dom r')
-    (D: forall a b (REL: r' a b), dom a /\ dom b)
+  forall X (r : relation X) dom r' (T: is_total dom r') (DB: domb r' dom)
     (IRR: irreflexive (r^* ⨾ r'⁺)),
   (r ∪ r')⁺ ≡ r⁺ ∪ r^* ⨾ r'⁺ ⨾ r^*.
 Proof.
-  split; ins.
+  unfold doma, domb; split; ins.
   { intros ? ? C; unfold seq, union in *.
     induction C; desf; eauto 8 using rt_refl, clos_trans;
       eauto 8 using clos_trans_in_rt, rt_trans.
 
     destruct (classic (z1 = z3)) as [|NEQ]; desf;
       eauto 6 using t_trans, rt_trans.
-    eapply T in NEQ; desf.
+    eapply T in NEQ; desf. 
     by exfalso; eauto 10 using clos_trans, rt_trans.
     by eauto 8 using clos_trans, rt_trans.
-    by eapply t_rt_step in IHC0; desf; specialize_full D; eauto; tauto.
-    by eapply t_rt_step in IHC4; desf; specialize_full D; eauto; tauto.
+    by eapply t_rt_step in IHC0; desf; eauto. 
+    by eapply t_rt_step in IHC4; desf; eauto.
   }
   eapply inclusion_union_l; eauto with rel.
   rewrite <- rt_ct with (r := r ∪ r'),
@@ -243,8 +80,7 @@ Proof.
 Qed.
 
 Lemma acyclic_decomp_u_total :
-  forall X (r : relation X) dom r' (T: is_total dom r')
-    (D: forall a b (REL: r' a b), dom a /\ dom b)
+  forall X (r : relation X) dom r' (T: is_total dom r') (DB: domb r' dom)
     (A: acyclic r)
     (IRR: irreflexive (r^* ⨾ r'⁺)),
     acyclic (r ∪ r').
@@ -343,37 +179,34 @@ Qed.
 
 Lemma clos_trans_restr_trans_mid :
   forall X (r r' : relation X) f x y
-    (A : clos_trans (restr_rel f (fun x y => r x y \/ r' x y)) x y)
+    (A : (restr_rel f (r ∪ r'))⁺ x y)
     z (B : r y z) w
-    (C : clos_trans (restr_rel f (fun x y => r x y \/ r' x y)) z w),
-    clos_trans (restr_rel f (fun x y => r x y \/ r' x y)) x w.
+    (C : (restr_rel f (r ∪ r'))⁺ z w),
+    (restr_rel f (r ∪ r'))⁺ x w.
 Proof.
   ins; eapply t_trans, t_trans; vauto.
-  eapply t_step; repeat split; eauto.
+  eapply t_step; repeat split; vauto.
     by apply clos_trans_restrD in A; desc.
   by apply clos_trans_restrD in C; desc.
 Qed.
 
 Lemma clos_trans_restr_trans_cycle :
   forall X (r r' : relation X) f x y
-    (A : clos_trans (restr_rel f (fun x y => r x y \/ r' x y)) x y)
+    (A : clos_trans (restr_rel f (r ∪ r')) x y)
     (B : r y x),
-    clos_trans (restr_rel f (fun x y => r x y \/ r' x y)) x x.
+    clos_trans (restr_rel f (r ∪ r')) x x.
 Proof.
-  ins; eapply t_trans, t_step; eauto.
-  by red; apply clos_trans_restrD in A; desf; auto.
+  ins; eapply t_trans, t_step; unfold union; eauto.
+  red; apply clos_trans_restrD in A; desf; auto.
 Qed.
 
 
 Lemma path_tur :
   forall X (r r' : relation X) (adom bdom : X -> Prop)
          (T: transitive r)
-         (A: forall x y (R: r' x y), adom x)
-         (B: forall x y (R: r' x y), bdom y),
-    clos_trans (r ∪ r') ≡
-    r ∪
-      clos_trans (r ⨾ eqv_rel adom ∪ r') ⨾
-      clos_refl (eqv_rel bdom ⨾ r).
+         (A: doma r' adom)
+         (B: domb r' bdom),
+    (r ∪ r')⁺ ≡ r ∪ (r ⨾ ⦗adom⦘ ∪ r')⁺ ⨾ (⦗bdom⦘ ⨾ r)^?.
 Proof.
   split.
     rewrite seq_eqv_r, seq_eqv_l.
@@ -387,23 +220,19 @@ Qed.
 
 Lemma path_ur :
   forall X (r r' : relation X) (adom bdom : X -> Prop)
-         (A: forall x y (R: r' x y), adom x)
-         (B: forall x y (R: r' x y), bdom y),
-    clos_trans (r ∪ r') ≡
-    r⁺ ∪
-      clos_trans (r⁺ ⨾ ⦗adom⦘ ∪ r') ⨾
-      clos_refl (⦗bdom⦘ ⨾ r⁺).
+         (A: doma r' adom)
+         (B: domb r' bdom),
+    (r ∪ r')⁺ ≡ r⁺ ∪ (r⁺ ⨾ ⦗adom⦘ ∪ r')⁺ ⨾ (⦗bdom⦘ ⨾ r⁺)^?.
 Proof.
-  by ins; rewrite <- path_tur, clos_trans_union_ct; eauto; vauto.
+  by ins; rewrite <- path_tur, ct_of_union_ct_l; eauto; vauto.
 Qed.
 
 Lemma path_tur2 :
   forall X (r r' : relation X) (adom bdom : X -> Prop)
          (T: transitive r')
-         (A: forall x y (R: r x y), adom x)
-         (B: forall x y (R: r x y), bdom y),
-    clos_trans (r ∪ r') ≡
-    r' ∪ clos_refl (r' ⨾ ⦗adom⦘) ⨾ clos_trans (r ∪ ⦗bdom⦘ ⨾ r').
+         (A: doma r adom)
+         (B: domb r bdom),
+    (r ∪ r')⁺ ≡ r' ∪ (r' ⨾ ⦗adom⦘)^? ⨾ (r ∪ ⦗bdom⦘ ⨾ r')⁺.
 Proof.
   split.
     rewrite seq_eqv_r, seq_eqv_l.
@@ -417,32 +246,20 @@ Qed.
 
 Lemma path_ur2 :
   forall X (r r' : relation X) (adom bdom : X -> Prop)
-         (A: forall x y (R: r x y), adom x)
-         (B: forall x y (R: r x y), bdom y),
-    clos_trans (r ∪ r') ≡
-    r'⁺ ∪
-      clos_refl (r'⁺ ⨾ eqv_rel adom) ⨾
-      clos_trans (r ∪ eqv_rel bdom ⨾ r'⁺).
+         (A: doma r adom)
+         (B: domb r bdom),
+    (r ∪ r')⁺ ≡ r'⁺ ∪ (r'⁺ ⨾ ⦗adom⦘)^? ⨾ (r ∪ ⦗bdom⦘ ⨾ r'⁺)⁺.
 Proof.
-  ins; rewrite <- path_tur2; eauto; vauto.
-  rewrite unionC, <- clos_trans_union_ct, unionC; eauto; vauto.
+  ins; rewrite <- path_tur2, ct_of_union_ct_r; eauto; vauto.
 Qed.
 
-
-(*
-Lemma seq_cr_cr A (r r' : relation A) :
-  clos_refl r ⨾ clos_refl r' ≡
-  clos_refl (r ⨾ r').
-Proof.
-  rewrite !crE, seq_union_l, seq_id_l, seq_union_r, seq_id_r.
-*)
 
 Lemma acyclic_ur :
   forall X (r r' : relation X) (adom bdom : X -> Prop)
          (A: forall x y (R: r x y), adom x)
          (B: forall x y (R: r x y), bdom y),
     acyclic r' ->
-    acyclic (r ∪ eqv_rel bdom ⨾ r'⁺ ⨾ eqv_rel adom) ->
+    acyclic (r ∪ ⦗bdom⦘ ⨾ r'⁺ ⨾ ⦗adom⦘) ->
     acyclic (r ∪ r').
 Proof.
   unfold acyclic; ins.
@@ -531,22 +348,20 @@ Qed.
 
 
 Lemma clos_trans_imm :
-  forall X (R : relation X) (I: irreflexive R)
-         (T: transitive R) L (ND: NoDup L) a b
-         (D: forall c, R a c -> R c b -> In c L)
-         (REL: R a b),
-    clos_trans (immediate R) a b.
+  forall X (r : relation X) (I: irreflexive r)
+         (T: transitive r) L (ND: NoDup L) a b
+         (D: forall c, r a c -> r c b -> In c L)
+         (REL: r a b),
+    (immediate r)⁺ a b.
 Proof.
   intros until 3; induction ND; ins; vauto.
-  destruct (classic (R a x /\ R x b)) as [|N]; desf;
+  destruct (classic (r a x /\ r x b)) as [|N]; desf;
     [apply t_trans with x|]; eapply IHND; ins;
     forward eapply (D c); eauto; intro; desf; exfalso; eauto.
 Qed.
 
-
-
 Lemma clos_trans_rotl A (r r' : relation A) :
-  (r ⨾ r')⁺ ≡ r ⨾ clos_refl_trans (r' ⨾ r) ⨾ r'.
+  (r ⨾ r')⁺ ≡ r ⨾ (r' ⨾ r)^* ⨾ r'.
 Proof.
   split; red; ins; unfold seq in *; desf.
     by induction H; desf; eauto 10 using clos_refl_trans.
@@ -582,7 +397,7 @@ Qed.
 
 Lemma clos_trans_immediate2 A (r : relation A)
       (T: transitive r) (IRR: irreflexive r) dom
-      (D: forall a b (R: r a b), In b dom) a b :
+      (D: domb r (fun x => In x dom)) a b :
   r a b ->
   (immediate r)⁺ a b.
 Proof.
@@ -752,8 +567,7 @@ Qed.
 
 Lemma path_utd_helper :
   forall X (r r' : relation X) (T: transitive r') dom
-         (F: is_total dom r')
-         (R: forall a b, r' a b -> dom a /\ dom b) x y
+         (F: is_total dom r') (DA: doma r' dom) (DB: domb r' dom) x y
     (P: clos_trans (fun x y => r x y \/ r' x y) x y),
     r⁺ x y \/
     (exists z w, r^* x z /\ r' z w /\ r^* w y) \/
@@ -762,18 +576,13 @@ Proof.
   ins; induction P; desf; eauto 9 using clos_trans, clos_refl_trans, clos_trans_in_rt.
   right; destruct (classic (z1 = w)) as [|NEQ]; desf; eauto 8 using clos_refl_trans.
   eapply F in NEQ; desf; eauto 8 using clos_refl_trans.
-  eapply R in IHP4; desf.
-  eapply R in IHP0; desf.
 Qed.
 
 Lemma path_utd :
   forall X (r r' : relation X) (T: transitive r') dom
-         (F: is_total dom r')
-         (R: forall a b, r' a b -> dom a /\ dom b)
+         (F: is_total dom r') (DA: doma r' dom) (DB: domb r' dom)
          (I': irreflexive (r' ⨾ r^*)),
-    clos_trans (r ∪ r') ≡
-    r⁺ ∪
-    (r^* ⨾ r' ⨾ r^*).
+    (r ∪ r')⁺ ≡ r⁺ ∪ r^* ⨾ r' ⨾ r^*.
 Proof.
   split.
     unfold inclusion, seq, union in *; ins; desf.
@@ -785,8 +594,7 @@ Qed.
 Lemma acyclic_utd :
   forall X (r: relation X) (A: acyclic r)
          r' (T: transitive r') (IRR: irreflexive r') dom
-         (F: is_total dom r')
-         (R: forall a b, r' a b -> dom a /\ dom b)
+         (F: is_total dom r') (DA: doma r' dom) (DB: domb r' dom)
          (I': irreflexive (r' ⨾ r⁺)),
   acyclic (r ∪ r').
 Proof.
@@ -797,35 +605,28 @@ Proof.
   by split; ins; rewrite irreflexive_seqC, seqA, rt_rt.
 Qed.
 
+Lemma reflexive_union_l A (r r' : relation A) :
+  reflexive r -> reflexive (r ∪ r').
+Proof. vauto. Qed.
 
+Lemma reflexive_union_r A (r r' : relation A) :
+  reflexive r' -> reflexive (r ∪ r').
+Proof. vauto. Qed.
+ 
+Lemma reflexive_seq A (r r' : relation A) :
+  reflexive r -> reflexive r' -> reflexive (r ⨾ r').
+Proof. vauto. Qed.
 
-Lemma acyclic_case_split A (R : relation A) f :
-  acyclic R <->
-  acyclic (restr_rel f R) /\ (forall x (NEG: ~ f x) (CYC: clos_trans R x x), False).
-Proof.
-  unfold restr_rel; repeat split; repeat red; ins; desc; eauto.
-    by eapply H, clos_trans_mon; eauto; instantiate; ins; desf.
-  destruct (classic (f x)) as [X|X]; eauto.
-  assert (M: clos_refl_trans (fun a b => R a b /\ f a /\ f b) x x) by vauto.
-  generalize X; revert H0 M X; generalize x at 2 3 5; ins.
-  apply clos_trans_tn1 in H0; induction H0; eauto 6 using rt_t_trans, t_step.
-  destruct (classic (f y)); eauto 6 using clos_refl_trans.
-  eapply H1; eauto.
-  eapply t_rt_trans, rt_trans; eauto using t_step, clos_trans_in_rt, clos_tn1_trans.
-  by eapply clos_refl_trans_mon; eauto; instantiate; ins; desf.
-Qed.
+Hint Resolve reflexive_union_l reflexive_union_r reflexive_seq : rel.
 
 Lemma path_unc X (r r' : relation X)
-  (A: r ⨾ r ≡ (fun x y => False))
-  (B: r' ⨾ r' ≡ (fun x y => False)) :
-  clos_refl_trans (r ∪ r') ≡
-  clos_refl_trans (r ⨾ r') ∪
-  (clos_refl_trans (r' ⨾ r) ∪
-   (r ⨾ clos_refl_trans (r' ⨾ r) ∪
-    r' ⨾ clos_refl_trans (r ⨾ r'))).
+      (A : r ⨾ r ≡ ∅₂)
+      (B : r' ⨾ r' ≡ ∅₂) :
+  (r ∪ r')^* ≡ 
+  (r ⨾ r')^* ∪ (r' ⨾ r)^* ∪ r ⨾ (r' ⨾ r)^* ∪ r' ⨾ (r ⨾ r')^*.
 Proof.
   split.
-    eapply inclusion_rt_ind_left; [by vauto|].
+    eapply inclusion_rt_ind_left; eauto with rel.
     rewrite seq_union_l, !seq_union_r, <- !seqA, <- !ct_begin.
     rewrite (seq_rtE_r r (r ⨾ r')), (seq_rtE_r r' (r' ⨾ r)), <- !seqA.
     rewrite A, B, ?seq_false_l, ?union_false_l, ?union_false_r.
@@ -837,13 +638,9 @@ Proof.
 Qed.
 
 Lemma pathp_unc X (r r' : relation X)
-  (A: r ⨾ r ≡ (fun x y => False))
-  (B: r' ⨾ r' ≡ (fun x y => False)) :
-  clos_trans (r ∪ r') ≡
-  clos_trans (r ⨾ r') ∪
-  (clos_trans (r' ⨾ r) ∪
-   (r ⨾ clos_refl_trans (r' ⨾ r) ∪
-    r' ⨾ clos_refl_trans (r ⨾ r'))).
+      (A : r ⨾ r ≡ ∅₂)
+      (B : r' ⨾ r' ≡ ∅₂) :
+  (r ∪ r')⁺ ≡ (r ⨾ r')⁺ ∪ (r' ⨾ r)⁺ ∪ r ⨾ (r' ⨾ r)^* ∪ r' ⨾ (r ⨾ r')^*.
 Proof.
   rewrite ct_begin, path_unc; ins.
   rewrite seq_union_l, !seq_union_r, <- !seqA, <- !ct_begin.
@@ -853,8 +650,8 @@ Proof.
 Qed.
 
 Lemma acyclic_unc X (r r' : relation X)
-  (A: r ⨾ r ≡ (fun x y => False))
-  (B: r' ⨾ r' ≡ (fun x y => False)) :
+      (A : r ⨾ r ≡ ∅₂)
+      (B : r' ⨾ r' ≡ ∅₂) :
   acyclic (r ∪ r') <-> acyclic (r ⨾ r').
 Proof.
   unfold acyclic.
@@ -933,8 +730,6 @@ Proof.
   by rewrite seq_ct_absorb_r, minus_seq_r.
 Qed.
 
-
-
 Lemma acyclic_via_expand_minus :
   forall X (r r' : relation X)
     (IRR1: irreflexive r)
@@ -948,7 +743,7 @@ Qed.
 Lemma acyclic_seq_via_expand_minus :
   forall X (r r' : relation X)
     (IRR1: irreflexive (r ⨾ r'))
-    (IRR2: irreflexive (minus_rel (r ⨾ r' ⨾ r) r ⨾ r' ⨾ clos_refl_trans (r ⨾ r'))),
+    (IRR2: irreflexive ((r ⨾ r' ⨾ r \ r) ⨾ r' ⨾ (r ⨾ r')^*)),
     acyclic (r ⨾ r').
 Proof.
   unfold acyclic; ins; rewrite ct_end, <- seqA.
@@ -957,133 +752,4 @@ Proof.
   by rewrite seqA, irreflexive_seqC, seqA.
 Qed.
 
-
-
-Require Import Omega.
-
-Lemma get_first_nat (P : nat -> Prop) :
-  (exists m, P m /\ forall k, P k -> m <= k) \/ forall k, ~ P k.
-Proof.
-  apply NNPP; intro X; apply not_or_and in X; desf.
-  apply not_all_not_ex in X0; desf; destruct X.
-  revert P X0; induction n; ins.
-    by exists 0; split; ins; desf; auto with arith.
-  destruct (classic (P 0)).
-    by exists 0; split; ins; desf; auto with arith.
-  specialize (IHn (fun n => P (S n)) X0); desf.
-  eexists (S m); split; ins; eauto.
-  destruct k; try done; eauto using le_n_S.
-Qed.
-
-Lemma get_max_bounded_nat (P : nat -> Prop) x n (LE: x <= n) (SAT: P x) :
-  exists m, m <= n /\ P m /\ forall k, k <= n -> P k -> k <= m.
-Proof.
-  destruct get_first_nat with (P := fun x => P (n - x)); desf.
-  exists (n - m); repeat split; ins; eauto; try omega.
-  replace k with (n - (n - k)) in H2; [apply H0 in H2|]; omega.
-  destruct (H (n - x)).
-  replace (n - (n - x)) with x; eauto; omega.
-Qed.
-
-Lemma path_minimize :
-  forall X (r : relation X) a b
-    (PATH: r⁺ a b),
-    exists f n,
-      << START: f 0 = a >> /\
-      << END: f (S n) = b >> /\
-      << STEP: forall i (LT: i <= n), r (f i) (f (S i)) >> /\
-      << MIN: forall i (LTi: i <= n) j (LTj: i < j <= S n),
-                r (f i) (f j) -> j = S i >> .
-Proof.
-  ins; apply clos_trans_tn1 in PATH; induction PATH; desf; unnw.
-    exists (fun x => match x with 0 => a | S _ => y end), 0; intuition; try omega.
-      by apply NPeano.Nat.le_0_r in LT; desf.
-
-  destruct (get_first_nat (fun x => x <= n /\ r (f x) z)) as [(m & M)|M]; desc.
-  { exists (fun x => if Compare_dec.le_dec x m then f x else z), m;
-    repeat split; ins; desf; try omega.
-      by eapply STEP; omega.
-    by assert (i = m) by omega; desf.
-    by eapply MIN; eauto; omega.
-    assert (j = S m) by omega; desf.
-    specialize (M0 i); specialize_full M0; try split; ins; omega. }
-  { exists (fun x => if Compare_dec.le_dec x (S n) then f x else z), (S n);
-    repeat split; ins; desf; try omega.
-      by eapply STEP; omega.
-    assert (i = S n) by omega; desf.
-    eapply MIN; eauto; try omega.
-    destruct (eqP i (S n)); desf; try omega.
-    destruct (M i); split; ins; omega. }
-Qed.
-
-
-Lemma acyclic_minimize1 X (r : relation X) :
-  acyclic r <->
-  ~ exists f n,
-      << ENDS: f 0 = f (S n) >> /\
-      << STEP: forall i (LT: i <= n), r (f i) (f (S i)) >> /\
-      << MIN: forall i (LTi: i <= n) j (LTj: j <= S n),
-                r (f i) (f j) -> j = S i \/ i = n /\ j = 0 >>.
-Proof.
-  split; repeat red; ins; desf.
-  { destruct (H (f 0)).
-    rewrite ENDS at 2; clear - STEP.
-    induction n; vauto.
-      by apply t_step, STEP.
-    by eapply t_trans, t_step; eauto. }
-  apply path_minimize in H0; desf.
-  destruct H; unnw.
-  destruct (get_first_nat (fun x => x <= n /\ exists mm, mm <= x /\
-                                                         r (f x) (f mm)))
-    as [(m & M & M'')|M]; desc.
-  assert (M' : forall k k', k' <= k -> k <= n -> r (f k) (f k') -> m <= k).
-    by ins; apply M''; eauto.
-  clear M''.
-  {
-    forward eapply get_max_bounded_nat
-    with (P := fun x => r (f m) (f x)) (x := mm) (n := m) as [kk K]; ins; desc.
-    clear mm M0 M1; rename kk into mm.
-    exists (fun x => if x == (S (m - mm)) then (f mm) else (f (x + mm))), (m - mm);
-      repeat split; ins; desf; desf; try omega.
-    by rewrite NPeano.Nat.sub_add.
-    eapply STEP; omega.
-    left; apply M' in H; omega.
-    destruct (eqP j 0); desf; ins.
-      right; apply M' in H; omega.
-    left; apply MIN in H; try split; try omega.
-    apply NNPP; intro K'.
-    assert (Z:=H); apply M' in Z; try omega.
-    assert (i = m - mm) by omega; subst.
-    rewrite Nat.sub_add in *; ins; apply K1 in H; omega.
-  }
-  { exists f, n;
-    repeat split; ins; desf; try omega.
-    destruct (le_lt_dec j i); [edestruct M|]; eauto.
- }
-Qed.
-
-Lemma acyclic_minimize X (r : relation X) :
-  acyclic r <->
-  ~ exists f n,
-      << ENDS: f 0 = f (S n) >> /\
-      << STEP: forall i (LT: i <= n), r (f i) (f (S i)) >> /\
-      << MIN: forall i (LTi: i <= n) j (LTj: j <= S n),
-                r (f i) (f j) -> j = S i \/ i = n /\ j = 0 >> /\
-      << NODUP: forall i (LTi: i <= S n) j (LTj: j <= S n),
-                  f i = f j ->
-                  i = j \/ i = 0 /\ j = S n \/
-                           i = S n /\ j = 0 >>.
-Proof.
-  rewrite acyclic_minimize1.
-  split; intros A B; destruct A; desc; unnw; eauto.
-  exists f, n; repeat split; ins; eauto.
-  destruct (lt_dec i j).
-    destruct j; [exfalso; omega|]; ins; auto.
-    specialize (STEP j); specialize_full STEP; try omega.
-    rewrite <- H in STEP; eapply MIN in STEP; try omega.
-  destruct (lt_dec j i); try omega.
-  destruct i; [exfalso; omega|]; ins; auto.
-  specialize (STEP i); specialize_full STEP; try omega.
-  rewrite H in STEP; eapply MIN in STEP; try omega.
-Qed.
 

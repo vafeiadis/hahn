@@ -13,66 +13,66 @@ Set Implicit Arguments.
 
 (** First, for inclusion. *)
 
-Add Parametric Relation (X : Type) : (relation X) (@inclusion X)
+Add Parametric Relation (A : Type) : (relation A) (@inclusion A)
  reflexivity proved by (@inclusion_refl _)
  transitivity proved by (@inclusion_trans _)
  as inclusion_rel.
 
-Add Parametric Morphism X : (@inclusion X) with signature
+Add Parametric Morphism A : (@inclusion A) with signature
   inclusion --> inclusion ++> Basics.impl as inclusion_mori.
 Proof.
   unfold inclusion, Basics.impl; ins; eauto.
 Qed.
 
-Add Parametric Morphism X : (@union X) with signature
+Add Parametric Morphism A : (@union A) with signature
   inclusion ==> inclusion ==> inclusion as union_mori.
 Proof.
   unfold inclusion, union; intuition; eauto.
 Qed.
 
-Add Parametric Morphism X : (@inter_rel X) with signature
+Add Parametric Morphism A : (@inter_rel A) with signature
   inclusion ==> inclusion ==> inclusion as inter_rel_mori.
 Proof.
   unfold inclusion, inter_rel; intuition; eauto.
 Qed.
 
-Add Parametric Morphism X : (@minus_rel X) with signature
+Add Parametric Morphism A : (@minus_rel A) with signature
   inclusion ++> inclusion --> inclusion as minus_rel_mori.
 Proof.
   unfold inclusion, minus_rel; intuition; eauto.
 Qed.
 
-Add Parametric Morphism X : (@seq X) with signature
+Add Parametric Morphism A : (@seq A) with signature
   inclusion ==> inclusion ==> inclusion as seq_mori.
 Proof.
   unfold inclusion, seq; intuition; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@irreflexive X) with signature
+Add Parametric Morphism A : (@irreflexive A) with signature
   inclusion --> Basics.impl as irreflexive_mori.
 Proof.
   unfold inclusion, irreflexive, Basics.impl; intuition; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@clos_trans X) with signature
+Add Parametric Morphism A : (@clos_trans A) with signature
   inclusion ==> inclusion as clos_trans_mori.
 Proof.
   unfold inclusion; eauto using clos_trans_mon.
 Qed.
 
-Add Parametric Morphism X : (@clos_refl_trans X) with signature
+Add Parametric Morphism A : (@clos_refl_trans A) with signature
   inclusion ==> inclusion as clos_refl_trans_mori.
 Proof.
   unfold inclusion; eauto using clos_refl_trans_mon.
 Qed.
 
-Add Parametric Morphism X : (@clos_refl X) with signature
+Add Parametric Morphism A : (@clos_refl A) with signature
   inclusion ==> inclusion as clos_refl_mori.
 Proof.
   unfold inclusion, clos_refl; intuition; eauto.
 Qed.
 
-Add Parametric Morphism X P : (@restr_rel X P) with signature
+Add Parametric Morphism A P : (@restr_rel A P) with signature
   inclusion ==> inclusion as restr_rel_mori.
 Proof.
   unfold inclusion, restr_rel; intuition; eauto.
@@ -84,26 +84,26 @@ Proof.
   unfold inclusion, restr_eq_rel; intuition; eauto.
 Qed.
 
-Add Parametric Morphism X : (@acyclic X) with signature
+Add Parametric Morphism A : (@acyclic A) with signature
   inclusion --> Basics.impl as acyclic_mori.
 Proof.
   unfold acyclic; ins; rewrite H; reflexivity.
 Qed.
 
-Add Parametric Morphism X : (@is_total X) with signature
+Add Parametric Morphism A : (@is_total A) with signature
   eq ==> inclusion ==> Basics.impl as is_total_mori.
 Proof.
   unfold inclusion, is_total, Basics.impl; ins; desf.
   eapply H0 in NEQ; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@transp X) with signature
+Add Parametric Morphism A : (@transp A) with signature
   inclusion ==> inclusion as transp_mori.
 Proof.
   unfold inclusion, transp; eauto.
 Qed.
 
-Add Parametric Morphism X : (@eqv_rel X) with signature
+Add Parametric Morphism A : (@eqv_rel A) with signature
   @set_subset _ ==> inclusion as eqv_rel_mori.
 Proof.
   unfold inclusion, set_subset, eqv_rel; ins; desf; eauto.
@@ -124,56 +124,56 @@ Proof. unfold same_relation; split; ins; desf. Qed.
 Lemma same_relation_trans A : transitive (@same_relation A).
 Proof. unfold same_relation; split; ins; desf; red; eauto. Qed.
 
-Add Parametric Relation (X : Type) : (relation X) (@same_relation X)
- reflexivity proved by (@same_relation_refl X)
- symmetry proved by (@same_relation_sym X)
- transitivity proved by (@same_relation_trans X)
+Add Parametric Relation (A : Type) : (relation A) (@same_relation A)
+ reflexivity proved by (@same_relation_refl A)
+ symmetry proved by (@same_relation_sym A)
+ transitivity proved by (@same_relation_trans A)
  as same_rel.
 
-Add Parametric Morphism X : (@inclusion X) with signature
+Add Parametric Morphism A : (@inclusion A) with signature
   same_relation ==> same_relation ==> iff as inclusion_more.
 Proof.
   unfold same_relation; ins; desf; split; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@union X) with signature
+Add Parametric Morphism A : (@union A) with signature
   same_relation ==> same_relation ==> same_relation as union_more.
 Proof.
   unfold same_relation, union; ins; desf; split; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@inter_rel X) with signature
+Add Parametric Morphism A : (@inter_rel A) with signature
   same_relation ==> same_relation ==> same_relation as inter_rel_more.
 Proof.
   unfold same_relation, inter_rel; ins; desf; split; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@minus_rel X) with signature
+Add Parametric Morphism A : (@minus_rel A) with signature
   same_relation ==> same_relation ==> same_relation as minus_rel_more.
 Proof.
   unfold same_relation, minus_rel; ins; desf; split; red; intuition.
 Qed.
 
-Add Parametric Morphism X : (@seq X) with signature
+Add Parametric Morphism A : (@seq A) with signature
   same_relation ==> same_relation ==> same_relation as seq_more.
 Proof.
   unfold same_relation, seq; ins; desf; split; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@immediate X) with signature
+Add Parametric Morphism A : (@immediate A) with signature
   same_relation ==> same_relation as immediate_more.
 Proof.
   ins; rewrite !immediateE; rewrite H; eauto.
 Qed.
 
-Add Parametric Morphism X : (@eqv_dom_rel X) with signature
+Add Parametric Morphism A : (@eqv_dom_rel A) with signature
   (@Permutation _) ==> same_relation as eqv_dom_rel_more.
 Proof.
   by unfold same_relation, eqv_dom_rel; ins; desf; split; red; ins; desf;
      rewrite H in *.
 Qed.
 
-Add Parametric Morphism X P : (@restr_rel X P) with signature
+Add Parametric Morphism A P : (@restr_rel A P) with signature
   same_relation ==> same_relation as restr_rel_more.
 Proof.
   unfold same_relation, restr_rel; ins; desf; split; red; ins; desf; eauto.
@@ -185,62 +185,62 @@ Proof.
   unfold same_relation, restr_eq_rel; intuition; eauto using restr_eq_rel_mori.
 Qed.
 
-Add Parametric Morphism X : (@clos_trans X) with signature
+Add Parametric Morphism A : (@clos_trans A) with signature
   same_relation ==> same_relation as clos_trans_more.
 Proof.
   unfold same_relation; ins; desf; split; red; ins; desf; eauto using clos_trans_mon.
 Qed.
 
-Add Parametric Morphism X : (@clos_refl_trans X) with signature
+Add Parametric Morphism A : (@clos_refl_trans A) with signature
   same_relation ==> same_relation as clos_relf_trans_more.
 Proof.
   unfold same_relation; ins; desf; split; red; ins; desf;
   eauto using clos_refl_trans_mon.
 Qed.
 
-Add Parametric Morphism X : (@clos_refl X) with signature
+Add Parametric Morphism A : (@clos_refl A) with signature
   same_relation ==> same_relation as clos_relf_more.
 Proof.
   unfold same_relation, clos_refl; ins; desf; split; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@irreflexive X) with signature
+Add Parametric Morphism A : (@irreflexive A) with signature
   same_relation ==> iff as irreflexive_more.
 Proof.
   unfold same_relation; ins; desf; split; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@acyclic X) with signature
+Add Parametric Morphism A : (@acyclic A) with signature
   same_relation ==> iff as acyclic_more.
 Proof.
   unfold acyclic; ins; rewrite H; reflexivity.
 Qed.
 
-Add Parametric Morphism X : (@transitive X) with signature
+Add Parametric Morphism A : (@transitive A) with signature
   same_relation ==> iff as transitive_more.
 Proof.
   unfold same_relation; ins; desf; split; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@is_total X) with signature
+Add Parametric Morphism A : (@is_total A) with signature
   eq ==> same_relation ==> iff as is_total_more.
 Proof.
   unfold is_total, same_relation; split; ins; eapply H0 in NEQ; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@transp X) with signature
+Add Parametric Morphism A : (@transp A) with signature
   same_relation ==> same_relation as transp_more.
 Proof.
   unfold same_relation, transp; ins; desf; eauto; split; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@functional X) with signature
+Add Parametric Morphism A : (@functional A) with signature
   same_relation ==> Basics.impl as functional_more.
 Proof.
   unfold same_relation, inclusion, functional; ins; desf; red; ins; desf; eauto.
 Qed.
 
-Add Parametric Morphism X : (@eqv_rel X) with signature
+Add Parametric Morphism A : (@eqv_rel A) with signature
   @set_equiv _ ==> same_relation as eqv_rel_more.
 Proof.
   unfold same_relation, inclusion, set_equiv, eqv_rel; firstorder. 
@@ -372,6 +372,16 @@ Section PropertiesSeqUnion.
     unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
   Qed.
 
+  Lemma union_absorb_l r r' (SUB: r ⊆ r') : r ∪ r' ≡ r'.
+  Proof.
+    split; auto with rel. 
+  Qed.
+
+  Lemma union_absorb_r r r' (SUB: r ⊆ r') : r' ∪ r ≡ r'.
+  Proof.
+    split; auto with rel. 
+  Qed.
+
 End PropertiesSeqUnion.
 
 Hint Rewrite seq_false_l seq_false_r union_false_l union_false_r unionK : rel.
@@ -379,7 +389,63 @@ Hint Rewrite seq_id_l seq_id_r seq_eqvK : rel.
 
 Hint Rewrite seq_Union_l seq_Union_r seq_union_l seq_union_r : rel_full.
 
+(******************************************************************************)
+(** Basic properties of relational intersection *)
+(******************************************************************************)
 
+Section PropertiesInter.
+
+  Variable A : Type.
+  Implicit Type r : relation A.
+
+  Lemma interA r1 r2 r3 : (r1 ∩ r2) ∩ r3 ≡ r1 ∩ (r2 ∩ r3).
+  Proof. 
+    firstorder. 
+  Qed.
+
+  Lemma interC r1 r2 : r1 ∩ r2 ≡ r2 ∩ r1.
+  Proof.
+    firstorder. 
+  Qed.
+
+  Lemma interAC r r' r'' : r ∩ (r' ∩ r'') ≡ r' ∩ (r ∩ r'').
+  Proof.
+    firstorder. 
+  Qed.
+
+  Lemma interK r : r ∩ r ≡ r.
+  Proof.
+    firstorder. 
+  Qed.
+
+  Lemma inter_false_r r : r ∩ ∅₂ ≡ ∅₂.
+  Proof.
+    firstorder. 
+  Qed.
+
+  Lemma inter_false_l r : ∅₂ ∩ r ≡ ∅₂.
+  Proof.
+    firstorder. 
+  Qed.
+
+  Lemma inter_absorb_l r r' (SUB: r ⊆ r') : r' ∩ r ≡ r.
+  Proof.
+    firstorder.
+  Qed.
+
+  Lemma inter_absorb_r r r' (SUB: r ⊆ r') : r ∩ r' ≡ r.
+  Proof.
+    firstorder.
+  Qed.
+
+  Lemma minus_absorb r r' (SUB: r ⊆ r') : r \ r' ≡ ∅₂.
+  Proof.
+    firstorder.
+  Qed.
+
+End PropertiesInter.
+
+Hint Rewrite inter_false_l inter_false_r interK : rel.
 
 
 (******************************************************************************)
@@ -510,6 +576,16 @@ Section PropertiesClos.
   Lemma ct_of_ct r: (r⁺)⁺ ≡ r⁺.
   Proof.
     split; eauto with rel.
+  Qed.
+ 
+  Lemma ct_of_union_ct_l r r' : (r⁺ ∪ r')⁺ ≡ (r ∪ r')⁺.
+  Proof.
+    split; eauto 8 with rel.
+  Qed.
+
+  Lemma ct_of_union_ct_r r r' : (r ∪ r'⁺)⁺ ≡ (r ∪ r')⁺.
+  Proof.
+    split; eauto 8 with rel.
   Qed.
 
   Lemma ct_of_cr r: (r ^?)⁺ ≡ r ^*.
@@ -742,26 +818,26 @@ Qed.
 (** Properties of restrictions *)
 (******************************************************************************)
 
-Lemma same_relation_restr X (f : X -> Prop) r r' :
+Lemma same_relation_restr A (f : A -> Prop) r r' :
    (forall x (CONDx: f x) y (CONDy: f y), r x y <-> r' x y) ->
    (restr_rel f r ≡ restr_rel f r').
 Proof.
   unfold restr_rel; split; red; ins; desf; rewrite H in *; eauto.
 Qed.
 
-Lemma restr_union X (f : X -> Prop) r r' :
+Lemma restr_union A (f : A -> Prop) r r' :
   restr_rel f (r ∪ r') ≡ restr_rel f r ∪ restr_rel f r'.
 Proof.
   split; unfold union, restr_rel, inclusion; ins; desf; eauto.
 Qed.
 
-Lemma union_restr X (f : X -> Prop) r r' :
+Lemma union_restr A (f : A -> Prop) r r' :
   restr_rel f r ∪ restr_rel f r' ≡ restr_rel f (r ∪ r').
 Proof.
   symmetry; apply restr_union.
 Qed.
 
-Lemma ct_restr X (f : X -> Prop) r (UC: upward_closed r f) :
+Lemma ct_restr A (f : A -> Prop) r (UC: upward_closed r f) :
   (restr_rel f r)⁺ ≡ restr_rel f (r⁺).
 Proof.
   split; unfold union, restr_rel, inclusion; ins; desf; eauto.
@@ -772,7 +848,7 @@ Proof.
 Qed.
 
 Lemma restr_eq_union:
-  forall (X : Type) (r r' : relation X) (B : Type) (f : X -> B),
+  forall (A : Type) (r r' : relation A) (B : Type) (f : A -> B),
   restr_eq_rel f (r ∪ r') ≡
   restr_eq_rel f r ∪ restr_eq_rel f r'.
 Proof.
@@ -780,14 +856,14 @@ Proof.
 Qed.
 
 Lemma restr_eq_elim :
-  forall X (r : relation X) B (f: X -> B)
+  forall A (r : relation A) B (f: A -> B)
          (R: forall x y, r x y -> f x = f y),
    restr_eq_rel f r ≡ r.
 Proof.
   unfold restr_eq_rel; split; red; ins; intuition.
 Qed.
 
-Lemma restr_eq_seq_eqv_rel X (r : relation X) (B : Type) (f : X -> B) dom :
+Lemma restr_eq_seq_eqv_rel A (r : relation A) (B : Type) (f : A -> B) dom :
   restr_eq_rel f (r⨾ ⦗dom⦘) ≡ restr_eq_rel f r⨾ ⦗dom⦘.
 Proof.
   ins; rewrite !seq_eqv_r; unfold restr_eq_rel.
@@ -799,61 +875,61 @@ Qed.
 (** Lemmas about [transp] *)
 (******************************************************************************)
 
-Lemma transp_inv  X (r : relation X) :
+Lemma transp_inv  A (r : relation A) :
   r⁻¹ ⁻¹ ≡ r.
 Proof.
   unfold transp; split; red; intuition.
 Qed.
 
-Lemma transp_eqv_rel  X (dom: X -> Prop) : 
+Lemma transp_eqv_rel  A (dom: A -> Prop) : 
   transp ⦗dom⦘ ≡ ⦗dom⦘.
 Proof.
   unfold eqv_rel, transp; split; red; ins; desf.
 Qed.
 
-Lemma transp_union  X (r1 r2 : relation X) :
+Lemma transp_union  A (r1 r2 : relation A) :
   (r1 ∪ r2)⁻¹ ≡ r1⁻¹ ∪ r2⁻¹.
 Proof.
   unfold transp, union; split; red; intuition.
 Qed.
 
-Lemma transp_seq  X (r1 r2 : relation X) :
+Lemma transp_seq  A (r1 r2 : relation A) :
   (r1 ⨾ r2)⁻¹ ≡ r2⁻¹ ⨾ r1⁻¹.
 Proof.
   unfold transp, seq; split; red; ins; desf; eauto.
 Qed.
 
-Lemma transp_inter  X (r1 r2 : relation X) :
+Lemma transp_inter  A (r1 r2 : relation A) :
   (r1 ∩ r2)⁻¹ ≡ r1⁻¹ ∩ r2⁻¹.
 Proof.
   unfold transp, inter_rel; split; red; intuition.
 Qed.
 
-Lemma transp_minus  X (r1 r2 : relation X) :
+Lemma transp_minus  A (r1 r2 : relation A) :
   (r1 \ r2)⁻¹ ≡ r1⁻¹ \ r2⁻¹.
 Proof.
   unfold transp, minus_rel; split; red; intuition.
 Qed.
 
-Lemma transp_rt  X (r : relation X) :
+Lemma transp_rt  A (r : relation A) :
   (r ^*) ⁻¹ ≡ (r⁻¹) ^*.
 Proof.
   unfold transp, seq; split; red; ins; induction H; vauto.
 Qed.
 
-Lemma transp_ct  X (r : relation X) :
+Lemma transp_ct  A (r : relation A) :
   (r⁺)⁻¹ ≡ (r⁻¹)⁺.
 Proof.
   unfold transp, seq; split; red; ins; induction H; vauto.
 Qed.
 
-Lemma transp_cr  X (r : relation X) :
+Lemma transp_cr  A (r : relation A) :
   (r^?)⁻¹ ≡ (r⁻¹)^?.
 Proof.
   unfold transp, clos_refl; split; red; intuition.
 Qed.
 
-Lemma transitive_transp X (r : relation X) :
+Lemma transitive_transp A (r : relation A) :
   transitive r -> transitive (r⁻¹).
 Proof.
   unfold transp, transitive; eauto.
@@ -872,7 +948,7 @@ Hint Rewrite transp_inv transp_eqv_rel: rel.
 (******************************************************************************)
 
 
-Lemma acyclic_mon X (r r' : relation X) :
+Lemma acyclic_mon A (r r' : relation A) :
   acyclic r -> r' ⊆ r -> acyclic r'.
 Proof.
   eby repeat red; ins; eapply H, clos_trans_mon.
@@ -886,38 +962,38 @@ Qed.
 
 
 Lemma clos_trans_imm :
-  forall X (R : relation X) (I: irreflexive R)
-         (T: transitive R) L (ND: NoDup L) a b
-         (D: forall c, R a c -> R c b -> In c L)
-         (REL: R a b),
-    (immediate R)⁺ a b.
+  forall A (r : relation A) (I: irreflexive r)
+         (T: transitive r) L (ND: NoDup L) a b
+         (D: forall c, r a c -> r c b -> In c L)
+         (REL: r a b),
+    (immediate r)⁺ a b.
 Proof.
   intros until 3; induction ND; ins; vauto.
-  destruct (classic (R a x /\ R x b)) as [|N]; desf;
+  destruct (classic (r a x /\ r x b)) as [|N]; desf;
     [apply t_trans with x|]; eapply IHND; ins;
   forward (by eapply (D c); eauto) as K; desf; exfalso; eauto.
 Qed.
 
 Lemma ct_imm1 :
-  forall X (R : relation X) (I: irreflexive R) (T: transitive R)
-       acts (FIN : dom_rel R ⊆₁ (fun x => In x acts)),
-    R ≡ (immediate R)⁺.
+  forall A (r : relation A) (I: irreflexive r) (T: transitive r)
+       acts (FIN : dom_rel r ⊆₁ (fun x => In x acts)),
+    r ≡ (immediate r)⁺.
 Proof.
   split; cycle 1.
     by rewrite immediateE, inclusion_minus_rel; auto with rel.
-  assert (M: forall x y, R x y -> In x (undup acts)).
+  assert (M: forall x y, r x y -> In x (undup acts)).
     by ins; eapply in_undup_iff, FIN; vauto.
   red; ins; eapply clos_trans_imm; eauto.
 Qed.
 
 Lemma ct_imm2 :
-  forall X (R : relation X) (I: irreflexive R) (T: transitive R)
-       acts (FIN : codom_rel R ⊆₁ (fun x => In x acts)),
-    R ≡ (immediate R)⁺.
+  forall A (r : relation A) (I: irreflexive r) (T: transitive r)
+       acts (FIN : codom_rel r ⊆₁ (fun x => In x acts)),
+    r ≡ (immediate r)⁺.
 Proof.
   split; cycle 1.
     by rewrite immediateE, inclusion_minus_rel; auto with rel.
-  assert (M: forall x y, R x y -> In y (undup acts)).
+  assert (M: forall x y, r x y -> In y (undup acts)).
     by ins; eapply in_undup_iff, FIN; vauto.
   red; ins; eapply clos_trans_imm; eauto.
 Qed.
@@ -940,7 +1016,7 @@ Qed.
 
 Lemma clos_trans_immediate2 A (r : relation A)
       (T: transitive r) (IRR: irreflexive r) dom
-      (D: forall a b (R: r a b), In b dom) a b :
+      (D: forall a b (r: r a b), In b dom) a b :
   r a b ->
   (immediate r)⁺ a b.
 Proof.
@@ -951,7 +1027,7 @@ Proof.
     by destruct dom; ins; vauto.
   ins; destruct (classic (exists c, r a c /\ r c b)); desf.
   2: by eapply t_step; split; ins; eauto.
-  forward (by eapply D'; eauto) as X; apply in_split in X; desf.
+  forward (by eapply D'; eauto) as K; apply in_split in K; desf.
   rewrite app_length in *; ins; rewrite <- plus_n_Sm, <- app_length in *; desf.
   apply t_trans with c; eapply IHn with (dom := l1 ++ l2); ins;
   forward (by eapply (D' c0); eauto);
@@ -959,11 +1035,11 @@ Proof.
 Qed.
 
 Lemma clos_trans_imm2 :
-  forall X (R : relation X) (I: irreflexive R)
-         (T: transitive R) L a b
-         (D: forall c, R a c -> R c b -> In c L)
-         (REL: R a b),
-    (immediate R)⁺ a b.
+  forall A (r : relation A) (I: irreflexive r)
+         (T: transitive r) L a b
+         (D: forall c, r a c -> r c b -> In c L)
+         (REL: r a b),
+    (immediate r)⁺ a b.
 Proof.
   ins; eapply clos_trans_imm with (L := undup L); ins;
   try rewrite in_undup_iff; eauto using nodup_undup.
@@ -971,7 +1047,7 @@ Qed.
 
 
 Lemma total_immediate_unique:
-  forall X (r: X -> X -> Prop) (P: X -> Prop)
+  forall A (r: A -> A -> Prop) (P: A -> Prop)
          (Tot: is_total P r)
          a b c (pa: P a) (pb: P b) (pc: P c)
          (iac: immediate r a c)
@@ -983,15 +1059,15 @@ Proof.
   eapply Tot in N; eauto; desf; eauto.
 Qed.
 
-Lemma acyclic_case_split A (R : relation A) f :
-  acyclic R <->
-  acyclic (restr_rel f R) /\ (forall x (NEG: ~ f x) (CYC: R⁺ x x), False).
+Lemma acyclic_case_split A (r : relation A) f :
+  acyclic r <->
+  acyclic (restr_rel f r) /\ (forall x (NEG: ~ f x) (CYC: r⁺ x x), False).
 Proof.
   unfold restr_rel; repeat split; repeat red; ins; desc; eauto.
     by eapply H, clos_trans_mon; eauto; instantiate; ins; desf.
-  destruct (classic (f x)) as [X|X]; eauto.
-  assert (M: (fun a b => R a b /\ f a /\ f b) ^* x x) by vauto.
-  generalize X; revert H0 M X; generalize x at 2 3 5; ins.
+  destruct (classic (f x)) as [K|K]; eauto.
+  assert (M: (fun a b => r a b /\ f a /\ f b) ^* x x) by vauto.
+  generalize K; revert H0 M K; generalize x at 2 3 5; ins.
   apply clos_trans_tn1 in H0; induction H0; eauto 6 using rt_t_trans, t_step.
   destruct (classic (f y)); eauto 6 using clos_refl_trans.
   eapply H1; eauto.
@@ -999,7 +1075,7 @@ Proof.
   by eapply clos_refl_trans_mon; eauto; instantiate; ins; desf.
 Qed.
 
-Lemma seqA2 X (r r' r'' : relation X) x y :
+Lemma seqA2 A (r r' r'' : relation A) x y :
   ((r⨾ r')⨾ r'') x y <-> (r⨾ r'⨾ r'') x y.
 Proof.
   unfold seq; split; ins; desf; eauto 8.
@@ -1027,12 +1103,6 @@ Lemma inclusion_step2_ct A (r r' r'': relation A) :
   r ⨾ r' ⊆ r''⁺.
 Proof.
   ins; rewrite H, H0, <- ct_ct; eauto with rel.
-Qed.
-
-Lemma clos_trans_union_ct A (r r' : relation A) :
-  (r⁺ ∪ r')⁺ ≡ (r ∪ r')⁺.
-Proof.
-  split; eauto 8 with rel.
 Qed.
 
 Lemma inclusion_ct_seq_eqv_l A dom (r : relation A) :

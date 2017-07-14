@@ -1,4 +1,4 @@
-Require Import HahnBase HahnRelationsBasic.
+Require Import HahnBase HahnSets HahnRelationsBasic.
 Require Import Classical Setoid.
 Set Implicit Arguments.
 
@@ -39,40 +39,40 @@ Section Lemmas.
   Lemma restr_eq_rel_domb : domb r d -> domb (restr_eq_rel f r) d.
   Proof. unfold domb, restr_eq_rel; ins; desf; eauto. Qed.
 
-  Lemma seq_doma : doma r d -> doma (r⨾r') d.
+  Lemma seq_doma : doma r d -> doma (r ⨾ r') d.
   Proof. unfold doma, seq; ins; desf; eauto. Qed.
 
-  Lemma seq_domb : domb r' d -> domb (r⨾r') d.
+  Lemma seq_domb : domb r' d -> domb (r ⨾ r') d.
   Proof. unfold domb, seq; ins; desf; eauto. Qed.
 
-  Lemma union_doma : doma r d -> doma r' d -> doma (r +++ r') d.
+  Lemma union_doma : doma r d -> doma r' d -> doma (r ∪ r') d.
   Proof. unfold doma, union; ins; desf; eauto. Qed.
 
-  Lemma union_domb : domb r d -> domb r' d -> domb (r +++ r') d.
+  Lemma union_domb : domb r d -> domb r' d -> domb (r ∪ r') d.
   Proof. unfold domb, union; ins; desf; eauto. Qed.
 
-  Lemma ct_doma : doma r d -> doma (clos_trans r) d.
+  Lemma ct_doma : doma r d -> doma r⁺ d.
   Proof. induction 2; eauto. Qed.
 
-  Lemma ct_domb : domb r d -> domb (clos_trans r) d.
+  Lemma ct_domb : domb r d -> domb r⁺ d.
   Proof. induction 2; eauto. Qed.
 
-  Lemma seq_r_doma : doma r d -> doma r' d -> doma (clos_refl r ⨾ r') d.
+  Lemma seq_r_doma : doma r d -> doma r' d -> doma (r^? ⨾ r') d.
   Proof. unfold clos_refl, seq; red; ins; desf; eauto. Qed.
 
-  Lemma seq_r_domb : domb r d -> domb r' d -> domb (r ⨾ clos_refl r') d.
+  Lemma seq_r_domb : domb r d -> domb r' d -> domb (r ⨾ r'^?) d.
   Proof. unfold clos_refl, seq; red; ins; desf; eauto. Qed.
 
-  Lemma minus_doma :doma r d -> doma (minus_rel r r') d.
+  Lemma minus_doma :doma r d -> doma (r \ r') d.
   Proof. unfold doma, minus_rel; ins; desf; eauto. Qed.
 
-  Lemma minus_domb :domb r d -> domb (minus_rel r r') d.
+  Lemma minus_domb :domb r d -> domb (r \ r') d.
   Proof. unfold domb, minus_rel; ins; desf; eauto. Qed.
 
-  Lemma dom_union x : dom_rel (r +++ r') x <-> dom_rel r x \/ dom_rel r' x.
+  Lemma dom_union x : dom_rel (r ∪ r') x <-> dom_rel r x \/ dom_rel r' x.
   Proof. unfold dom_rel, union; split; ins; desf; eauto. Qed.
 
-  Lemma codom_union x : codom_rel (r +++ r') x <-> codom_rel r x \/ codom_rel r' x.
+  Lemma codom_union x : codom_rel (r ∪ r') x <-> codom_rel r x \/ codom_rel r' x.
   Proof. unfold codom_rel, union; split; ins; desf; eauto. Qed.
 
   Lemma dom_eqv x : dom_rel ⦗d⦘ x <-> d x.
@@ -117,40 +117,54 @@ Hint Resolve
   transp_doma transp_domb
 : rel.
 
-Add Parametric Morphism X : (@doma X) with signature
-  inclusion --> eq ==> Basics.impl as doma_mori.
+Add Parametric Morphism A : (@doma A) with signature
+  inclusion --> set_subset ==> Basics.impl as doma_mori.
 Proof.
   unfold inclusion, doma, Basics.impl; eauto.
 Qed.
 
-Add Parametric Morphism X : (@domb X) with signature
-  inclusion --> eq ==> Basics.impl as domb_mori.
+Add Parametric Morphism A : (@domb A) with signature
+  inclusion --> set_subset ==> Basics.impl as domb_mori.
 Proof.
   unfold inclusion, domb, Basics.impl; eauto.
 Qed.
 
-Add Parametric Morphism X : (@doma X) with signature
-  same_relation ==> eq ==> iff as doma_more.
+Add Parametric Morphism A : (@doma A) with signature
+  same_relation ==> set_equiv ==> iff as doma_more.
 Proof.
-  by unfold same_relation; split; desc; [rewrite H0|rewrite H].
+  unfold same_relation; ins; rewrite set_equivE in *; 
+    desc; split; eapply doma_mori; eauto.
 Qed.
 
-Add Parametric Morphism X : (@domb X) with signature
-  same_relation ==> eq ==> iff as domb_more.
+Add Parametric Morphism A : (@domb A) with signature
+  same_relation ==> set_equiv ==> iff as domb_more.
 Proof.
-  by unfold same_relation; split; desc; [rewrite H0|rewrite H].
+  unfold same_relation; ins; rewrite set_equivE in *; 
+    desc; split; eapply domb_mori; eauto.
 Qed.
 
-Add Parametric Morphism X : (@dom_rel X) with signature
-  same_relation  ==> eq ==> iff as dom_rel_more.
+Add Parametric Morphism A : (@dom_rel A) with signature
+  inclusion ==> set_subset as dom_rel_mori.
 Proof.
-  unfold same_relation; intros; unfold dom_rel; split; ins; desc; eauto.
+  firstorder.
 Qed.
 
-Add Parametric Morphism X : (@codom_rel X) with signature
-  same_relation  ==> eq ==> iff as codom_rel_more.
+Add Parametric Morphism A : (@codom_rel A) with signature
+  inclusion ==> set_subset as codom_rel_mori.
 Proof.
-  unfold same_relation; intros; unfold codom_rel; split; ins; desc; eauto.
+  firstorder.
+Qed.
+
+Add Parametric Morphism A : (@dom_rel A) with signature
+  same_relation ==> set_equiv as dom_rel_more.
+Proof.
+  firstorder.
+Qed.
+
+Add Parametric Morphism A : (@codom_rel A) with signature
+  same_relation ==> set_equiv as codom_rel_more.
+Proof.
+  firstorder. 
 Qed.
 
 Hint Rewrite dom_union codom_union dom_eqv codom_eqv dom_eqv1 codom_eqv1 : rel_dom.

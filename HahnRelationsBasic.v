@@ -1,7 +1,3 @@
-(******************************************************************************)
-(** * Basic properties of relations *)
-(******************************************************************************)
-
 Require Import HahnBase HahnList.
 Require Export Relations.
 
@@ -12,10 +8,10 @@ Create HintDb rel discriminated.
 Create HintDb hahn_full discriminated.
 
 
-(** Definitions of relations *)
+(******************************************************************************)
+(** * Relational operators *)
 (******************************************************************************)
 
-(* Make arguments implicit *)
 Arguments clos_trans [A] R x y.
 Arguments clos_refl_trans [A] R x y.
 Arguments union [A] R1 R2 x y.
@@ -92,6 +88,8 @@ Definition Union A B (r: A -> relation B) x y :=
 
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
+(** We introduce the following notation. *)
+
 Notation "P ∩ Q" := (inter_rel P Q) (at level 40, left associativity).
 Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
 Notation "P \ Q" := (minus_rel P Q) (at level 50).
@@ -109,7 +107,7 @@ Notation "a ⁻¹" := (transp a) (at level 1, format "a ⁻¹").
 Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
 
-(** Alternative non-unicode notations *)
+(** Here are some alternative non-unicode notations *)
 
 Notation "P +++ Q" := (union P Q) (at level 50, left associativity, only parsing).
 Notation "P ;; Q" := (seq P Q) (at level 45, right associativity, only parsing).
@@ -120,7 +118,8 @@ Notation "a <<= b" := (inclusion a b)  (at level 60, only parsing).
 Notation "a <--> b" := (same_relation a b)  (at level 60, only parsing).
 
 
-(** Very basic properties of relations *)
+(******************************************************************************)
+(** ** Very basic properties *)
 (******************************************************************************)
 
 Lemma r_refl A (r: relation A) x : r^? x x.
@@ -625,6 +624,7 @@ Qed.
 
 End BasicProperties.
 
+(** Declare several of the above lemmas as hints for [(e)auto]. *)
 
 Hint Resolve same_relation_refl2.
 
