@@ -306,6 +306,14 @@ Proof. vauto. Qed.
 Lemma reflexive_seq : reflexive r -> reflexive r' -> reflexive (r ⨾ r').
 Proof. vauto. Qed.
 
+Lemma reflexive_union_l : reflexive r -> reflexive (r ∪ r').
+Proof. vauto. Qed.
+
+Lemma reflexive_union_r : reflexive r' -> reflexive (r ∪ r').
+Proof. vauto. Qed.
+
+Lemma reflexive_inter : reflexive r -> reflexive r' -> reflexive (r ∩ r').
+Proof. vauto. Qed.
 
 Lemma restr_eq_trans :
   transitive r -> transitive (restr_eq_rel f r).
@@ -630,6 +638,7 @@ Hint Resolve same_relation_refl2.
 
 Hint Resolve
      reflexive_seq reflexive_rt reflexive_cr
+     reflexive_union_l reflexive_union_r reflexive_inter
      transitive_rt transitive_ct
   : rel.
 

@@ -1,5 +1,5 @@
 (******************************************************************************)
-(** * Basic properties of sets (unary relations) *)
+(** * Operations on sets (unary relations) *)
 (******************************************************************************)
 
 Require Import HahnBase HahnList.
@@ -255,6 +255,8 @@ Section SetProperties.
   Proof. u; firstorder. Qed.
 
 End SetProperties.
+
+(** Add rewriting support. *)
 
 Require Import Setoid Morphisms.
 
