@@ -75,6 +75,10 @@ Section RelDefs.
   Definition codom_rel := fun y => exists x, r x y.
 
   Definition functional := forall x y z, r x y -> r x z -> y=z.
+  
+  Definition strict_partial_order := irreflexive /\ transitive r.
+
+  Definition strict_total_order := strict_partial_order /\ is_total.
 End RelDefs.
 
 Fixpoint pow_rel A (r: relation A) n :=
