@@ -357,6 +357,16 @@ Tactic Notation "arewrite" uconstr(EQ) "at" int_or_var(index) :=
   assert (H : EQ); [eauto 4 with rel rel_full; try done|
                     rewrite H at index; clear H; rewrite ?seqA].
 
+Tactic Notation "arewrite" uconstr(EQ) "by" tactic(t) :=
+  let H := fresh in
+    assert (H: EQ) by (by t; eauto with rel rel_full);
+    first [seq_rewrite H|sin_rewrite H]; clear H; rewrite ?seqA; try done.
+
+Tactic Notation "arewrite" uconstr(EQ) "at" int_or_var(index) "by" tactic(t) :=
+  let H := fresh in
+    assert (H : EQ) by (by t; eauto with rel rel_full);
+    rewrite H at index; clear H; rewrite ?seqA; try done.
+
 Tactic Notation "arewrite" "!" uconstr(EQ) :=
   let H := fresh in
   first [assert (H: EQ) |
@@ -368,6 +378,7 @@ Tactic Notation "arewrite" "!" uconstr(EQ) :=
       assert (H: EQ binder1 binder2); subst binder1 typ1 binder2 typ2]]; cycle 1;
   [ first [seq_rewrite !H|sin_rewrite !H]; clear H; rewrite ?seqA
   | eauto 4 with rel rel_full; try done ]; cycle 1.
+
 
 Tactic Notation "arewrite_false" constr(exp) :=
   arewrite (exp ≡ fun _ _ => False); [split;[|vauto]|].
