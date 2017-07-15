@@ -8,7 +8,7 @@ relations. We start with some basic helper lemmas. *)
 Section HelperLemmas.
 
   Variable A : Type.
-  Variables r1 r2 r3 r4 r5 r6 r r' : relation A.
+  Variables r1 r2 r3 r4 r5 r6 r7 r r' : relation A.
 
   Lemma hahn_inclusion_exp :
     r ⊆ r' -> forall x y, r x y -> r' x y.
@@ -222,6 +222,20 @@ Tactic Notation "sin_rewrite" uconstr(x) :=
         | rewrite (fun a b c d => sin4 (x a b c d)) at 1
         | rewrite (fun a b c d e => sin4 (x a b c d e)) at 1
         | rewrite (fun a b c d e f => sin4 (x a b c d e f)) at 1
+        | rewrite (sin5 x) at 1
+        | rewrite (fun a => sin5 (x a)) at 1
+        | rewrite (fun a b => sin5 (x a b)) at 1
+        | rewrite (fun a b c => sin5 (x a b c)) at 1
+        | rewrite (fun a b c d => sin5 (x a b c d)) at 1
+        | rewrite (fun a b c d e => sin5 (x a b c d e)) at 1
+        | rewrite (fun a b c d e f => sin5 (x a b c d e f)) at 1
+        | rewrite (sin6 x) at 1
+        | rewrite (fun a => sin6 (x a)) at 1
+        | rewrite (fun a b => sin6 (x a b)) at 1
+        | rewrite (fun a b c => sin6 (x a b c)) at 1
+        | rewrite (fun a b c d => sin6 (x a b c d)) at 1
+        | rewrite (fun a b c d e => sin6 (x a b c d e)) at 1
+        | rewrite (fun a b c d e f => sin6 (x a b c d e f)) at 1
         ].
 
 Tactic Notation "sin_rewrite" "!" uconstr(x) :=
