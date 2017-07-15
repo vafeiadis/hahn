@@ -276,6 +276,9 @@ Proof.
   unfold transitive, inclusion, seq; ins; desf; eauto.
 Qed.
 
+Ltac simpl_rels :=
+  rewrite ?seqA, ?seq_id_l, ?seq_id_r; seq_rewrite ? seq_eqvK.
+
 Ltac rels :=
   repeat first [progress autorewrite with rel |
                 seq_rewrite seq_eqvK |
@@ -379,11 +382,6 @@ Tactic Notation "arewrite_id" "!" constr(exp) :=
 Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
   arewrite (exp ⊆ ⦗fun _ => True⦘) at index.
 
-Tactic Notation "case_union"  uconstr(x) uconstr(y) :=
-  repeat (first [rewrite seq_union_l with (r1 := x) (r2 := y)
-                |rewrite seq_union_r with (r1 := x) (r2 := y)
-                |rewrite seq_union_r with (r1 := x ⨾ _) (r2 := y ⨾ _)]).
-
 Tactic Notation "basic_solver" int_or_var(index) :=
   by ( rewrite ?seqA;
   repeat rewrite seq_eqv;
@@ -396,3 +394,69 @@ Tactic Notation "basic_solver" int_or_var(index) :=
 Tactic Notation "basic_solver" :=
   basic_solver 4.
 
+(* Case analysis *)
+Tactic Notation "unionL" := repeat apply inclusion_union_l.
+
+Tactic Notation "unionL" int_or_var(times) := do times apply inclusion_union_l.
+
+Tactic Notation "UnionL" := repeat apply inclusion_Union_l.
+
+Tactic Notation "UnionL" int_or_var(times) := do times apply inclusion_Union_l.
+
+Tactic Notation "unionR" tactic(dir) :=  apply inclusion_union_r; dir.
+
+Tactic Notation "unionR" tactic(dir) "->" tactic(dir') :=  
+  unionR dir; unionR dir'.
+
+Tactic Notation "unionR" tactic(dir) "->" tactic(dir') "->" tactic(dir'') := 
+  unionR dir; unionR dir'; unionR dir''.
+
+Tactic Notation "case_union"  uconstr(x) uconstr(y) :=
+  first [rewrite seq_union_l with (r1 := x) (r2 := y)
+        |rewrite seq_union_r with (r1 := x) (r2 := y)].
+  
+Tactic Notation "case_union_2"  uconstr(x) uconstr(y) :=
+  simpl_rels;
+  (repeat(
+    case_union x y +
+    case_union x (y ⨾ _) +
+    case_union x (_ ⨾ y) +
+    case_union x (_ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ y ⨾ _) +
+    case_union (x ⨾ _) y +
+    case_union (_ ⨾ x) y +
+    case_union (_ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ x ⨾ _) y
+  ); unionL; [simpl_rels|]).
+
+Tactic Notation "case_union_3" uconstr(x) uconstr(y) uconstr(z) :=
+  simpl_rels; case_union_2 _ z; [case_union_2 x y|].
+
+Tactic Notation "case_union_4" uconstr(x) uconstr(y) uconstr(z) uconstr(w) :=
+  simpl_rels; case_union_2 _ w; [case_union_3 x y z|].
+
+Tactic Notation "case_union_5" uconstr(x) uconstr(y) uconstr(z) uconstr(w) uconstr(t) :=
+  simpl_rels; case_union_2 _ t; [case_union_4 x y z w|].
+
+Tactic Notation "case_refl"  uconstr(x) "at" int(index) :=
+  simpl_rels; rewrite crE with (r := x) at index; case_union_2 _ x.
+
+Tactic Notation "case_refl"  uconstr(x) := case_refl x at 1.
