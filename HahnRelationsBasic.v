@@ -90,6 +90,9 @@ Fixpoint pow_rel A (r: relation A) n :=
 Definition Union A B (r: A -> relation B) x y :=
   exists a, r a x y.
 
+Definition Union_restr (P : nat -> Prop) B (f : nat -> relation B) : relation B :=
+  Union (fun (k: {k : nat | P k}) => f (proj1_sig k)).
+
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
 (** We introduce the following notation. *)
@@ -98,6 +101,7 @@ Notation "P ∩ Q" := (inter_rel P Q) (at level 40, left associativity).
 Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
 Notation "P \ Q" := (minus_rel P Q) (at level 50).
 Notation "P ⨾ Q" := (seq P Q) (at level 45, right associativity).
+Notation "'⋃'" := Union_restr.
 Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
 Notation "∅₂" := (fun _ _ => False).
 
