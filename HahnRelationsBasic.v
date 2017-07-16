@@ -125,6 +125,18 @@ Notation "a ^{-1} " := (transp a) (at level 1, only parsing).
 Notation "a <<= b" := (inclusion a b)  (at level 60, only parsing).
 Notation "a <--> b" := (same_relation a b)  (at level 60, only parsing).
 
+(* Unfolding of relational operations *)
+Tactic Notation "unfold_rel_ops" := 
+  unfold inclusion, union, inter_rel, restr_eq_rel, eqv_rel, minus_rel, seq,
+  transp, clos_refl.
+
+Tactic Notation "unfold_rel_ops" "in" hyp(H) :=
+  unfold inclusion, union, inter_rel, restr_eq_rel, eqv_rel, minus_rel, seq,
+  transp, clos_refl in H.
+
+Tactic Notation "unfold_rel_ops" "in" "*" :=
+  unfold inclusion, union, inter_rel, restr_eq_rel, eqv_rel, minus_rel, seq,
+  transp, clos_refl in *.
 
 (******************************************************************************)
 (** ** Very basic properties *)

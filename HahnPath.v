@@ -2,7 +2,7 @@
 (** ** Decomposing paths and cycles *)
 (******************************************************************************)
 
-Require Import Classical.
+Require Import Classical Omega.
 Require Import HahnBase HahnList HahnRelationsBasic.
 Require Import HahnEquational HahnMaxElt HahnRewrite.
 Require Import HahnDom HahnMinPath.
@@ -571,7 +571,7 @@ Section PathUnionTransitive.
   Qed.
 
   Lemma path_ut2 r r' (T: transitive r') :
-    (r ∪ r')⁺ ≡ r ^+ ∪ r ^*⨾ (r'⨾ r⁺) ^*⨾ r'⨾ r ^*.
+    (r ∪ r')⁺ ≡ r⁺ ∪ r^*⨾ (r'⨾ r⁺)^* ⨾ r'⨾ r^*.
   Proof.
     split.
       rewrite ct_end, path_ut; ins; relsf.
@@ -587,6 +587,52 @@ Section PathUnionTransitive.
     apply inclusion_t_t2; rewrite ct_begin; eauto with rel.
   Qed.
 
+  Lemma path_ut_first r r' :
+    (r ∪ r')⁺ ≡ r⁺ ∪ r^* ⨾ r' ⨾ (r ∪ r')^*.
+  Proof.
+    split.
+    - apply inclusion_t_ind_right.
+      + apply inclusion_union_l.
+        * apply inclusion_union_r; left; eauto with rel.
+        * apply inclusion_union_r; right; basic_solver 10.
+      + relsf; repeat apply inclusion_union_l.
+        * apply inclusion_union_r; left.
+          unfold inclusion, seq; ins; desf; vauto.
+        * apply inclusion_union_r; right.
+          rewrite !seqA.
+          arewrite (r ⊆ (r ∪ r')^*) at 3.
+          rewrite rt_rt.
+          done.
+        * basic_solver 10.
+        * apply inclusion_union_r; right.
+          rewrite !seqA.
+          arewrite (r' ⊆ (r ∪ r')^*) at 3.
+          rewrite rt_rt.
+          done.
+    - arewrite (r ⊆ (r ∪ r')⁺) at 1.
+      arewrite (r^* ⊆ (r ∪ r')^*) at 1.
+      arewrite (r' ⊆ (r ∪ r')⁺) at 3.
+      rels.
+  Qed.
+
+  Lemma path_ut_last r r' (T: transitive r) :
+    (r ∪ r')⁺ ≡ r⁺ ∪ (r ∪ r')^* ⨾ r' ⨾ r^*.
+  Proof.
+    split.
+    - apply inclusion_t_ind_right.
+      + unionL; [unionR left | unionR right]; firstorder.
+      + relsf; unionL.
+        * firstorder.
+        * basic_solver 10.
+        * arewrite (r ⊆ (r ∪ r')^*); basic_solver 10.
+        * arewrite (r ⊆ (r ∪ r')^*) at 2.
+          arewrite (r' ⊆ (r ∪ r')^*) at 2.
+          rels; basic_solver 10.
+    - arewrite (r ⊆ (r ∪ r')⁺) at 1.
+      arewrite (r ⊆ (r ∪ r')^*) at 3.
+      arewrite (r' ⊆ (r ∪ r')⁺) at 3.
+      rels.
+  Qed.
 
   Lemma acyclic_ut r r' (T: transitive r') :
     acyclic (r ∪ r') <->
@@ -654,7 +700,7 @@ Proof.
 Qed.
 
 
-(** Paths with discontected relations *)
+(** Paths with disconnected relations *)
 (******************************************************************************)
 
 Lemma ct_ct_disj A (r : relation A) (D: r ⨾ r ≡ ∅₂) : r⁺ ⨾ r⁺ ≡ ∅₂.
@@ -715,4 +761,152 @@ Proof.
   rewrite (acyclic_rotl r' r); intuition.
   by red; ins; eapply A; vauto.
   by red; ins; eapply B; vauto.
+Qed.
+
+(** Paths with specific attributes *)
+(******************************************************************************)
+
+Lemma path_specific_absorb A (r r' : relation A) : 
+  r ⨾ r' ⊆ r ⨾ r ->
+  r' ⨾ r' ⊆ r' ⨾ r ->
+  (r ∪ r')⁺ ⊆ r⁺ ∪ r' ⨾ r^*.
+Proof.
+  ins.
+  assert (r⁺ ⨾ r' ⊆ r⁺) by
+    (by rewrite ct_end, !seqA, H, <- seqA; rewrite rt_unit at 1).
+  apply inclusion_t_ind_right.
+  - (* base *)
+    unionL.
+    + unionR left. apply ct_step.
+    + unionR right; basic_solver 25.
+  - (* step *)
+    relsf; unionL.
+    + (* r⁺ ; r *) by unionR left; rewrite ct_unit.
+    + (* (r' ; r＊) ; r *) by unionR right; rewrite !seqA, rt_unit.
+    + (* r⁺ ; r' *) by unionR left; rewrite H1.
+    + (* (r' ; r＊) ; r' *)
+      rewrite rtE at 1; relsf; unionL; unionR right.
+      * by rewrite H0; arewrite (r ⊆ r^*) at 1.
+      * by rewrite !seqA, H1, inclusion_t_rt.
+Qed.
+
+Lemma acyclic_specific_absorb A (r r' : relation A) :
+  r ⨾ r' ⊆ r ⨾ r ->
+  r' ⨾ r' ⊆ r' ⨾ r ->
+  acyclic r ->
+  irreflexive r' ->
+  acyclic (r ∪ r').
+Proof.
+  ins. red.
+  rewrite path_specific_absorb; try done.
+  apply irreflexive_union; split; try done.
+  rewrite irreflexive_seqC.
+  rewrite rtE; relsf.
+  apply irreflexive_union; split; try done.
+  by rewrite ct_end, seqA, H, <- seqA, <- ct_end, ct_unit.
+Qed.
+
+(** Paths involving [Union] *)
+(******************************************************************************)
+
+Lemma pow_union_decomposition (n : nat) A (d p: relation A) :
+  (d ∪ p)^^n ⊆ p^^n ∪ 
+    (⋃ (fun k => k < n) (fun k => p^^k ⨾ d ⨾ (d ∪ p)^^(n- k -1))).
+Proof.
+  unfold Union_restr.
+  induction n using (well_founded_ind Wf_nat.lt_wf).
+  destruct n as [| n'].
+  - (* n = 0 *) firstorder.
+  - (* n > 0 *)
+    simpl (_ ^^ (S n')).
+    rewrite seq_pow_l.
+    destruct n'.
+    + (* n' = 0 *)
+      simpl (_ ^^ 0).
+      simpl_rels.
+      arewrite (d ⊆  ⋃ (fun k => k < 1) (fun k => p^^k ⨾ d ⨾ (d ∪ p)^^(1 - k - 1))).
+      { red; ins. unfold Union.
+        assert (LT: 0 < 1); try omega.
+        eexists (exist _ 0 LT).
+        firstorder. }
+      eauto with rel.
+    + (* n' > 0 *)
+      arewrite ((d ∪ p) ⊆ (d ∪ p)^^1) at 1 by apply pow_unit.
+      rewrite (H 1); try omega.
+      rewrite (H (S n')); try omega.
+      remember (S n') as n.
+      rewrite pow_unit; relsf.
+      repeat apply inclusion_union_l; apply inclusion_union_r.
+      * left. eauto using seq_pow_l with rel_full.
+      * right.
+        red; intros.
+        unfold Union in *. destruct H0.
+        destruct x0 as [k' LT0].
+        assert (LT: k' < S n); try omega.
+        assert (k' = 0); try omega.
+        eexists (exist _ k' LT).
+        desf; simpl in *; unfold_rel_ops in *; desf.
+        exists z1; splits; eauto.
+        exists z; split; eauto.
+        exists z0; splits; auto.
+
+        assert ((fun x y0 => d x y0 \/ p x y0) ^^ n' = (d ∪ p)^^n').
+          by unfold_rel_ops; eauto with rel.
+        rewrite H0.
+        assert (P_IN_DP: p^^n' ⊆ (d ∪ p)^^n').
+          by arewrite (p ⊆ d ∪ p) at 1.
+        unfold inclusion in P_IN_DP.
+        specialize (P_IN_DP z z0 H1).
+        done.
+      * right.
+        unfold Union. red; intros; desf. destruct a as [a' LT0].
+        simpl (proj1_sig _) in *.
+        assert (LT: a' + 1 < S (S n')); try omega.
+        exists (exist (fun x => x < S (S n')) (a' + 1) LT).
+        simpl (proj1_sig _) in *.
+        arewrite (p ^^ (a' + 1) ⨾ d ⨾ (d ∪ p) ^^ (S (S n') - (a' + 1) - 1) ≡ 
+                  p ⨾ p ^^ a' ⨾ d ⨾ (d ∪ p) ^^ (S n' - a' - 1)).
+        { arewrite (a' + 1 = S a'); try omega.
+          simpl; rewrite seq_pow_l; by rewrite !seqA. }
+        done.
+      * right.
+        unfold Union.
+        red; intros; desf. destruct a as [a' LT0].
+        simpl (proj1_sig _) in *.
+        repeat destruct H0.
+        assert (proj1_sig x1 = 0).
+        { destruct x1. assert (x1 = 0). by omega. auto. }
+        rewrite H3 in *.
+        simpl (1 - 0 - 1) in *.
+        simpl (_ ^^ 0) in *.
+        assert (x = x2). by unfold_rel_ops in H0; desf.
+
+        rename x2 into a, x0 into b.
+        assert (d a b). by unfold_rel_ops in H2; desf.
+
+        assert (LT: 0 < S (S n')); try omega.
+        exists (exist (fun x => x < S (S n')) 0 LT).
+        simpl.
+
+        remember (⦗fun _ => True⦘ ⨾ d ⨾ (d ∪ p) ^^ n' ⨾ (d ∪ p)) as r1.
+        assert ((d ⨾ p ^^ a' ⨾ d ⨾ (d ∪ p) ^^ (S n' - a' - 1)) x y).
+          by subst a; unfold seq at 1; exists b.
+        remember (d ⨾ p ^^ a' ⨾ d ⨾ (d ∪ p) ^^ (S n' - a' - 1)) as r2.
+        assert (r2 ⊆ r1).
+        { rewrite Heqr2, Heqr1.
+          assert (D_IN_R: d ⊆ d ∪ p); eauto with rel.
+          assert (P_IN_R: p ⊆ d ∪ p); eauto with rel.
+          rewrite P_IN_R at 1.
+          rewrite D_IN_R at 3.
+          arewrite ((d ∪ p) ^^ a' ⨾ (d ∪ p) ⨾ (d ∪ p) ^^ (S n' - a' - 1) ⊆ (d ∪ p)^^(S n')).
+          { arewrite ((d ∪ p)^^a' ⨾ (d ∪ p) ⊆ (d ∪ p)^^(S a')).
+            rewrite pow_nm.
+            assert (S a' + (S n' - a' - 1) = S n').
+              by destruct a'; omega.
+            rewrite H7.
+            done.
+          }
+          unfold_rel_ops; ins; desf; eexists; eauto with rel.
+        }
+        eauto with rel.
 Qed.
