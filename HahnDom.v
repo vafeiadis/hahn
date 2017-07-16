@@ -106,6 +106,28 @@ Section Lemmas.
   Lemma domb_fold :
     (domb r d) -> (forall a, d a -> d' a) -> r ⨾ ⦗d'⦘ ≡ r.
   Proof. unfold eqv_rel, seq; split; red; ins; desf; eauto 6. Qed.
+  
+  Lemma doma_helper : r ⊆ ⦗d⦘ ⨾ r <-> doma r d.
+  Proof.
+    split; unfold doma, inclusion, seq, eqv_rel; ins; desf.
+      by apply H in REL; desf.
+      by eexists; splits; eauto.
+  Qed.
+
+  Lemma domb_helper : r ⊆ r ⨾ ⦗d⦘ <-> domb r d.
+  Proof. 
+    split; unfold domb, inclusion, seq, eqv_rel; ins; desf. 
+      by apply H in REL; desf.
+      by eexists; splits; eauto.
+  Qed.
+  
+  Lemma domab_helper : 
+    r ⊆ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘ <-> doma r d /\ domb r d'.
+  Proof.
+    split; ins; splits; unfold doma, domb, inclusion, eqv_rel, seq in *; 
+    ins; desf; try specialize (H _ _ REL); try specialize (H1 _ _ H0);
+    desf; splits; eexists; splits; eauto.
+  Qed.
 
 End Lemmas.
 
