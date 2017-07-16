@@ -271,9 +271,9 @@ Proof.
 Qed.
 
 Lemma transitiveI A (r: relation A) :
-  inclusion (r ⨾ r) r -> transitive r.
+  inclusion (r ⨾ r) r <-> transitive r.
 Proof.
-  unfold transitive, inclusion, seq; ins; desf; eauto.
+  red; splits; unfold transitive, inclusion, seq; ins; desf; eauto.
 Qed.
 
 Ltac simpl_rels :=
