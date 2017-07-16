@@ -19,8 +19,8 @@ Section one_extension.
 
   Definition one_ext : relation A :=
     fun x y =>
-      clos_trans r x y
-      \/ clos_refl_trans r x elem /\ ~ clos_refl_trans r y elem.
+      r⁺ x y
+      \/ r＊ x elem /\ ~ r＊ y elem.
 
   Lemma one_ext_extends x y : r x y -> one_ext x y.
   Proof. vauto. Qed.
@@ -49,7 +49,7 @@ End one_extension.
 
 Fixpoint tot_ext A (dom : list A) (r : relation A) : relation A :=
   match dom with
-    | nil => clos_trans r
+    | nil => r⁺
     | x::l => one_ext x (tot_ext l r)
   end.
 
@@ -145,10 +145,10 @@ Definition Successor A (r s: relation A) :=
   << SUC: s⁻¹ ⨾ r ⊆ r^? >> /\
   << INC: s ⊆ r >>.
 
-Lemma succ_helper A (r s: relation A) (SUC: s⁻¹ ;; r ⊆ r^?):
-  s⁻¹^* ⨾ (r \ s⁺) ⊆ r \ s⁺.
+Lemma succ_helper A (r s: relation A) (SUC: s⁻¹ ⨾ r ⊆ r^?):
+  s⁻¹＊ ⨾ (r \ s⁺) ⊆ r \ s⁺.
 Proof.
-eapply rt_ind_left with (P:= fun __ => __ ;; (r \ s⁺)); relsf.
+eapply rt_ind_left with (P:= fun __ => __ ⨾ (r \ s⁺)); relsf.
 intros k IH.
 rewrite !seqA, IH; relsf.
 unfold seq, transp, minus_rel, clos_refl, inclusion in *.
@@ -161,12 +161,12 @@ by intro; apply H1; eapply t_trans; try edone; econs.
 Qed.
 
 Definition tot_ext_suc A (dom : list A) (r s : relation A) : relation A := 
-  s⁺ ∪ s^* ⨾ ⦗max_elt s⦘ ;; tot_ext dom r ;; ⦗max_elt s⦘ ;; s⁻¹^*.
+  s⁺ ∪ s＊ ⨾ ⦗max_elt s⦘ ⨾ tot_ext dom r ⨾ ⦗max_elt s⦘ ⨾ s⁻¹＊.
 
 Lemma functional_path A (s: relation A) (FUN: functional s):
-  (s⁻¹)^* ⨾ s^* ⊆ s^* ∪ (s⁻¹)^*.
+  (s⁻¹)＊ ⨾ s＊ ⊆ s＊ ∪ (s⁻¹)＊.
 Proof.
-  eapply rt_ind_left with (P:= fun __ => __ ;; s^*); relsf.
+  eapply rt_ind_left with (P:= fun __ => __ ⨾ s＊); relsf.
   intros k IH.
   rewrite !seqA, IH; relsf.
   apply inclusion_union_l.
@@ -177,14 +177,14 @@ Proof.
 Qed.
 
 Lemma functional_path_transp A (s: relation A) (FUN: functional s⁻¹):
-  s^*;; s⁻¹^* ⊆ s^* ∪ (s⁻¹)^*.
+  s＊⨾ s⁻¹＊ ⊆ s＊ ∪ (s⁻¹)＊.
 Proof.
-  rewrite functional_path with (s:=s^{-1}); [rels|done].
+  rewrite functional_path with (s:=s⁻¹); [rels|done].
 Qed.
 
 Lemma last_exists A dom (s: relation A) (ACYC: acyclic s)
-  a (DOM: forall c, s^* a c -> In c dom):
-  exists b, s^* a b /\ max_elt s b.
+  a (DOM: forall c, s＊ a c -> In c dom):
+  exists b, s＊ a b /\ max_elt s b.
 Proof.
   revert a DOM.
   induction dom using (well_founded_ind (well_founded_ltof _ (@length _))).
@@ -193,7 +193,7 @@ Proof.
   assert (INa: In a dom).
     by apply DOM; vauto.
   desc; apply in_split in INa; desf.
-  assert(exists b, s ^* a1 b /\ max_elt s b).
+  assert(exists b, s ＊ a1 b /\ max_elt s b).
     { eapply (H (l1 ++ l2)).
       * unfold ltof; rewrite !app_length; simpl; omega.
       * ins.
@@ -207,7 +207,7 @@ Proof.
 Qed.
 
 Lemma last_functional A (s: relation A) (FUN: functional s): 
-  functional (s^* ⨾ ⦗max_elt s⦘).
+  functional (s＊ ⨾ ⦗max_elt s⦘).
 Proof.
   apply functional_alt.
   rewrite transp_seq; relsf.
@@ -220,7 +220,7 @@ Qed.
 
 Lemma dom_helper A dom (s: relation A)
   (IN: s ⊆ ⦗fun x => In x dom⦘ ⨾ s ⨾ ⦗fun x => In x dom⦘)
-  a (INa: In a dom) b (H: s ^* a b) : In b dom.
+  a (INa: In a dom) b (H: s ＊ a b) : In b dom.
 Proof.
   ins; apply clos_refl_transE in H; desf.
   apply t_rt_step in H; desc.
@@ -230,7 +230,7 @@ Qed.
 Lemma last_exists_rewrite A dom (s: relation A) 
       (ACYC: acyclic s)
       (IN: s ⊆ ⦗fun x : A => In x dom⦘ ⨾ s ⨾ ⦗fun x : A => In x dom⦘):
-  ⦗fun _ => True⦘ ⊆ s^* ;; ⦗max_elt s⦘ ;; s⁻¹^*.
+  ⦗fun _ => True⦘ ⊆ s＊ ⨾ ⦗max_elt s⦘ ⨾ s⁻¹＊.
 Proof.
 unfold inclusion, eqv_rel, seq; ins; desf.
 destruct (classic (In y dom)) as [INy|NINy]; cycle 1.
@@ -281,7 +281,7 @@ Qed.
 
 Lemma tot_ext_suc_total A dom (r s: relation A) 
   (ACYC: acyclic r) (SUC: Successor r s)
-  (IN: s ⊆ ⦗fun x => In x dom⦘ ;; s ;; ⦗fun x => In x dom⦘):
+  (IN: s ⊆ ⦗fun x => In x dom⦘ ⨾ s ⨾ ⦗fun x => In x dom⦘):
  is_total (fun x => In x dom) (tot_ext_suc dom r s).
 Proof.
 ins; red; ins.
@@ -290,7 +290,7 @@ assert (ACYC': acyclic s).
 generalize (last_exists dom ACYC' (dom_helper dom IN IWa)); ins; desc.
 generalize (last_exists dom ACYC' (dom_helper dom IN IWb)); ins; desc.
 destruct (classic (b0=b1)) as [EQ1|NEQ1]; subst.
-- assert (XX: (s^* ∪ s^{-1}^*) a b).
+- assert (XX: (s＊ ∪ s⁻¹＊) a b).
     apply functional_path_transp; [apply SUC |].
     exists b1; splits.
     by generalize H; basic_solver.
@@ -316,12 +316,12 @@ Qed.
 
 Lemma tot_ext_suc_extends A dom (r s: relation A) 
   (ACYC: acyclic r) (SUC: Successor r s) 
-  (IN: s ⊆ ⦗fun x => In x dom⦘ ;; s ;; ⦗fun x => In x dom⦘) :
+  (IN: s ⊆ ⦗fun x => In x dom⦘ ⨾ s ⨾ ⦗fun x => In x dom⦘) :
   r ⊆ tot_ext_suc dom r s.
 Proof.
-arewrite (r ⊆ (r \ s^+) ∪ s^+).
+arewrite (r ⊆ (r \ s⁺) ∪ s⁺).
   by apply inclusion_union_minus.
-arewrite (r \ s ^+ ⊆ ⦗fun _ => True⦘ ;; (r \ s ^+) ;; ⦗fun _ => True⦘).
+arewrite (r \ s ⁺ ⊆ ⦗fun _ => True⦘ ⨾ (r \ s ⁺) ⨾ ⦗fun _ => True⦘).
   basic_solver.
 rewrite !last_exists_rewrite with (s:=s); [|cdes SUC; rewrite INC; done| edone].
 rewrite !seqA.
@@ -343,7 +343,7 @@ Proof.
     rewrite functional_alt in FUN; sin_rewrite FUN; basic_solver.
   - rewrite rt_begin at 1; relsf.
     apply inclusion_union_l; ins.
-    * arewrite (s^{-1} ⊆ (s^{-1})^*) at 1.
+    * arewrite (s⁻¹ ⊆ (s⁻¹)＊) at 1.
       seq_rewrite transp_seq_eqv_max_rt; rels; basic_solver 20.
     * rewrite !seqA.
       rewrite functional_alt in FUN; sin_rewrite FUN; rels.

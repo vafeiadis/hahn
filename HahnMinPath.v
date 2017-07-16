@@ -75,7 +75,7 @@ Qed.
 
 Lemma path_minimize :
   forall X (r : relation X) a b
-    (PATH: clos_trans r a b),
+    (PATH: r⁺ a b),
     exists f n, 
       << START: f 0 = a >> /\ 
       << END: f (S n) = b >> /\
@@ -236,13 +236,13 @@ Qed.
 Lemma min_cycle X (r r' : relation X) (dom : X -> Prop)
     (TOT: is_total dom r') 
     (T : transitive r')
-    (INCL: inclusion r' (clos_trans r))
+    (INCL: r' ⊆ r⁺)
     (INV: irreflexive (r ⨾ r')) :
     acyclic r <->
     acyclic (restr_rel (fun x => ~ dom x) r) /\
     (forall x (CYC: r x x) (D: dom x), False) /\
     (forall c1 b1 (R: r c1 b1) b2 
-       (S : clos_refl r' b1 b2) c2 
+       (S : r'^? b1 b2) c2 
        (R': r b2 c2) (S': clos_refl_trans (restr_rel (fun x => ~ dom x) r) c2 c1)
        (D1 : dom b1) (D2: dom b2) (ND1: ~ dom c1) (ND2: ~ dom c2), False).
 Proof.
@@ -259,17 +259,17 @@ Proof.
 
   assert (J: clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) x x \/
              r' x x /\ dom x /\ dom x \/
-          dom x /\ (exists m n k, clos_refl r' x m /\ r m n /\
+          dom x /\ (exists m n k, r'^? x m /\ r m n /\
             clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) n k 
-            /\ clos_refl r k x 
+            /\ r^? k x 
             /\ dom m /\ ~ dom n /\ ~ dom k) \/
           (exists k m,
             clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) x k /\
-            r k m /\ clos_refl r' m x /\
+            r k m /\ r'^? m x /\
             ~ dom k /\ dom m /\ dom x) \/
           (exists k m m' n,
             clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) x k /\
-            r k m /\ clos_refl r' m m' /\ r m' n /\
+            r k m /\ r'^? m m' /\ r m' n /\
             clos_refl_trans (restr_rel (fun x : X => ~ dom x) r) n x /\
             ~ dom k /\ dom m /\ dom m' /\ ~ dom n)).
     by vauto.
@@ -375,13 +375,13 @@ Lemma min_cycle1 X (r r' : relation X) (d : X -> Prop)
     nd (ND: nd = fun x => ~ d x)
     (TOT: is_total d r')
     (T : transitive r')
-    (INCL: r' ⊆ r^+)
+    (INCL: r' ⊆ r⁺)
     (INV: irreflexive (r ⨾ r')) :
     acyclic r <->
     acyclic (⦗nd⦘ ⨾ r ⨾ ⦗nd⦘) /\
     irreflexive (⦗d⦘ ⨾ r ⨾ ⦗d⦘) /\
     irreflexive (⦗nd⦘ ⨾ r ⨾ ⦗d⦘ ⨾ r'^? ⨾ ⦗d⦘ ⨾
-                 r ⨾ ⦗nd⦘ ⨾ (⦗nd⦘ ⨾ r ⨾ ⦗nd⦘)^*).
+                 r ⨾ ⦗nd⦘ ⨾ (⦗nd⦘ ⨾ r ⨾ ⦗nd⦘)＊).
 Proof.
   assert (AA: restr_rel nd r ≡ ⦗nd⦘⨾ r⨾ ⦗nd⦘).
     by red; unfold seq, eqv_rel, restr_rel, inclusion in *; split; ins; desf; eauto 10.

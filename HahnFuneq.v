@@ -21,7 +21,7 @@ Proof. eby red; ins; induction H0; eauto; etransitivity. Qed.
 Lemma funeq_cr r (H: funeq r) : funeq r^?.
 Proof. red; ins; red in H0; desf; subst; auto. Qed.
 
-Lemma funeq_rt r (H: funeq r) : funeq r^*.
+Lemma funeq_rt r (H: funeq r) : funeq r＊.
 Proof. eby red; ins; induction H0; eauto; etransitivity. Qed.
 
 Lemma funeq_restr r (H: funeq r) dom : funeq (restr_rel dom r).
