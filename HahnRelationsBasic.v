@@ -75,6 +75,10 @@ Section RelDefs.
   Definition codom_rel := fun y => exists x, r x y.
 
   Definition functional := forall x y z, r x y -> r x z -> y=z.
+  
+  Definition strict_partial_order := irreflexive /\ transitive r.
+
+  Definition strict_total_order := strict_partial_order /\ is_total.
 End RelDefs.
 
 Fixpoint pow_rel A (r: relation A) n :=
@@ -86,6 +90,9 @@ Fixpoint pow_rel A (r: relation A) n :=
 Definition Union A B (r: A -> relation B) x y :=
   exists a, r a x y.
 
+Definition Union_restr (P : nat -> Prop) B (f : nat -> relation B) : relation B :=
+  Union (fun (k: {k : nat | P k}) => f (proj1_sig k)).
+
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
 (** We introduce the following notation. *)
@@ -94,15 +101,15 @@ Notation "P ∩ Q" := (inter_rel P Q) (at level 40, left associativity).
 Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
 Notation "P \ Q" := (minus_rel P Q) (at level 50).
 Notation "P ⨾ Q" := (seq P Q) (at level 45, right associativity).
+Notation "'⋃'" := Union_restr.
 Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
 Notation "∅₂" := (fun _ _ => False).
 
 Notation "a ^? " := (clos_refl a) (at level 1, format "a ^?").
-Notation "a ^*" := (clos_refl_trans a) (at level 1, format "a ^*").
 Notation "a ^^ n" := (pow_rel a n) (at level 1).
 
 Notation "a ⁺" := (clos_trans a) (at level 1, format "a ⁺").
-(*Notation "a ＊" := (clos_refl_trans a) (at level 1, format "a ＊"). *)
+Notation "a ＊" := (clos_refl_trans a) (at level 1, format "a ＊").
 Notation "a ⁻¹" := (transp a) (at level 1, format "a ⁻¹").
 Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
@@ -113,10 +120,23 @@ Notation "P +++ Q" := (union P Q) (at level 50, left associativity, only parsing
 Notation "P ;; Q" := (seq P Q) (at level 45, right associativity, only parsing).
 Notation "<| a |>" := (eqv_rel a) (only parsing).
 Notation "a ^+" := (clos_trans a) (at level 1, only parsing).
-Notation "a ^{-1} " := (transp a) (at level 1, only parsing).
+Notation "a ^*" := (clos_refl_trans a) (at level 1, only parsing).
+Notation "a ^{-1}" := (transp a) (at level 1, only parsing).
 Notation "a <<= b" := (inclusion a b)  (at level 60, only parsing).
 Notation "a <--> b" := (same_relation a b)  (at level 60, only parsing).
 
+(** Unfolding of relational operations **)
+Tactic Notation "unfold_rel_ops" := 
+  unfold inclusion, union, inter_rel, restr_eq_rel, eqv_rel, minus_rel, seq,
+  transp, clos_refl.
+
+Tactic Notation "unfold_rel_ops" "in" hyp(H) :=
+  unfold inclusion, union, inter_rel, restr_eq_rel, eqv_rel, minus_rel, seq,
+  transp, clos_refl in H.
+
+Tactic Notation "unfold_rel_ops" "in" "*" :=
+  unfold inclusion, union, inter_rel, restr_eq_rel, eqv_rel, minus_rel, seq,
+  transp, clos_refl in *.
 
 (******************************************************************************)
 (** ** Very basic properties *)
@@ -144,49 +164,49 @@ Proof.
 Qed.
 
 Lemma clos_trans_mon a b :
-  clos_trans r a b ->
+  r⁺ a b ->
   (forall a b, r a b -> r' a b) ->
-  clos_trans r' a b.
+  r'⁺ a b.
 Proof.
   induction 1; ins; eauto using clos_trans.
 Qed.
 
 Lemma clos_refl_trans_mon a b :
-  r^* a b ->
+  r＊ a b ->
   (forall a b, r a b -> r' a b) ->
-  r'^* a b.
+  r'＊ a b.
 Proof.
   induction 1; ins; eauto using clos_refl_trans.
 Qed.
 
-Lemma clos_refl_transE a b :  r^* a b <-> a = b \/ r⁺ a b.
+Lemma clos_refl_transE a b :  r＊ a b <-> a = b \/ r⁺ a b.
 Proof.
   split; ins; desf; vauto; induction H; desf; vauto.
 Qed.
 
-Lemma clos_trans_in_rt a b : r⁺ a b -> r^* a b.
+Lemma clos_trans_in_rt a b : r⁺ a b -> r＊ a b.
 Proof.
   induction 1; vauto.
 Qed.
 
-Lemma rt_t_trans a b c : r^* a b -> r⁺ b c -> r⁺ a c.
+Lemma rt_t_trans a b c : r＊ a b -> r⁺ b c -> r⁺ a c.
 Proof.
   ins; induction H; eauto using clos_trans.
 Qed.
 
-Lemma t_rt_trans a b c : r⁺ a b -> r^* b c -> r⁺ a c.
+Lemma t_rt_trans a b c : r⁺ a b -> r＊ b c -> r⁺ a c.
 Proof.
   ins; induction H0; eauto using clos_trans.
 Qed.
 
-Lemma t_step_rt x y : r⁺ x y <-> (exists z, r x z /\ r^* z y).
+Lemma t_step_rt x y : r⁺ x y <-> (exists z, r x z /\ r＊ z y).
 Proof.
   split; ins; desf.
     by apply clos_trans_tn1 in H; induction H; desf; eauto using clos_refl_trans.
   by rewrite clos_refl_transE in *; desf; eauto using clos_trans.
 Qed.
 
-Lemma t_rt_step x y : r⁺ x y <-> (exists z, r^* x z /\ r z y).
+Lemma t_rt_step x y : r⁺ x y <-> (exists z, r＊ x z /\ r z y).
 Proof.
   split; ins; desf.
     by apply clos_trans_t1n in H; induction H; desf; eauto using clos_refl_trans.
@@ -206,7 +226,7 @@ Proof.
 Qed.
 
 Lemma clos_refl_trans_of_transitive (T: transitive r) x y :
-  r^* x y <-> r^? x y.
+  r＊ x y <-> r^? x y.
 Proof.
   by ins; rewrite clos_refl_transE, clos_trans_of_transitive; ins.
 Qed.
@@ -294,10 +314,10 @@ Qed.
 Lemma transitive_ct : transitive r⁺.
 Proof. vauto. Qed.
 
-Lemma transitive_rt : transitive r^*.
+Lemma transitive_rt : transitive r＊.
 Proof. vauto. Qed.
 
-Lemma reflexive_rt : reflexive r^*.
+Lemma reflexive_rt : reflexive r＊.
 Proof. vauto. Qed.
 
 Lemma reflexive_cr : reflexive r^?.
@@ -342,7 +362,7 @@ Proof.
 Qed.
 
 Lemma upward_closed_rt P :
-  upward_closed r P -> upward_closed r^* P.
+  upward_closed r P -> upward_closed r＊ P.
 Proof.
   induction 2; eauto.
 Qed.
@@ -404,7 +424,7 @@ Proof.
 Qed.
 
 Lemma inclusion_seq_refl :
-  r ⊆ r'' -> r' ⊆ r'' -> transitive r'' -> r ⨾ clos_refl r' ⊆ r''.
+  r ⊆ r'' -> r' ⊆ r'' -> transitive r'' -> r ⨾ r'^? ⊆ r''.
 Proof.
   unfold inclusion, seq, clos_refl; ins; desf; eauto.
 Qed.
@@ -491,7 +511,7 @@ Proof.
   unfold seq; red; ins; desf; eauto using t_step.
 Qed.
 
-Lemma inclusion_t_rt : r⁺ ⊆  r^*.
+Lemma inclusion_t_rt : r⁺ ⊆  r＊.
 Proof.
   by red; ins; apply clos_trans_in_rt.
 Qed.
@@ -523,49 +543,49 @@ Qed.
 
 (** Inclusions involving reflexive-transitive closure. *)
 
-Lemma inclusion_id_rt : ⦗fun _ => True⦘ ⊆ r'^*.
+Lemma inclusion_id_rt : ⦗fun _ => True⦘ ⊆ r'＊.
 Proof.
   by unfold eqv_rel, inclusion; ins; desf; vauto.
 Qed.
 
-Lemma inclusion_eqv_rt : ⦗dom⦘ ⊆ r'^*.
+Lemma inclusion_eqv_rt : ⦗dom⦘ ⊆ r'＊.
 Proof.
   by unfold eqv_rel, inclusion; ins; desf; vauto.
 Qed.
 
-Lemma inclusion_step_rt : r ⊆ r' -> r ⊆ r'^*.
+Lemma inclusion_step_rt : r ⊆ r' -> r ⊆ r'＊.
 Proof.
   unfold seq; red; ins; desf; eauto using rt_step.
 Qed.
 
-Lemma inclusion_r_rt : r ⊆ r' -> clos_refl r ⊆ r'^*.
+Lemma inclusion_r_rt : r ⊆ r' -> r^? ⊆ r'＊.
 Proof.
   unfold seq, clos_refl; red; ins; desf; eauto using rt_step, rt_refl.
 Qed.
 
-Lemma inclusion_rt_rt : r ⊆ r' -> r^* ⊆ r'^*.
+Lemma inclusion_rt_rt : r ⊆ r' -> r＊ ⊆ r'＊.
 Proof.
   red; ins; eapply clos_refl_trans_mon; eauto.
 Qed.
 
-Lemma inclusion_rt_rt2 : r ⊆ r'^* -> r^* ⊆ r'^*.
+Lemma inclusion_rt_rt2 : r ⊆ r'＊ -> r＊ ⊆ r'＊.
 Proof.
   induction 2; eauto using clos_refl_trans.
 Qed.
 
 Lemma inclusion_rt_ind :
-  reflexive r' -> r ⊆ r' -> transitive r' -> r^* ⊆ r'.
+  reflexive r' -> r ⊆ r' -> transitive r' -> r＊ ⊆ r'.
 Proof. unfold seq, eqv_rel; induction 4; eauto. Qed.
 
 Lemma inclusion_rt_ind_left :
-  reflexive r' -> r⨾ r' ⊆ r' -> r^* ⊆ r'.
+  reflexive r' -> r⨾ r' ⊆ r' -> r＊ ⊆ r'.
 Proof.
   unfold seq, eqv_rel, inclusion; ins.
   apply clos_rt_rt1n in H1; induction H1; eauto.
 Qed.
 
 Lemma inclusion_rt_ind_right :
-  reflexive r' -> r'⨾ r ⊆ r' -> r^* ⊆ r'.
+  reflexive r' -> r'⨾ r ⊆ r' -> r＊ ⊆ r'.
 Proof.
   unfold seq, eqv_rel, inclusion; ins.
   apply clos_rt_rtn1 in H1; induction H1; eauto.
@@ -578,7 +598,7 @@ Proof.
 Qed.
 
 Lemma inclusion_seq_rt :
-  r ⊆ r''^* -> r' ⊆ r''^* -> r⨾ r' ⊆ r''^*.
+  r ⊆ r''＊ -> r' ⊆ r''＊ -> r⨾ r' ⊆ r''＊.
 Proof.
   apply inclusion_seq_trans; vauto.
 Qed.

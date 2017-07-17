@@ -8,7 +8,7 @@ relations. We start with some basic helper lemmas. *)
 Section HelperLemmas.
 
   Variable A : Type.
-  Variables r1 r2 r3 r4 r5 r6 r r' : relation A.
+  Variables r1 r2 r3 r4 r5 r6 r7 r r' : relation A.
 
   Lemma hahn_inclusion_exp :
     r ⊆ r' -> forall x y, r x y -> r' x y.
@@ -222,6 +222,20 @@ Tactic Notation "sin_rewrite" uconstr(x) :=
         | rewrite (fun a b c d => sin4 (x a b c d)) at 1
         | rewrite (fun a b c d e => sin4 (x a b c d e)) at 1
         | rewrite (fun a b c d e f => sin4 (x a b c d e f)) at 1
+        | rewrite (sin5 x) at 1
+        | rewrite (fun a => sin5 (x a)) at 1
+        | rewrite (fun a b => sin5 (x a b)) at 1
+        | rewrite (fun a b c => sin5 (x a b c)) at 1
+        | rewrite (fun a b c d => sin5 (x a b c d)) at 1
+        | rewrite (fun a b c d e => sin5 (x a b c d e)) at 1
+        | rewrite (fun a b c d e f => sin5 (x a b c d e f)) at 1
+        | rewrite (sin6 x) at 1
+        | rewrite (fun a => sin6 (x a)) at 1
+        | rewrite (fun a b => sin6 (x a b)) at 1
+        | rewrite (fun a b c => sin6 (x a b c)) at 1
+        | rewrite (fun a b c d => sin6 (x a b c d)) at 1
+        | rewrite (fun a b c d e => sin6 (x a b c d e)) at 1
+        | rewrite (fun a b c d e f => sin6 (x a b c d e f)) at 1
         ].
 
 Tactic Notation "sin_rewrite" "!" uconstr(x) :=
@@ -257,10 +271,13 @@ Proof.
 Qed.
 
 Lemma transitiveI A (r: relation A) :
-  inclusion (r ⨾ r) r -> transitive r.
+  inclusion (r ⨾ r) r <-> transitive r.
 Proof.
-  unfold transitive, inclusion, seq; ins; desf; eauto.
+  red; splits; unfold transitive, inclusion, seq; ins; desf; eauto.
 Qed.
+
+Ltac simpl_rels :=
+  rewrite ?seqA, ?seq_id_l, ?seq_id_r; seq_rewrite ? seq_eqvK.
 
 Ltac rels :=
   repeat first [progress autorewrite with rel |
@@ -340,6 +357,16 @@ Tactic Notation "arewrite" uconstr(EQ) "at" int_or_var(index) :=
   assert (H : EQ); [eauto 4 with rel rel_full; try done|
                     rewrite H at index; clear H; rewrite ?seqA].
 
+Tactic Notation "arewrite" uconstr(EQ) "by" tactic(t) :=
+  let H := fresh in
+    assert (H: EQ) by (by t; eauto with rel rel_full);
+    first [seq_rewrite H|sin_rewrite H]; clear H; rewrite ?seqA; try done.
+
+Tactic Notation "arewrite" uconstr(EQ) "at" int_or_var(index) "by" tactic(t) :=
+  let H := fresh in
+    assert (H : EQ) by (by t; eauto with rel rel_full);
+    rewrite H at index; clear H; rewrite ?seqA; try done.
+
 Tactic Notation "arewrite" "!" uconstr(EQ) :=
   let H := fresh in
   first [assert (H: EQ) |
@@ -351,6 +378,7 @@ Tactic Notation "arewrite" "!" uconstr(EQ) :=
       assert (H: EQ binder1 binder2); subst binder1 typ1 binder2 typ2]]; cycle 1;
   [ first [seq_rewrite !H|sin_rewrite !H]; clear H; rewrite ?seqA
   | eauto 4 with rel rel_full; try done ]; cycle 1.
+
 
 Tactic Notation "arewrite_false" constr(exp) :=
   arewrite (exp ≡ fun _ _ => False); [split;[|vauto]|].
@@ -365,11 +393,6 @@ Tactic Notation "arewrite_id" "!" constr(exp) :=
 Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
   arewrite (exp ⊆ ⦗fun _ => True⦘) at index.
 
-Tactic Notation "case_union"  uconstr(x) uconstr(y) :=
-  repeat (first [rewrite seq_union_l with (r1 := x) (r2 := y)
-                |rewrite seq_union_r with (r1 := x) (r2 := y)
-                |rewrite seq_union_r with (r1 := x ⨾ _) (r2 := y ⨾ _)]).
-
 Tactic Notation "basic_solver" int_or_var(index) :=
   by ( rewrite ?seqA;
   repeat rewrite seq_eqv;
@@ -382,3 +405,71 @@ Tactic Notation "basic_solver" int_or_var(index) :=
 Tactic Notation "basic_solver" :=
   basic_solver 4.
 
+(* Case analysis *)
+Tactic Notation "unionL" := 
+  repeat first [apply inclusion_union_l | apply irreflexive_union; split].
+
+Tactic Notation "unionL" int_or_var(times) :=
+  do times first [apply inclusion_union_l | apply irreflexive_union; split].
+
+Tactic Notation "UnionL" := repeat apply inclusion_Union_l.
+
+Tactic Notation "UnionL" int_or_var(times) := do times apply inclusion_Union_l.
+
+Tactic Notation "unionR" tactic(dir) :=  apply inclusion_union_r; dir.
+
+Tactic Notation "unionR" tactic(dir) "->" tactic(dir') :=  
+  unionR dir; unionR dir'.
+
+Tactic Notation "unionR" tactic(dir) "->" tactic(dir') "->" tactic(dir'') := 
+  unionR dir; unionR dir'; unionR dir''.
+
+Tactic Notation "case_union"  uconstr(x) uconstr(y) :=
+  first [rewrite seq_union_l with (r1 := x) (r2 := y)
+        |rewrite seq_union_r with (r1 := x) (r2 := y)].
+  
+Tactic Notation "case_union_2"  uconstr(x) uconstr(y) :=
+  simpl_rels;
+  (repeat(
+    case_union x y +
+    case_union x (y ⨾ _) +
+    case_union x (_ ⨾ y) +
+    case_union x (_ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ y ⨾ _) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ y) +
+    case_union x (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ y ⨾ _) +
+    case_union (x ⨾ _) y +
+    case_union (_ ⨾ x) y +
+    case_union (_ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ x ⨾ _) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ x) y +
+    case_union (_ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ _ ⨾ x ⨾ _) y
+  ); unionL; [simpl_rels|]).
+
+Tactic Notation "case_union_3" uconstr(x) uconstr(y) uconstr(z) :=
+  simpl_rels; case_union_2 _ z; [case_union_2 x y|].
+
+Tactic Notation "case_union_4" uconstr(x) uconstr(y) uconstr(z) uconstr(w) :=
+  simpl_rels; case_union_2 _ w; [case_union_3 x y z|].
+
+Tactic Notation "case_union_5" uconstr(x) uconstr(y) uconstr(z) uconstr(w) uconstr(t) :=
+  simpl_rels; case_union_2 _ t; [case_union_4 x y z w|].
+
+Tactic Notation "case_refl"  uconstr(x) "at" int(index) :=
+  simpl_rels; rewrite crE with (r := x) at index; case_union_2 _ x.
+
+Tactic Notation "case_refl"  uconstr(x) := case_refl x at 1.
