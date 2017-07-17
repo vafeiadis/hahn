@@ -1,3 +1,5 @@
+(** * Support for rewriting *)
+
 Require Import HahnBase HahnList HahnRelationsBasic HahnEquational.
 
 Set Implicit Arguments.
@@ -308,6 +310,24 @@ Hint Resolve eq_in_l eq_in_r rt_rt ct_rt rt_ct inclusion_minus_rel rewrite_trans
   inclusion_seq_eqv_r inclusion_seq_eqv_l ct_end clos_rt_idempotent inclusion_t_rt
   inclusion_eqv_rel_true cr_ct ct_cr cr_rt rt_cr : rel_full.
 
+Hint Resolve pow_rel_mori : rel.
+
+
+(** Helpful tactics for inclusions *)
+
+Ltac apply_unionL_once := 
+  first [apply inclusion_union_l | apply inclusion_Union_l | 
+         apply irreflexive_union; split].
+
+Tactic Notation "unionL" := repeat apply_unionL_once. 
+
+Tactic Notation "unionR" tactic(dir) :=  apply inclusion_union_r; dir.
+
+Tactic Notation "unionR" tactic(dir) "->" tactic(dir') :=  
+  unionR dir; unionR dir'.
+
+Tactic Notation "unionR" tactic(dir) "->" tactic(dir') "->" tactic(dir'') := 
+  unionR dir; unionR dir'; unionR dir''.
 
 Ltac hahn_rel :=
   rels;
@@ -405,24 +425,7 @@ Tactic Notation "basic_solver" int_or_var(index) :=
 Tactic Notation "basic_solver" :=
   basic_solver 4.
 
-(* Case analysis *)
-Tactic Notation "unionL" := 
-  repeat first [apply inclusion_union_l | apply irreflexive_union; split].
-
-Tactic Notation "unionL" int_or_var(times) :=
-  do times first [apply inclusion_union_l | apply irreflexive_union; split].
-
-Tactic Notation "UnionL" := repeat apply inclusion_Union_l.
-
-Tactic Notation "UnionL" int_or_var(times) := do times apply inclusion_Union_l.
-
-Tactic Notation "unionR" tactic(dir) :=  apply inclusion_union_r; dir.
-
-Tactic Notation "unionR" tactic(dir) "->" tactic(dir') :=  
-  unionR dir; unionR dir'.
-
-Tactic Notation "unionR" tactic(dir) "->" tactic(dir') "->" tactic(dir'') := 
-  unionR dir; unionR dir'; unionR dir''.
+(** Case analysis *)
 
 Tactic Notation "case_union"  uconstr(x) uconstr(y) :=
   first [rewrite seq_union_l with (r1 := x) (r2 := y)

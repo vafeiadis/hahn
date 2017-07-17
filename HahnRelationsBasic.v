@@ -87,11 +87,8 @@ Fixpoint pow_rel A (r: relation A) n :=
   | S n => seq (pow_rel r n) r
   end.
 
-Definition Union A B (r: A -> relation B) x y :=
-  exists a, r a x y.
-
-Definition Union_restr (P : nat -> Prop) B (f : nat -> relation B) : relation B :=
-  Union (fun (k: {k : nat | P k}) => f (proj1_sig k)).
+Definition Union A (P : A -> Prop) B (r: A -> relation B) x y :=
+  exists a, P a /\ r a x y.
 
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
@@ -101,7 +98,6 @@ Notation "P ∩ Q" := (inter_rel P Q) (at level 40, left associativity).
 Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
 Notation "P \ Q" := (minus_rel P Q) (at level 50).
 Notation "P ⨾ Q" := (seq P Q) (at level 45, right associativity).
-Notation "'⋃'" := Union_restr.
 Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
 Notation "∅₂" := (fun _ _ => False).
 
@@ -114,6 +110,15 @@ Notation "a ⁻¹" := (transp a) (at level 1, format "a ⁻¹").
 Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
 
+Notation "'⋃' x .. y , p" := 
+  (Union (fun _ => True) (fun x => .. (Union (fun _ => True) (fun y => p)) ..))
+  (at level 200, x binder, right associativity,
+   format "'[' '⋃' '/ ' x .. y ,  '/ ' p ']'").
+Notation "'⋃⋃' x < n , a" := (Union (fun t => t < n) (fun x => a))
+  (at level 200, x ident, right associativity).
+Notation "'⋃⋃' x <= n , a" := (Union (fun t => t <= n) (fun x => a))
+  (at level 200, x ident, right associativity).
+
 (** Here are some alternative non-unicode notations *)
 
 Notation "P +++ Q" := (union P Q) (at level 50, left associativity, only parsing).
@@ -124,6 +129,7 @@ Notation "a ^*" := (clos_refl_trans a) (at level 1, only parsing).
 Notation "a ^{-1}" := (transp a) (at level 1, only parsing).
 Notation "a <<= b" := (inclusion a b)  (at level 60, only parsing).
 Notation "a <--> b" := (same_relation a b)  (at level 60, only parsing).
+
 
 (** Unfolding of relational operations **)
 Tactic Notation "unfold_rel_ops" := 
@@ -412,10 +418,16 @@ Proof.
   unfold inclusion, union; ins; desf; eauto.
 Qed.
 
-Lemma inclusion_Union_l (rr : B -> relation A) :
-  (forall n, rr n ⊆ r') -> Union rr ⊆ r'.
+Lemma inclusion_Union_l (P : B -> Prop) (rr : B -> relation A) :
+  (forall x, P x -> rr x ⊆ r') -> Union P rr ⊆ r'.
 Proof.
-  unfold Union, inclusion; intros; desf; eauto.
+  firstorder.
+Qed.
+
+Lemma inclusion_Union_r (x: B) (P : B -> Prop) (rr : B -> relation A) : 
+  P x -> r ⊆ rr x -> r ⊆ Union P rr.
+Proof.
+  firstorder.
 Qed.
 
 Lemma inclusion_seq_mon s s' : r ⊆ r' -> s ⊆ s' -> r ⨾ s ⊆ r' ⨾ s'.

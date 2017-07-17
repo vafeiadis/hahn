@@ -525,47 +525,29 @@ Section PathUnionTransitive.
   Variable A : Type.
   Implicit Type r : relation A.
 
-  Lemma path_ut_helper r r' (T: transitive r') x y
-      (P: clos_refl_trans (fun x y => r x y \/ r' x y) x y) :
-      exists z w,
-        r＊ x z /\
-        clos_refl_trans (fun x y => exists z, r' x z /\ r⁺ z y) z w /\
-        (w = y \/ r' w y).
-  Proof.
-    induction P; eauto 8 using rt_refl.
-      by desf; eauto 8 using rt_refl, rt_step.
-    clear P1 P2; desf.
+  Lemma inclusion_seq_l r r1 r2 : r ⊆ r1 -> reflexive r2 -> r ⊆ r1 ⨾ r2.
+  Proof. firstorder. Qed.
 
-    rewrite clos_refl_transE in IHP2; desf;
-    [rewrite clos_refl_transE, t_step_rt in IHP0; desf; eauto 8|
-     rewrite clos_refl_transE, t_rt_step in IHP4; desf;
-     eauto 8 using rt_trans, clos_trans_in_rt];
-    (repeat eexists; [eauto|eapply rt_trans, rt_trans|vauto]); eauto;
-    apply rt_step; eauto using t_trans.
+  Lemma inclusion_seq_r r r1 r2 : r ⊆ r2 -> reflexive r1 -> r ⊆ r1 ⨾ r2.
+  Proof. firstorder. Qed.
 
-    rewrite clos_refl_transE in IHP2; desf;
-    [rewrite clos_refl_transE, t_step_rt in IHP0; desf; eauto 8|];
-    (repeat eexists; [eauto|eapply rt_trans, rt_trans|vauto]); eauto;
-    apply rt_step; eauto.
-
-    rewrite clos_refl_transE in IHP2; desf; eauto 8 using rt_trans;
-    rewrite clos_refl_transE, t_rt_step in IHP4; desf;
-    eauto 8 using rt_trans, clos_trans_in_rt;
-    (repeat eexists; [eauto|eapply rt_trans,rt_trans|right; eauto]); eauto;
-    apply rt_step; eauto using t_trans.
-
-    rewrite clos_refl_transE in IHP2; desf; eauto 8 using rt_trans;
-    [rewrite clos_refl_transE, t_step_rt in IHP0; desf; eauto 8|];
-    (repeat eexists; [eauto|eapply rt_trans,rt_trans|right; eauto]); eauto;
-    apply rt_step; eauto using t_trans.
-  Qed.
+  Hint Resolve inclusion_seq_l inclusion_seq_r : rel_full.
 
   Lemma path_ut r r' (T: transitive r') :
     (r ∪ r')＊ ≡ r＊ ⨾ (r' ⨾ r⁺)＊ ⨾ r'^?.
   Proof.
     split.
-    - unfold seq, union, clos_refl; red; ins; eapply path_ut_helper in H;
-      desf; eauto 10.
+    - apply inclusion_rt_ind; hahn_rel; eauto 4 with rel rel_full.
+      apply transitiveI.
+      rewrite crE at 1; relsf; unionL.
+        hahn_frame_r; rewrite rtE with (r:=r' ⨾ r⁺) at 1; relsf; hahn_rel.
+        hahn_frame_l; rewrite ct_end, !seqA; rels.
+        by apply inclusion_seq_rt; ins; rewrite <- seqA, <- ct_begin; eauto with rel.
+      hahn_frame_l; rewrite rtE with (r:=r) at 1; relsf; hahn_rel; [|hahn_frame_r].
+        rewrite rtE with (r:=r' ⨾ r⁺) at 2; relsf; hahn_rel.
+        hahn_frame_r; rewrite ct_begin with (r:=r' ⨾ r⁺); rewrite !seqA; relsf. 
+        by apply inclusion_seq_rt; ins; rewrite <- seqA, <- ct_begin; eauto with rel.
+      by apply inclusion_seq_rt; ins; rewrite <- seqA, <- ct_begin; eauto with rel.
     - rewrite inclusion_t_rt.
       eauto 10 using inclusion_seq_trans, inclusion_rt_rt2 with rel.
   Qed.
@@ -810,103 +792,20 @@ Qed.
 (******************************************************************************)
 
 Lemma pow_union_decomposition (n : nat) A (d p: relation A) :
-  (d ∪ p)^^n ⊆ p^^n ∪ 
-    (⋃ (fun k => k < n) (fun k => p^^k ⨾ d ⨾ (d ∪ p)^^(n- k -1))).
+  (d ∪ p)^^n ⊆ p^^n ∪ (⋃⋃ k < n, p^^k ⨾ d ⨾ (d ∪ p)^^(n - k - 1)).
 Proof.
-  unfold Union_restr.
   induction n using (well_founded_ind Wf_nat.lt_wf).
-  destruct n as [| n'].
-  - (* n = 0 *) firstorder.
-  - (* n > 0 *)
-    simpl (_ ^^ (S n')).
-    rewrite seq_pow_l.
-    destruct n'.
-    + (* n' = 0 *)
-      simpl (_ ^^ 0).
-      simpl_rels.
-      arewrite (d ⊆  ⋃ (fun k => k < 1) (fun k => p^^k ⨾ d ⨾ (d ∪ p)^^(1 - k - 1))).
-      { red; ins. unfold Union.
-        assert (LT: 0 < 1); try omega.
-        eexists (exist _ 0 LT).
-        firstorder. }
-      eauto with rel.
-    + (* n' > 0 *)
-      arewrite ((d ∪ p) ⊆ (d ∪ p)^^1) at 1 by apply pow_unit.
-      rewrite (H 1); try omega.
-      rewrite (H (S n')); try omega.
-      remember (S n') as n.
-      rewrite pow_unit; relsf.
-      repeat apply inclusion_union_l; apply inclusion_union_r.
-      * left. eauto using seq_pow_l with rel_full.
-      * right.
-        red; intros.
-        unfold Union in *. destruct H0.
-        destruct x0 as [k' LT0].
-        assert (LT: k' < S n); try omega.
-        assert (k' = 0); try omega.
-        eexists (exist _ k' LT).
-        desf; simpl in *; unfold_rel_ops in *; desf.
-        exists z1; splits; eauto.
-        exists z; split; eauto.
-        exists z0; splits; auto.
-
-        assert ((fun x y0 => d x y0 \/ p x y0) ^^ n' = (d ∪ p)^^n').
-          by unfold_rel_ops; eauto with rel.
-        rewrite H0.
-        assert (P_IN_DP: p^^n' ⊆ (d ∪ p)^^n').
-          by arewrite (p ⊆ d ∪ p) at 1.
-        unfold inclusion in P_IN_DP.
-        specialize (P_IN_DP z z0 H1).
-        done.
-      * right.
-        unfold Union. red; intros; desf. destruct a as [a' LT0].
-        simpl (proj1_sig _) in *.
-        assert (LT: a' + 1 < S (S n')); try omega.
-        exists (exist (fun x => x < S (S n')) (a' + 1) LT).
-        simpl (proj1_sig _) in *.
-        arewrite (p ^^ (a' + 1) ⨾ d ⨾ (d ∪ p) ^^ (S (S n') - (a' + 1) - 1) ≡ 
-                  p ⨾ p ^^ a' ⨾ d ⨾ (d ∪ p) ^^ (S n' - a' - 1)).
-        { arewrite (a' + 1 = S a'); try omega.
-          simpl; rewrite seq_pow_l; by rewrite !seqA. }
-        done.
-      * right.
-        unfold Union.
-        red; intros; desf. destruct a as [a' LT0].
-        simpl (proj1_sig _) in *.
-        repeat destruct H0.
-        assert (proj1_sig x1 = 0).
-        { destruct x1. assert (x1 = 0). by omega. auto. }
-        rewrite H3 in *.
-        simpl (1 - 0 - 1) in *.
-        simpl (_ ^^ 0) in *.
-        assert (x = x2). by unfold_rel_ops in H0; desf.
-
-        rename x2 into a, x0 into b.
-        assert (d a b). by unfold_rel_ops in H2; desf.
-
-        assert (LT: 0 < S (S n')); try omega.
-        exists (exist (fun x => x < S (S n')) 0 LT).
-        simpl.
-
-        remember (⦗fun _ => True⦘ ⨾ d ⨾ (d ∪ p) ^^ n' ⨾ (d ∪ p)) as r1.
-        assert ((d ⨾ p ^^ a' ⨾ d ⨾ (d ∪ p) ^^ (S n' - a' - 1)) x y).
-          by subst a; unfold seq at 1; exists b.
-        remember (d ⨾ p ^^ a' ⨾ d ⨾ (d ∪ p) ^^ (S n' - a' - 1)) as r2.
-        assert (r2 ⊆ r1).
-        { rewrite Heqr2, Heqr1.
-          assert (D_IN_R: d ⊆ d ∪ p); eauto with rel.
-          assert (P_IN_R: p ⊆ d ∪ p); eauto with rel.
-          rewrite P_IN_R at 1.
-          rewrite D_IN_R at 3.
-          arewrite ((d ∪ p) ^^ a' ⨾ (d ∪ p) ⨾ (d ∪ p) ^^ (S n' - a' - 1) ⊆ (d ∪ p)^^(S n')).
-          { arewrite ((d ∪ p)^^a' ⨾ (d ∪ p) ⊆ (d ∪ p)^^(S a')).
-            rewrite pow_nm.
-            assert (S a' + (S n' - a' - 1) = S n').
-              by destruct a'; omega.
-            rewrite H7.
-            done.
-          }
-          unfold_rel_ops; ins; desf; eexists; eauto with rel.
-        }
-        eauto with rel.
+  destruct n as [| n']; [by firstorder|].
+  simpl (_ ^^ (S n')).
+  rewrite !seq_pow_l, H; clear H; try done; relsf.
+  unionL; repeat apply inclusion_Union_l; intros; eauto with rel.
+  - unionR right; eapply inclusion_Union_r with 0; ins; try omega; rels.
+    replace (n' - 0) with n' by omega; eauto with rel. 
+  - unionR right; eapply inclusion_Union_r with 0; ins; try omega; rels.
+    hahn_frame_l.
+    arewrite (d ⊆ (d ∪ p) ^^ 1) at 1 by simpl; rels.
+    arewrite (p ⊆ d ∪ p) at 1; rewrite !pow_nm.
+    replace (x + (1 + (n' - x - 1))) with (n' - 0) by omega; rels.
+  - unionR right; eapply inclusion_Union_r with (S x); ins; try omega; rels.
+    by rewrite seq_pow_l, !seqA.
 Qed.
