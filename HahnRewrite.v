@@ -406,9 +406,11 @@ Tactic Notation "basic_solver" :=
   basic_solver 4.
 
 (* Case analysis *)
-Tactic Notation "unionL" := repeat apply inclusion_union_l.
+Tactic Notation "unionL" := 
+  repeat first [apply inclusion_union_l | apply irreflexive_union; split].
 
-Tactic Notation "unionL" int_or_var(times) := do times apply inclusion_union_l.
+Tactic Notation "unionL" int_or_var(times) :=
+  do times first [apply inclusion_union_l | apply irreflexive_union; split].
 
 Tactic Notation "UnionL" := repeat apply inclusion_Union_l.
 
