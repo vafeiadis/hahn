@@ -96,8 +96,8 @@ Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
 Notation "P ∩ Q" := (inter_rel P Q) (at level 40, left associativity).
 Notation "P ∪ Q" := (union P Q) (at level 50, left associativity).
-Notation "P \ Q" := (minus_rel P Q) (at level 50).
-Notation "P ⨾ Q" := (seq P Q) (at level 45, right associativity).
+Notation "P \ Q" := (minus_rel P Q) (at level 46).
+Notation "P ⨾ Q" := (seq P Q) (at level 44, right associativity).
 Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
 Notation "∅₂" := (fun _ _ => False).
 
@@ -163,7 +163,7 @@ Variable dom : A -> Prop.
 Variable f: A -> B.
 Variables r r' r'' : relation A.
 
-Lemma immediateE : immediate r ≡ r \ r ⨾ r.
+Lemma immediateE : immediate r ≡ r \ (r ⨾ r).
 Proof.
   unfold immediate, seq, minus_rel.
   repeat split; try red; ins; desf; eauto.

@@ -182,18 +182,18 @@ Section PathAbsorb.
   Qed.
 
   Lemma minus_seq_l r r' (T: transitive r) :
-    r ⨾ r' \ r ⊆ r ⨾ (r' \ r).
+    (r ⨾ r') \ r ⊆ r ⨾ (r' \ r).
   Proof.
     unfold minus_rel, seq; red; ins; desf; repeat eexists; eauto.
   Qed.
 
   Lemma minus_seq_r r r' (T: transitive r') :
-    r ⨾ r' \ r' ⊆ (r \ r') ⨾ r'.
+    (r ⨾ r') \ r' ⊆ (r \ r') ⨾ r'.
   Proof.
     unfold minus_rel, seq; red; ins; desf; repeat eexists; eauto.
   Qed.
 
-  Lemma seq_rt_absorb_l r r' : r ⨾ r'＊ ⊆ r ∪ (r ⨾ r' \ r) ⨾ r'＊.
+  Lemma seq_rt_absorb_l r r' : r ⨾ r'＊ ⊆ r ∪ ((r ⨾ r') \ r) ⨾ r'＊.
   Proof.
     unfold seq, union, inclusion, minus_rel; ins; desf.
     induction H0 using clos_refl_trans_ind_left; desf; eauto.
@@ -201,19 +201,19 @@ Section PathAbsorb.
     right; repeat eexists; eauto using clos_refl_trans.
   Qed.
 
-  Lemma seq_ct_absorb_l r r' : r ⨾ r'⁺ ⊆ r ∪ (r ⨾ r' \ r) ⨾ r'＊.
+  Lemma seq_ct_absorb_l r r' : r ⨾ r'⁺ ⊆ r ∪ ((r ⨾ r') \ r) ⨾ r'＊.
   Proof.
     rewrite <- seq_rt_absorb_l; eauto with rel.
   Qed.
 
-  Lemma seq_rt_absorb_r r r' : r＊ ⨾ r' ⊆ r' ∪ r＊ ⨾ (r ⨾ r' \ r').
+  Lemma seq_rt_absorb_r r r' : r＊ ⨾ r' ⊆ r' ∪ r＊ ⨾ ((r ⨾ r') \ r').
   Proof.
     apply inclusion_transpE.
     rewrite !transp_union, !transp_seq, !transp_minus, !transp_rt, !transp_seq;
     auto using seq_rt_absorb_l, transitive_transp.
   Qed.
 
-  Lemma seq_ct_absorb_r r r' : r⁺ ⨾ r' ⊆ r' ∪ r＊ ⨾ (r ⨾ r' \ r').
+  Lemma seq_ct_absorb_r r r' : r⁺ ⨾ r' ⊆ r' ∪ r＊ ⨾ ((r ⨾ r') \ r').
   Proof.
     rewrite <- seq_rt_absorb_r; eauto with rel.
   Qed.

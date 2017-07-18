@@ -33,7 +33,7 @@ Arguments set_equiv {A}.
 
 Notation "P ∪₁ Q" := (set_union P Q) (at level 50, left associativity).
 Notation "P ∩₁ Q" := (set_inter P Q) (at level 40, left associativity).
-Notation "P \₁ Q" := (set_minus P Q) (at level 50).
+Notation "P \₁ Q" := (set_minus P Q) (at level 46).
 Notation "∅₁"     := (@set_empty _).
 Notation "a ⊆₁ b" := (set_subset a b) (at level 60).
 Notation "a ≡₁ b" := (set_equiv a b)  (at level 60).

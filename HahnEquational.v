@@ -348,14 +348,9 @@ Section PropertiesSeqUnion.
   Qed.
 
   Lemma minus_union_l r1 r2 r :
-    (r1 ∪ r2) \ r ≡ minus_rel r1 r ∪ minus_rel r2 r.
+    (r1 ∪ r2) \ r ≡ (r1 \ r) ∪ (r2 \ r).
   Proof.
     unfold minus_rel, union; split; red; ins; desf; eauto.
-  Qed.
-
-  Lemma minusK r : r \ r ≡ ∅₂.
-  Proof.
-    unfold minus_rel; split; red; intuition.
   Qed.
 
   Lemma seq_eqvK (dom : A -> Prop) : ⦗dom⦘ ⨾ ⦗dom⦘ ≡ ⦗dom⦘.
@@ -468,11 +463,6 @@ Section PropertiesInter.
     firstorder.
   Qed.
 
-  Lemma minus_absorb r r' (SUB: r ⊆ r') : r \ r' ≡ ∅₂.
-  Proof.
-    firstorder.
-  Qed.
-
   Lemma inter_trans (r r' i : relation A) (T: transitive i) :
   (r ∩ i) ⨾ (r' ∩ i) ⊆ (r ⨾ r') ∩ i.
   Proof.
@@ -488,6 +478,38 @@ End PropertiesInter.
 
 Hint Rewrite inter_false_l inter_false_r interK : rel.
 
+(******************************************************************************)
+(** Properties of relational difference *)
+(******************************************************************************)
+
+Section PropertiesMinus.
+
+  Variable A : Type.
+  Implicit Type r : relation A.
+
+  Lemma minus_false_r r : r \ ∅₂ ≡ r.
+  Proof.
+    firstorder.
+  Qed.
+
+  Lemma minus_false_l r : ∅₂ \ r ≡ ∅₂.
+  Proof.
+    firstorder.
+  Qed.
+
+  Lemma minusK r : r \ r ≡ ∅₂.
+  Proof.
+    unfold minus_rel; split; red; intuition.
+  Qed.
+
+  Lemma minus_absorb r r' (SUB: r ⊆ r') : r \ r' ≡ ∅₂.
+  Proof.
+    firstorder.
+  Qed.
+
+End PropertiesMinus.
+
+Hint Rewrite minus_false_l minus_false_r minusK : rel.
 
 (******************************************************************************)
 (** Basic properties of reflexive and transitive closures *)
@@ -1213,14 +1235,14 @@ Proof.
 Qed.
 
 Lemma minus_eqv_rel_helper A (R T: relation A) d1 d2:
-  ⦗d1⦘ ⨾ (R \ T) ⨾ ⦗d2⦘ ≡ ⦗d1⦘ ⨾ R ⨾ ⦗d2⦘ \ T.
+  ⦗d1⦘ ⨾ (R \ T) ⨾ ⦗d2⦘ ≡ (⦗d1⦘ ⨾ R ⨾ ⦗d2⦘) \ T.
 Proof.
   red; split; unfold inclusion, eqv_rel, minus_rel, seq; ins; desf; firstorder.
 Qed.
 
 Lemma fun_seq_minus_helper A (R S T: relation A)
   (FUN: functional R):
-  R ⨾ (S \ T) ≡ R ⨾ S \ R ⨾ T.
+  R ⨾ (S \ T) ≡ (R ⨾ S) \ (R ⨾ T).
 Proof.
   red; unfold minus_rel, seq, inclusion, transp, eqv_rel in *;
   splits; ins; desf; firstorder.
