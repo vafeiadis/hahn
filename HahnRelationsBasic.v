@@ -394,6 +394,28 @@ Proof. done. Qed.
 Lemma same_relation_refl2 : r ≡ r.
 Proof. split; ins. Qed.
 
+Lemma inclusion_inter_l1 : r ∩ r' ⊆ r.
+Proof. firstorder. Qed.
+
+Lemma inclusion_inter_l2 : r ∩ r' ⊆ r'.
+Proof. firstorder. Qed.
+
+Lemma inclusion_inter_l1_search :
+  r ⊆ r'' -> r ∩ r' ⊆ r''.
+Proof. firstorder. Qed.
+
+Lemma inclusion_inter_l2_search :
+  r' ⊆ r'' -> r ∩ r' ⊆ r''.
+Proof. firstorder. Qed.
+
+Lemma inclusion_inter_r :
+  r ⊆ r' -> r ⊆ r'' -> r ⊆ r' ∩ r''.
+Proof. firstorder. Qed.
+
+Lemma inclusion_inter_mon s s' :
+  r ⊆ r' -> s ⊆ s' -> r ∩ s ⊆ r' ∩ s'.
+Proof. firstorder. Qed.
+
 Lemma inclusion_union_r1 : r ⊆ r ∪ r'.
 Proof. vauto. Qed.
 
@@ -402,6 +424,18 @@ Proof. vauto. Qed.
 
 Lemma inclusion_union_l :
   r ⊆ r'' -> r' ⊆ r'' -> r ∪ r' ⊆ r''.
+Proof.
+  unfold union; red; intros; desf; auto.
+Qed.
+
+Lemma inclusion_union_r1_search :
+  r ⊆ r' -> r ⊆ r' ∪ r''.
+Proof.
+  unfold union; red; intros; desf; auto.
+Qed.
+
+Lemma inclusion_union_r2_search :
+  r ⊆ r'' -> r ⊆ r' ∪ r''.
 Proof.
   unfold union; red; intros; desf; auto.
 Qed.
@@ -676,8 +710,9 @@ Hint Resolve
 
 Hint Resolve
      inclusion_refl2 same_relation_refl2
+     inclusion_inter_l1_search inclusion_inter_l2_search inclusion_inter_r
      inclusion_union_r1 inclusion_union_r2
-     inclusion_union_l inclusion_union_r
+     inclusion_union_r1_search inclusion_union_r2_search inclusion_union_l
      inclusion_seq_mon inclusion_minus_mon
      inclusion_restr_eq_l inclusion_restr_rel_l
   : rel.
