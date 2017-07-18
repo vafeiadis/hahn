@@ -2,7 +2,7 @@
 (** * Operations on sets (unary relations) *)
 (******************************************************************************)
 
-Require Import HahnBase HahnList.
+Require Import HahnBase.
 Require Import Classical Relations.
 
 Set Implicit Arguments.

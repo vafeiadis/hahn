@@ -2,7 +2,8 @@
 (** * Lemmas about lists and permutations *)
 (******************************************************************************)
 
-Require Import HahnBase ClassicalDescription Omega Setoid Sorted.
+Require Import HahnBase HahnSets.
+Require Import ClassicalDescription Omega Setoid Morphisms Sorted.
 Require Export List Permutation.
 
 Set Implicit Arguments.
@@ -80,7 +81,9 @@ Qed.
 Fixpoint filterP A (f: A -> Prop) l :=
   match l with
     | nil => nil
-    | x :: l => if excluded_middle_informative (f x) then x :: filterP f l else filterP f l
+    | x :: l => if excluded_middle_informative (f x) then 
+                  x :: filterP f l 
+                else filterP f l
   end.
 
 Lemma in_filterP_iff A (x : A) f l :
@@ -96,18 +99,26 @@ Proof.
   induction l; ins; desf; ins; congruence.
 Qed.
 
+Lemma filterP_set_equiv A (f f' : A -> Prop) (EQ: f ≡₁ f') (l : list A) :
+  filterP f l = filterP f' l.
+Proof.
+  induction l; ins; desf; f_equal; firstorder. 
+Qed.
+
 Lemma Permutation_filterP A (l l' : list A) (P: Permutation l l') f :
   Permutation (filterP f l) (filterP f l').
 Proof.
   induction P; ins; desf; vauto.
 Qed.
 
-Add Parametric Morphism A : (@filterP A) with
-  signature eq ==> (@Permutation A) ==> (@Permutation A)
-      as filterP_mor.
+Lemma Permutation_filterP2 A f f' (EQ: f ≡₁ f') l l' (P: Permutation (A:=A) l l') :
+  Permutation (filterP f l) (filterP f' l').
 Proof.
-  by ins; apply Permutation_filterP.
+  replace (filterP f' l') with (filterP f l'); 
+    auto using Permutation_filterP, filterP_set_equiv. 
 Qed.
+
+Instance filterP_Proper A : Proper (_ ==> _ ==> _) _ := Permutation_filterP2 (A:=A).
 
 
 (** List flattening *)
