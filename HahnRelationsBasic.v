@@ -122,7 +122,7 @@ Notation "'⋃⋃' x <= n , a" := (Union (fun t => t <= n) (fun x => a))
 (** Here are some alternative non-unicode notations *)
 
 Notation "P +++ Q" := (union P Q) (at level 50, left associativity, only parsing).
-Notation "P ;; Q" := (seq P Q) (at level 45, right associativity, only parsing).
+Notation "P ;; Q" := (seq P Q) (at level 44, right associativity, only parsing).
 Notation "<| a |>" := (eqv_rel a) (only parsing).
 Notation "a ^+" := (clos_trans a) (at level 1, only parsing).
 Notation "a ^*" := (clos_refl_trans a) (at level 1, only parsing).
