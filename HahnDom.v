@@ -108,7 +108,13 @@ Section Lemmas.
   Lemma domb_fold :
     (domb r d) -> (forall a, d a -> d' a) -> r ⨾ ⦗d'⦘ ≡ r.
   Proof. unfold eqv_rel, seq; split; red; ins; desf; eauto 6. Qed.
-  
+
+  Lemma doma_rewrite : doma r d -> r ⊆ ⦗d⦘ ⨾ r. 
+  Proof. firstorder. Qed.
+
+  Lemma domb_rewrite : domb r d -> r ⊆ r ⨾ ⦗d⦘. 
+  Proof. firstorder. Qed.
+
   Lemma doma_helper : r ⊆ ⦗d⦘ ⨾ r <-> doma r d.
   Proof.
     split; unfold doma, inclusion, seq, eqv_rel; ins; desf.
