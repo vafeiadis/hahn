@@ -14,6 +14,7 @@ Section Definitions.
 
   Definition doma := forall x y (REL: r x y), d x.
   Definition domb := forall x y (REL: r x y), d y.
+
 End Definitions.
 
 Section Lemmas.
@@ -198,3 +199,4 @@ Proof.
 Qed.
 
 Hint Rewrite dom_union codom_union dom_eqv codom_eqv dom_eqv1 codom_eqv1 : rel_dom.
+Hint Unfold  doma domb : unfolderDb.
