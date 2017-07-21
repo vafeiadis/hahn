@@ -91,10 +91,10 @@ Proof.
 Qed.
 
 Add Parametric Morphism A : (@is_total A) with signature
-  eq ==> inclusion ==> Basics.impl as is_total_mori.
+  set_subset --> inclusion ++> Basics.impl as is_total_mori.
 Proof.
   unfold inclusion, is_total, Basics.impl; ins; desf.
-  eapply H0 in NEQ; desf; eauto.
+  eapply H1 in NEQ; desf; eauto.
 Qed.
 
 Add Parametric Morphism A : (@transp A) with signature
@@ -104,13 +104,13 @@ Proof.
 Qed.
 
 Add Parametric Morphism A : (@eqv_rel A) with signature
-  @set_subset _ ==> inclusion as eqv_rel_mori.
+  set_subset ==> inclusion as eqv_rel_mori.
 Proof.
   unfold inclusion, set_subset, eqv_rel; ins; desf; eauto.
 Qed.
 
 Add Parametric Morphism X : (@pow_rel X) with signature
-inclusion ==> eq ==> inclusion as pow_rel_mori.
+  inclusion ==> eq ==> inclusion as pow_rel_mori.
 Proof.
   ins. induction y0 as [| y' IH].
     by simpl; eauto with rel.
