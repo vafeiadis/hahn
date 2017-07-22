@@ -415,12 +415,14 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
 
 (** Unfolding of relational operations **)
 Hint Unfold  same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
-  transp clos_refl irreflexive restr_rel minus_rel: unfolderDb.
+  transp clos_refl irreflexive restr_rel minus_rel singl_rel: unfolderDb.
 
 Tactic Notation "unfolder" := 
   rewrite ?seqA;
   repeat rewrite seq_eqv;
-  repeat rewrite seq_eqv_r, seq_eqv_l; autounfold with unfolderDb.
+  repeat rewrite seq_eqv_r, seq_eqv_l; 
+  repeat rewrite <- id_union;
+  autounfold with unfolderDb.
 
 Tactic Notation "unfolder" "in" "*" :=
   rewrite ?seqA;
@@ -432,10 +434,7 @@ Tactic Notation "unfolder" "in" "*" :=
 (** basic_solver tactic **)
 Tactic Notation "basic_solver" int_or_var(index) :=
   by ( rewrite ?rtE;
-  unfolder;
-(*   unfold same_relation, irreflexive, transp, clos_refl, union, seq,
-         eqv_rel, transp, inclusion, restr_rel, restr_eq_rel, minus_rel;
- *)  splits; ins; desf; eauto index; done).
+  unfolder; splits; ins; desf; eauto index; done).
 
 Tactic Notation "basic_solver" :=
   basic_solver 4.
