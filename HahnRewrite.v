@@ -426,6 +426,7 @@ Tactic Notation "unfolder" "in" "*" :=
   rewrite ?seqA;
   repeat rewrite seq_eqv;
   repeat rewrite seq_eqv_r, seq_eqv_l; 
+  repeat rewrite <- id_union;
   autounfold with unfolderDb in *.
 
 (** basic_solver tactic **)
