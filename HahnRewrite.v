@@ -82,9 +82,14 @@ End HelperLemmas.
 
 (** We proceed with a set of rewrite tactics *)
 
+Tactic Notation "reflexitiy_subst" :=
+by match goal with
+| |- ?x ⊆ ?y  => assert (x = y) by (ins; subst); subst
+end.
+
 Tactic Notation "hahn_rewrite" uconstr(EQ) :=
   match goal with
-    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite EQ; reflexivity|]
+    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite EQ; (reflexivity || reflexitiy_subst)|]
     | |- _ => rewrite EQ
   end.
 
@@ -417,19 +422,18 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
 Hint Unfold  same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
   transp clos_refl irreflexive restr_rel minus_rel singl_rel: unfolderDb.
 
-Tactic Notation "unfolder" := 
+Tactic Notation "unfolder_prepare" := 
   rewrite ?seqA;
-  repeat rewrite seq_eqv;
-  repeat rewrite seq_eqv_r, seq_eqv_l; 
-  repeat rewrite <- id_union;
-  autounfold with unfolderDb.
+  repeat hahn_rewrite seq_eqv;
+  repeat hahn_rewrite seq_eqv_r;
+  repeat hahn_rewrite seq_eqv_l;
+  repeat hahn_rewrite <- id_union.
+
+Tactic Notation "unfolder" := 
+  unfolder_prepare; autounfold with unfolderDb.
 
 Tactic Notation "unfolder" "in" "*" :=
-  rewrite ?seqA;
-  repeat rewrite seq_eqv;
-  repeat rewrite seq_eqv_r, seq_eqv_l; 
-  repeat rewrite <- id_union;
-  autounfold with unfolderDb in *.
+  unfolder_prepare; autounfold with unfolderDb in *.
 
 (** basic_solver tactic **)
 Tactic Notation "basic_solver" int_or_var(index) :=
