@@ -82,14 +82,12 @@ End HelperLemmas.
 
 (** We proceed with a set of rewrite tactics *)
 
-Tactic Notation "reflexitiy_subst" :=
-by match goal with
-| |- ?x ⊆ ?y  => assert (x = y) by (ins; subst); subst
-end.
+Lemma inclusion_refl_helper A (x y : relation A) : x = y -> x ⊆ y.
+Proof. by ins; subst. Qed. 
 
 Tactic Notation "hahn_rewrite" uconstr(EQ) :=
   match goal with
-    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite EQ; (reflexivity || reflexitiy_subst)|]
+    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite EQ; apply inclusion_refl_helper; reflexivity|]
     | |- _ => rewrite EQ
   end.
 
@@ -420,7 +418,7 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
 
 (** Unfolding of relational operations **)
 Hint Unfold  same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
-  transp clos_refl irreflexive restr_rel minus_rel singl_rel: unfolderDb.
+  transp clos_refl irreflexive restr_rel minus_rel singl_rel is_total: unfolderDb.
 
 Tactic Notation "unfolder_prepare" := 
   rewrite ?seqA;
@@ -429,16 +427,29 @@ Tactic Notation "unfolder_prepare" :=
   repeat hahn_rewrite seq_eqv_l;
   repeat hahn_rewrite <- id_union.
 
+Tactic Notation "unfolder_prepare"  "in" hyp_list(H) := 
+  rewrite ?seqA in H;
+  repeat hahn_rewrite seq_eqv in H;
+  repeat hahn_rewrite seq_eqv_r in H;
+  repeat hahn_rewrite seq_eqv_l in H;
+  repeat hahn_rewrite <- id_union in H.
+
 Tactic Notation "unfolder" := 
   unfolder_prepare; autounfold with unfolderDb.
 
+Tactic Notation "unfolder" "in" hyp_list(H) := 
+  unfolder_prepare in H; autounfold with unfolderDb in H.
+
+Tactic Notation "unfolder" "in" "*" "|-" :=
+  repeat match goal with | [H:_ |- _] => progress unfolder in H
+end.
+
 Tactic Notation "unfolder" "in" "*" :=
-  unfolder_prepare; autounfold with unfolderDb in *.
+  unfolder; unfolder in * |-.
 
 (** basic_solver tactic **)
 Tactic Notation "basic_solver" int_or_var(index) :=
-  by ( rewrite ?rtE;
-  unfolder; splits; ins; desf; eauto index; done).
+  by ( rewrite ?rtE; unfolder; splits; ins; desf; eauto index; done).
 
 Tactic Notation "basic_solver" :=
   basic_solver 4.
