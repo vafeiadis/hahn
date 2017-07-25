@@ -418,7 +418,7 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
 
 (** Unfolding of relational operations **)
 Hint Unfold  same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
-  transp clos_refl irreflexive restr_rel minus_rel singl_rel is_total: unfolderDb.
+  transp clos_refl irreflexive restr_rel minus_rel singl_rel is_total immediate : unfolderDb.
 
 Tactic Notation "unfolder_prepare" := 
   rewrite ?seqA;
@@ -427,7 +427,7 @@ Tactic Notation "unfolder_prepare" :=
   repeat hahn_rewrite seq_eqv_l;
   repeat hahn_rewrite <- id_union.
 
-Tactic Notation "unfolder_prepare"  "in" hyp_list(H) := 
+Tactic Notation "unfolder_prepare"  "in" hyp(H) := 
   rewrite ?seqA in H;
   repeat hahn_rewrite seq_eqv in H;
   repeat hahn_rewrite seq_eqv_r in H;
@@ -437,7 +437,7 @@ Tactic Notation "unfolder_prepare"  "in" hyp_list(H) :=
 Tactic Notation "unfolder" := 
   unfolder_prepare; autounfold with unfolderDb.
 
-Tactic Notation "unfolder" "in" hyp_list(H) := 
+Tactic Notation "unfolder" "in" hyp(H) := 
   unfolder_prepare in H; autounfold with unfolderDb in H.
 
 Tactic Notation "unfolder" "in" "*" "|-" :=
