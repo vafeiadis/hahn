@@ -103,6 +103,12 @@ Proof.
   unfold inclusion, transp; eauto.
 Qed.
 
+Add Parametric Morphism A : (@functional A) with signature
+  inclusion --> Basics.impl as functional_mori.
+Proof.
+  unfold same_relation, inclusion, functional; ins; desf; red; ins; eauto.
+Qed.
+
 Add Parametric Morphism A : (@eqv_rel A) with signature
   set_subset ==> inclusion as eqv_rel_mori.
 Proof.
