@@ -237,9 +237,13 @@ Proof.
 Qed.
 
 Add Parametric Morphism A : (@is_total A) with signature
-  eq ==> same_relation ==> iff as is_total_more.
+  @set_equiv _ ==> same_relation ==> iff as is_total_more.
 Proof.
-  unfold is_total, same_relation; split; ins; eapply H0 in NEQ; desf; eauto.
+  unfold is_total, same_relation, inclusion, set_equiv; split. 
+  intros H1 a Ha b Hb NEQ; desf.
+  by cut(x0 a b \/ x0 b a); [ins; desf; eauto| apply H1; firstorder].
+  intros H1 a Ha b Hb NEQ; desf.
+  by cut(y0 a b \/ y0 b a); [ins; desf; eauto| apply H1; firstorder].
 Qed.
 
 Add Parametric Morphism A : (@transp A) with signature
