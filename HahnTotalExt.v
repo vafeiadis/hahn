@@ -22,7 +22,7 @@ Section one_extension.
       r⁺ x y
       \/ r＊ x elem /\ ~ r＊ y elem.
 
-  Lemma one_ext_extends x y : r x y -> one_ext x y.
+  Lemma one_ext_extends : r ⊆ one_ext.
   Proof. vauto. Qed.
 
   Lemma one_ext_trans : transitive one_ext.
@@ -53,10 +53,9 @@ Fixpoint tot_ext A (dom : list A) (r : relation A) : relation A :=
     | x::l => one_ext x (tot_ext l r)
   end.
 
-Lemma tot_ext_extends :
-  forall A dom (r : relation A) x y, r x y -> tot_ext dom r x y.
+Lemma tot_ext_extends A dom (r : relation A) : r ⊆ tot_ext dom r.
 Proof.
-  induction dom; ins; eauto using t_step, one_ext_extends.
+  induction dom; ins; eauto using one_ext_extends with rel.
 Qed.
 
 Lemma tot_ext_trans A dom (r : relation A) :  transitive (tot_ext dom r).
@@ -64,73 +63,75 @@ Proof.
   induction dom; ins; vauto; apply one_ext_trans.
 Qed.
 
-Lemma tot_ext_irr :
-  forall A (dom : list A) r, acyclic r -> irreflexive (tot_ext dom r).
+Lemma tot_ext_extends2 A dom (r : relation A) : r⁺ ⊆ tot_ext dom r.
+Proof.
+  eauto using tot_ext_extends, tot_ext_trans with rel.
+Qed.
+
+Lemma tot_ext_irr A (dom : list A) r :
+  acyclic r -> irreflexive (tot_ext dom r).
 Proof.
   induction dom; ins.
   apply one_ext_irr, trans_irr_acyclic; eauto using tot_ext_trans.
 Qed.
 
-Lemma tot_ext_total :
-  forall A (dom : list A) r, is_total (fun x => In x dom) (tot_ext dom r).
+Lemma tot_ext_total A (dom : list A) r :
+  is_total (fun x => In x dom) (tot_ext dom r).
 Proof.
   induction dom; red; ins; desf.
   eapply one_ext_total_elem in NEQ; desf; eauto.
   eapply not_eq_sym, one_ext_total_elem in NEQ; desf; eauto.
-  eapply IHdom in NEQ; desf; eauto using one_ext_extends.
+  eapply IHdom in NEQ; desf; eapply one_ext_extends in NEQ; eauto.
 Qed.
 
-Lemma tot_ext_inv :
-  forall A dom r (x y : A),
+Lemma tot_ext_inv A dom r (x y : A) :
     acyclic r -> tot_ext dom r x y -> ~ r y x.
 Proof.
   red; ins; eapply tot_ext_irr, tot_ext_trans, tot_ext_extends; eauto.
 Qed.
 
-Lemma tot_ext_extends_dom
-  A dom dom' (r : relation A) x y :
-    tot_ext dom r x y ->
-    tot_ext (dom' ++ dom) r x y.
+Lemma tot_ext_extends_dom A dom dom' (r : relation A) : 
+  tot_ext dom r ⊆ tot_ext (dom' ++ dom) r.
 Proof.
-  induction dom'; ins; eauto using one_ext_extends.
+  induction dom'; ins; eauto using one_ext_extends with rel.
 Qed.
 
 (******************************************************************************)
 (** Extend an order on [nat] to make it total. *)
 
-Definition tot_ext_nat r (x y: nat) :=
-  exists k, tot_ext (rev (List.seq 0 k)) r x y.
+Definition tot_ext_nat r x y := exists k, tot_ext (rev (List.seq 0 k)) r x y.
 
-Lemma tot_ext_nat_extends (r : relation nat) x y :
-  r x y -> tot_ext_nat r x y.
+Lemma tot_ext_nat_extends r : r ⊆ tot_ext_nat r.
 Proof.
-  exists 0; eauto using tot_ext_extends.
+  exists 0; vauto. 
 Qed.
 
-Lemma tot_ext_nat_trans r :  transitive (tot_ext_nat r).
+Lemma tot_ext_nat_trans r : transitive (tot_ext_nat r).
 Proof.
-  unfold tot_ext_nat; red; ins; desf.
+  unfold tot_ext_nat; red; ins; desf;
   destruct (le_lt_dec k k0) as [LE|LE]; [|apply Nat.lt_le_incl in LE];
     [exists k0|exists k]; eapply tot_ext_trans; eauto;
-    rewrite (seq_split _ LE), rev_app_distr; eauto using tot_ext_extends_dom.
+    rewrite (seq_split _ LE), rev_app_distr; apply tot_ext_extends_dom; eauto.
 Qed.
 
-Lemma tot_ext_nat_irr :
-  forall r, acyclic r -> irreflexive (tot_ext_nat r).
+Lemma tot_ext_nat_extends2 r : r⁺ ⊆ tot_ext_nat r.
+Proof.
+  eauto using tot_ext_nat_extends, tot_ext_nat_trans with rel.
+Qed.
+
+Lemma tot_ext_nat_irr r : acyclic r -> irreflexive (tot_ext_nat r).
 Proof.
   red; unfold tot_ext_nat; ins; desf; eapply tot_ext_irr; eauto.
 Qed.
 
-Lemma tot_ext_nat_total :
-  forall r, is_total (fun _ => True) (tot_ext_nat r).
+Lemma tot_ext_nat_total r : is_total (fun _ => True) (tot_ext_nat r).
 Proof.
   unfold tot_ext_nat; red; ins.
   eapply tot_ext_total with (r:=r) (dom := rev (List.seq 0 (S (a + b)))) in NEQ;
     desf; eauto; rewrite <- in_rev, in_seq; omega.
 Qed.
 
-Lemma tot_ext_nat_inv :
-  forall r x y,
+Lemma tot_ext_nat_inv r x y :
     acyclic r -> tot_ext_nat r x y -> ~ r y x.
 Proof.
   red; ins; eapply tot_ext_nat_irr, tot_ext_nat_trans, tot_ext_nat_extends; eauto.
@@ -148,16 +149,14 @@ Definition Successor A (r s: relation A) :=
 Lemma succ_helper A (r s: relation A) (SUC: s⁻¹ ⨾ r ⊆ r^?):
   s⁻¹＊ ⨾ (r \ s⁺) ⊆ r \ s⁺.
 Proof.
-eapply rt_ind_left with (P:= fun __ => __ ⨾ (r \ s⁺)); relsf.
-intros k IH.
-rewrite !seqA, IH; relsf.
-unfold seq, transp, minus_rel, clos_refl, inclusion in *.
-ins; desf; splits.
-assert (x = y \/ r x y).
-  by eauto.
-desf.
-by exfalso; apply H1; econs.
-by intro; apply H1; eapply t_trans; try edone; econs.
+  eapply rt_ind_left with (P:= fun __ => __ ⨾ (r \ s⁺)); relsf.
+  intros k IH.
+  rewrite !seqA, IH; relsf.
+  unfold seq, transp, minus_rel, clos_refl, inclusion in *.
+  ins; desf; splits.
+    assert (x = y \/ r x y) by eauto. 
+    by desf; destruct H1; vauto. 
+  by intro; apply H1; vauto. 
 Qed.
 
 Definition tot_ext_suc A (dom : list A) (r s : relation A) : relation A := 
