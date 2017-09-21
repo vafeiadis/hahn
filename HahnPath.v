@@ -9,6 +9,33 @@ Require Import HahnDom HahnMinPath.
 
 Set Implicit Arguments.
 
+Lemma wf_finite : 
+  forall A (r: relation A) (ACYC: acyclic r) l (DOMA : doma r (fun x => List.In x l)),
+    well_founded r.
+Proof.
+  unfold acyclic; ins.
+  rewrite ct_step; red; ins; apply ct_doma in DOMA; revert DOMA. 
+  generalize (transitive_ct (r:=r)) as T; revert ACYC.
+  generalize r⁺; clear r; intro r.
+  remember (length l) as n.
+  revert r l Heqn.
+  induction n.
+   by destruct l; ins; econs; ins; exfalso; eauto.
+  econs; intros b Rba.
+  assert (IN:=DOMA _ _ Rba); apply in_split in IN; desf.
+  rewrite app_length in *; ins.
+  forward apply (IHn (restr_rel (fun x => x <> b) r) (l1 ++ l2)); 
+    eauto using irreflexive_restr, transitive_restr.
+  by rewrite app_length in *; ins; omega.
+  by unfold restr_rel; red; ins; desf; eapply DOMA in REL; rewrite <- Permutation_middle in *; ins; desf; eauto.
+
+  clear - Rba ACYC T; unfold restr_rel.
+  econs; ins.
+  destruct H; specialize (H y); specialize_full H; splits; try intro; desf; eauto.
+  clear Rba.
+  by induction H; econs; ins; eapply H1; splits; try intro; desf; eauto.
+Qed.
+
 (******************************************************************************)
 (** Extension of a relation with a singleton *)
 (******************************************************************************)

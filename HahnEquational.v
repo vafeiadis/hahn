@@ -123,6 +123,12 @@ Proof.
     by simpl; rewrite IH, H.
 Qed.
 
+Add Parametric Morphism A : (@well_founded A) with signature
+  inclusion --> Basics.impl as well_founded_mori.
+Proof.
+  repeat red; ins; induction (H0 a); econs; eauto.
+Qed.
+
 (** Second, for equivalence. *)
 
 Lemma same_relation_exp A (r r' : relation A) (EQ: r ≡ r') :
@@ -270,6 +276,12 @@ Proof.
   ins. induction y0 as [| y' IH].
     by simpl; eauto with rel.
     by simpl; rewrite IH, H.
+Qed.
+
+Add Parametric Morphism A : (@well_founded A) with signature
+  same_relation ==> iff as well_founded_more.
+Proof.
+  unfold same_relation; split; eapply well_founded_mori; desf.
 Qed.
 
 (******************************************************************************)
