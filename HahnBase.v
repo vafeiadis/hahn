@@ -116,6 +116,7 @@ Lemma eqP : forall T, Equality.axiom (@eq_op T).
 Proof. by unfold eq_op; destruct T as [? []]. Qed.
 Arguments eqP [T] x y.
 
+(*
 Notation "x == y" := (eq_op x y)
   (at level 70, no associativity) : bool_scope.
 Notation "x == y :> T" := ((x : T) == (y : T))
@@ -124,18 +125,19 @@ Notation "x != y" := (negb (x == y))
   (at level 70, no associativity) : bool_scope.
 Notation "x != y :> T" := (negb (x == y :> T))
   (at level 70, y at next level) : bool_scope.
+*)
 
 Lemma hahn__internal_eqP :
-  forall (T: eqType) (x y : T), reflect (x = y) (x == y).
+  forall (T: eqType) (x y : T), reflect (x = y) (eq_op x y).
 Proof. apply eqP. Qed.
 
-Lemma neqP : forall (T: eqType) (x y: T), reflect (x <> y) (x != y).
+Lemma neqP : forall (T: eqType) (x y: T), reflect (x <> y) (negb (eq_op x y)).
 Proof. intros; case eqP; constructor; auto. Qed.
 
-Lemma beq_refl : forall (T : eqType) (x : T), x == x.
+Lemma beq_refl : forall (T : eqType) (x : T), eq_op x x.
 Proof. by intros; case eqP. Qed.
 
-Lemma beq_sym : forall (T : eqType) (x y : T), (x == y) = (y == x).
+Lemma beq_sym : forall (T : eqType) (x y : T), (eq_op x y) = (eq_op y x).
 Proof. intros; do 2 case eqP; congruence. Qed.
 
 Hint Resolve beq_refl : hahn.
@@ -190,7 +192,7 @@ Proof. intros [] []; auto. Qed.
 Lemma hahn__eqb_split : forall b1 b2 : bool, (b1 -> b2) -> (b2 -> b1) -> b1 = b2.
 Proof. intros [] [] H H'; unfold is_true in *; auto using sym_eq. Qed.
 
-Lemma hahn__beq_rewrite : forall (T : eqType) (x1 x2 : T), x1 == x2 -> x1 = x2.
+Lemma hahn__beq_rewrite : forall (T : eqType) (x1 x2 : T), eq_op x1 x2 -> x1 = x2.
 Proof. by intros until 0; case eqP. Qed.
 
 
@@ -215,7 +217,7 @@ Ltac hahn__clarify1 :=
   | [H: is_true ?x        |- _] => rewrite H in *
   | [H: ?x = true         |- _] => rewrite H in *
   | [H: ?x = false        |- _] => rewrite H in *
-  | [H: is_true (_ == _)  |- _] => generalize (hahn__beq_rewrite H); clear H; intro H
+  | [H: is_true (eq_op _ _)  |- _] => generalize (hahn__beq_rewrite H); clear H; intro H
   | [H: @existT _ _ _ _ = @existT _ _ _ _ |- _] => apply inj_pair2 in H; try subst
   | [H: ?f _             = ?f _             |- _] => hahn__complaining_inj f H
   | [H: ?f _ _           = ?f _ _           |- _] => hahn__complaining_inj f H
@@ -292,7 +294,7 @@ Ltac esplits :=
 (** Destruct, but no case split *)
 Ltac desc :=
   repeat match goal with
-    | H: is_true (_ == _) |- _ => generalize (hahn__beq_rewrite H); clear H; intro H
+    | H: is_true (eq_op _ _) |- _ => generalize (hahn__beq_rewrite H); clear H; intro H
     | H : exists x, NW (fun y => _) |- _ =>
       let x' := fresh x in let y' := fresh y in destruct H as [x' y']; red in y'
     | H : exists x, ?p |- _ =>
@@ -317,7 +319,7 @@ Ltac desc :=
 
 Ltac des :=
   repeat match goal with
-    | H: is_true (_ == _) |- _ => generalize (hahn__beq_rewrite H); clear H; intro H
+    | H: is_true (eq_op _ _) |- _ => generalize (hahn__beq_rewrite H); clear H; intro H
     | H : exists x, NW (fun y => _) |- _ =>
       let x' := fresh x in let y' := fresh y in destruct H as [x' y']; red in y'
     | H : exists x, ?p |- _ =>

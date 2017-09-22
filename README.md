@@ -15,6 +15,7 @@ about lists and binary relations.
 - HahnPath.v : paths over relations
 - HahnTotalExt.v : extension of a partial order to a total order.
 - HahnTotalList.v : building finite relations for program order.
+- HahnExtraNotation.v : notation for decidable equality.
 
 ## Build
 
@@ -24,5 +25,5 @@ about lists and binary relations.
 ## Use
 
 - In a Coq file, write "Require Import Hahn".
-
+- Optionally, also "Require Import HahnExtraNotation".
 

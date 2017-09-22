@@ -8,7 +8,7 @@ Require Import HahnBase HahnList HahnRelationsBasic (*HahnMaxElt*) HahnRewrite.
 Set Implicit Arguments.
 
 Lemma mod_S_expand i n (NZ : n <> 0) : 
-  (S i mod n) = if n == 1 then 0 else if S (i mod n) == n then 0 else S (i mod n).
+  (S i mod n) = if eq_op n 1 then 0 else if eq_op (S (i mod n)) n then 0 else S (i mod n).
 Proof.
   desf; desf;
     rewrite Nat.add_mod with (a := 1); try done;
@@ -19,7 +19,7 @@ Proof.
 Qed.
 
 Lemma mod_SS_expand i n : 
-  (S i mod S n) = if n == 0 then 0 else if i mod (S n) == n then 0 else S (i mod (S n)).
+  (S i mod S n) = if eq_op n 0 then 0 else if eq_op (i mod (S n)) n then 0 else S (i mod (S n)).
 Proof.
   by rewrite mod_S_expand; desf.
 Qed.
@@ -160,7 +160,7 @@ Proof.
     forward eapply get_max_bounded_nat 
     with (P := fun x => r (f m) (f x)) (x := mm) (n := m) as [kk K]; ins; desc.
     clear mm M0 M1; rename kk into mm.
-    exists (fun x => if x == (S (m - mm)) then (f mm) else (f (x + mm))), (m - mm); 
+    exists (fun x => if eq_op x (S (m - mm)) then (f mm) else (f (x + mm))), (m - mm); 
       repeat split; ins; desf; desf; try omega.
     by rewrite NPeano.Nat.sub_add.
     eapply STEP; omega.

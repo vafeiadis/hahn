@@ -57,7 +57,7 @@ Section DecidableUpdate.
   Variables (A: eqType) (B: Type).
 
   Definition mupd (f: A -> B) y z :=
-    fun x => if x == y then z else f x.
+    fun x => if eq_op x y then z else f x.
 
   Lemma mupds f x y : mupd f x y x = y.
   Proof. by unfold mupd; desf; desf. Qed.
