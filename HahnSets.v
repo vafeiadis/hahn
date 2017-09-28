@@ -76,7 +76,7 @@ Section SetProperties.
   Lemma set_unionA s s' s'' : (s ∪₁ s') ∪₁ s'' ≡₁ s ∪₁ (s' ∪₁ s'').
   Proof. u. Qed.
 
-  Lemma set_unionC s s' s'' : s ∪₁ s' ≡₁ s' ∪₁ s.
+  Lemma set_unionC s s' : s ∪₁ s' ≡₁ s' ∪₁ s.
   Proof. u. Qed.
 
   Lemma set_unionK s : s ∪₁ s ≡₁ s.
