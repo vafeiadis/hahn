@@ -49,7 +49,7 @@ Create HintDb hahn discriminated.
 (** Adaptation of the ss-reflect "[done]" tactic. *)
 
 Ltac hahn__basic_done :=
-  solve [trivial with hahn | apply sym_equal; trivial | discriminate | contradiction].
+  solve [trivial with hahn | simple apply sym_equal; trivial | discriminate | contradiction].
 
 Ltac done := trivial with hahn; hnf; intros;
   solve [try hahn__basic_done; split;
