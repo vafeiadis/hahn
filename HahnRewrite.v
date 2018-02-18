@@ -1,6 +1,6 @@
 (** * Support for rewriting *)
 
-Require Import HahnBase HahnList HahnRelationsBasic HahnEquational.
+Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnFuneq.
 
 Set Implicit Arguments.
 
@@ -93,19 +93,19 @@ Tactic Notation "hahn_rewrite" uconstr(EQ) :=
 
 Tactic Notation "hahn_rewrite" "<-" uconstr(EQ) :=
   match goal with
-    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite <- EQ; reflexivity|]
+    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite <- EQ; apply inclusion_refl_helper; reflexivity|]
     | |- _ => rewrite <- EQ
   end.
 
 Tactic Notation "hahn_rewrite" uconstr(EQ) "in" hyp(H) :=
   match type of H with
-    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite EQ; reflexivity]
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite EQ; apply inclusion_refl_helper; reflexivity]
     | _ => rewrite EQ in H
   end.
 
 Tactic Notation "hahn_rewrite" "<-" uconstr(EQ) "in" hyp(H) :=
   match type of H with
-    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite <- EQ; reflexivity]
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite <- EQ; apply inclusion_refl_helper; reflexivity]
     | _ => rewrite <- EQ in H
   end.
 
@@ -417,7 +417,7 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
   arewrite (exp ⊆ ⦗fun _ => True⦘) at index.
 
 (** Unfolding of relational operations **)
-Hint Unfold  same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
+Hint Unfold  funeq same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
   transp clos_refl irreflexive restr_rel minus_rel singl_rel is_total immediate functional : unfolderDb.
 
 Tactic Notation "unfolder_prepare" := 
