@@ -432,6 +432,7 @@ Tactic Notation "unfolder_prepare" :=
 Tactic Notation "unfolder_prepare"  "in" hyp(H) := 
   rewrite ?seqA in H;
   repeat hahn_rewrite seq_eqv in H;
+  repeat hahn_rewrite seq_eqv_lr in H;
   repeat hahn_rewrite seq_eqv_r in H;
   repeat hahn_rewrite seq_eqv_l in H;
   repeat hahn_rewrite <- id_union in H.
