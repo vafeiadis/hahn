@@ -417,12 +417,14 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
   arewrite (exp ⊆ ⦗fun _ => True⦘) at index.
 
 (** Unfolding of relational operations **)
-Hint Unfold  funeq same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
+Hint Unfold  codom_rel funeq same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
   transp clos_refl irreflexive restr_rel minus_rel singl_rel is_total immediate functional : unfolderDb.
 
 Tactic Notation "unfolder_prepare" := 
   rewrite ?seqA;
   repeat hahn_rewrite seq_eqv;
+  repeat seq_rewrite seq_eqv;
+  repeat hahn_rewrite seq_eqv_lr;
   repeat hahn_rewrite seq_eqv_r;
   repeat hahn_rewrite seq_eqv_l;
   repeat hahn_rewrite <- id_union.

@@ -918,6 +918,11 @@ Proof.
   unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto.
 Qed.
 
+Lemma seq_eqv_lr A (r : relation A) dom1 dom2 :
+  ⦗dom1⦘ ⨾ r ⨾ ⦗dom2⦘ ≡ (fun x y : A => dom1 x /\ r x y /\ dom2 y).
+Proof.
+  unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto 10.
+Qed.
 
 (******************************************************************************)
 (** Properties of restrictions *)
