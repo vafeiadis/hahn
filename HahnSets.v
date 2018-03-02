@@ -105,7 +105,7 @@ Section SetProperties.
   Lemma set_interA s s' s'' : (s ∩₁ s') ∩₁ s'' ≡₁ s ∩₁ (s' ∩₁ s'').
   Proof. u. Qed.
 
-  Lemma set_interC s s' s'' : s ∩₁ s' ≡₁ s' ∩₁ s.
+  Lemma set_interC s s' : s ∩₁ s' ≡₁ s' ∩₁ s.
   Proof. u. Qed.
 
   Lemma set_interK s : s ∩₁ s ≡₁ s.
