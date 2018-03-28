@@ -596,6 +596,35 @@ Section PathUnionTransitive.
     apply inclusion_t_t2; rewrite ct_begin; eauto with rel.
   Qed.
 
+  Lemma acyclic_ut r r' (T: transitive r') :
+    acyclic (r ∪ r') <->
+    acyclic r /\ irreflexive r' /\ acyclic (r' ⨾ r⁺).
+  Proof.
+    unfold acyclic; ins; rewrite path_ut2; ins.
+    rewrite irreflexive_union, irreflexive_seqC, !seqA, rt_rt, (rtE r); relsf.
+    rewrite irreflexive_union, <- ct_end, irreflexive_seqC, rtE; relsf.
+    rewrite irreflexive_union; intuition.
+    rewrite ct_begin, seqA; sin_rewrite (rewrite_trans T).
+    by rewrite <- seqA, <- ct_begin.
+  Qed.
+
+  Lemma acyclic_utt r r' (T: transitive r) (T': transitive r') :
+    acyclic (r ∪ r') <->
+    irreflexive r /\ irreflexive r' /\ acyclic (r ⨾ r').
+  Proof.
+    ins; rewrite acyclic_ut, ct_of_trans, acyclic_rotl; ins.
+    by unfold acyclic; rewrite ct_of_trans.
+  Qed.
+
+End PathUnionTransitive.
+
+(** More path union properties *)
+(******************************************************************************)
+
+Section PathUnion.
+  Variable A : Type.
+  Implicit Type r : relation A.
+
   Lemma path_ut_first r r' :
     (r ∪ r')⁺ ≡ r⁺ ∪ r＊ ⨾ r' ⨾ (r ∪ r')＊.
   Proof.
@@ -624,17 +653,17 @@ Section PathUnionTransitive.
       rels.
   Qed.
 
-  Lemma path_ut_last r r' (T: transitive r) :
+  Lemma path_ut_last r r' :
     (r ∪ r')⁺ ≡ r⁺ ∪ (r ∪ r')＊ ⨾ r' ⨾ r＊.
   Proof.
     split.
     - apply inclusion_t_ind_right.
       + unionL; [unionR left | unionR right]; firstorder.
       + relsf; unionL.
-        * firstorder.
-        * basic_solver 10.
-        * arewrite (r ⊆ (r ∪ r')＊); basic_solver 10.
-        * arewrite (r ⊆ (r ∪ r')＊) at 2.
+        * rewrite ct_end at 2; basic_solver 10.
+        * rewrite !seqA; rewrite <- ct_end; basic_solver 10.
+        * arewrite (r ⊆ (r ∪ r')); basic_solver 10.
+        * arewrite (r ⊆ (r ∪ r')) at 2.
           arewrite (r' ⊆ (r ∪ r')＊) at 2.
           rels; basic_solver 10.
     - arewrite (r ⊆ (r ∪ r')⁺) at 1.
@@ -643,27 +672,7 @@ Section PathUnionTransitive.
       rels.
   Qed.
 
-  Lemma acyclic_ut r r' (T: transitive r') :
-    acyclic (r ∪ r') <->
-    acyclic r /\ irreflexive r' /\ acyclic (r' ⨾ r⁺).
-  Proof.
-    unfold acyclic; ins; rewrite path_ut2; ins.
-    rewrite irreflexive_union, irreflexive_seqC, !seqA, rt_rt, (rtE r); relsf.
-    rewrite irreflexive_union, <- ct_end, irreflexive_seqC, rtE; relsf.
-    rewrite irreflexive_union; intuition.
-    rewrite ct_begin, seqA; sin_rewrite (rewrite_trans T).
-    by rewrite <- seqA, <- ct_begin.
-  Qed.
-
-  Lemma acyclic_utt r r' (T: transitive r) (T': transitive r') :
-    acyclic (r ∪ r') <->
-    irreflexive r /\ irreflexive r' /\ acyclic (r ⨾ r').
-  Proof.
-    ins; rewrite acyclic_ut, ct_of_trans, acyclic_rotl; ins.
-    by unfold acyclic; rewrite ct_of_trans.
-  Qed.
-
-End PathUnionTransitive.
+End PathUnion.
 
 (** Union with a total relation *)
 (******************************************************************************)
