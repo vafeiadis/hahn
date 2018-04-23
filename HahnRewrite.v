@@ -417,7 +417,7 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
   arewrite (exp ⊆ ⦗fun _ => True⦘) at index.
 
 (** Unfolding of relational operations **)
-Hint Unfold  codom_rel funeq same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
+Hint Unfold dom_rel codom_rel funeq same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
   transp clos_refl irreflexive restr_rel minus_rel singl_rel is_total immediate functional : unfolderDb.
 
 Tactic Notation "unfolder_prepare" := 
