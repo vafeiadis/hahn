@@ -22,7 +22,7 @@ Section SetDefs.
   Definition set_inter s s'  := fun x => s x /\ s' x.
   Definition set_minus s s'  := fun x => s x /\ ~ (s' x).
   Definition set_subset s s' := forall x, s x -> s' x.
-  Definition set_equiv s s'  := forall x, s x <-> s' x.
+  Definition set_equiv s s'  := set_subset s s' /\ set_subset s' s.
 
 End SetDefs.
 
@@ -43,7 +43,7 @@ Section SetProperties.
     unfold set_union, set_inter, set_minus, set_compl,
            set_equiv, set_subset, set_empty, set_full,
            reflexive, transitive in *;
-    ins; try solve [tauto | firstorder].
+    ins; try solve [tauto | firstorder | split; ins; tauto].
 
   Variable A : Type.
   Implicit Type s : A -> Prop.
@@ -149,7 +149,7 @@ Section SetProperties.
 
   Lemma set_minus_inter_r s s' s'' :
     s \₁ (s' ∩₁ s'') ≡₁ (s \₁ s') ∪₁ (s \₁ s'').
-  Proof. u. Qed.
+  Proof. u; split; ins; tauto. Qed.
 
   Lemma set_minus_union_l s s' s'' :
     (s ∪₁ s') \₁ s'' ≡₁ (s \₁ s'') ∪₁ (s' \₁ s'').

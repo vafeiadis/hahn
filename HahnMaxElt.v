@@ -28,7 +28,7 @@ Lemma set_subset_wmax_elt (S: r' ⊆ r) : wmax_elt r ⊆₁ wmax_elt r'.
 Proof. unfold wmax_elt, inclusion, set_subset in *; intuition; eauto. Qed.
 
 Lemma set_equiv_max_elt (S: r ≡ r') : max_elt r ≡₁ max_elt r'.
-Proof. unfold max_elt, same_relation, set_equiv in *; intuition; eauto. Qed.
+Proof. unfold max_elt, same_relation, set_equiv, set_subset in *; intuition; eauto. Qed.
 
 Lemma set_equiv_wmax_elt (S: r ≡ r') : wmax_elt r ≡₁ wmax_elt r'.
 Proof. unfold wmax_elt, same_relation, set_equiv in *; intuition; eauto. Qed.
