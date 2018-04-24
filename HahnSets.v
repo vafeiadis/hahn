@@ -283,3 +283,8 @@ Instance set_minus_Propere A : Proper (_ ==> _ ==> _) _ := set_equiv_minus (A:=A
 Instance set_subset_Proper A : Proper (_ ==> _ ==> _) _ := set_equiv_subset (A:=A).
 
 Hint Unfold  set_empty set_full set_compl set_union set_inter set_minus set_subset set_equiv : unfolderDb.
+
+Lemma set_equiv_refl2 A (x: A -> Prop) :  x ≡₁ x. 
+Proof. reflexivity. Qed.
+
+Hint Resolve set_equiv_refl2.
