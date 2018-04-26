@@ -1,4 +1,5 @@
 Require Import HahnBase HahnSets HahnRelationsBasic.
+Require Import HahnRewrite.
 Require Import Classical Setoid.
 Set Implicit Arguments.
 
@@ -66,29 +67,43 @@ Section Lemmas.
   Lemma seq_r_domb : domb r d -> domb r' d -> domb (r ⨾ r'^?) d.
   Proof. unfold clos_refl, seq; red; ins; desf; eauto. Qed.
 
-  Lemma minus_doma :doma r d -> doma (r \ r') d.
+  Lemma minus_doma : doma r d -> doma (r \ r') d.
   Proof. unfold doma, minus_rel; ins; desf; eauto. Qed.
 
-  Lemma minus_domb :domb r d -> domb (r \ r') d.
+  Lemma minus_domb : domb r d -> domb (r \ r') d.
   Proof. unfold domb, minus_rel; ins; desf; eauto. Qed.
 
-  Lemma dom_union x : dom_rel (r ∪ r') x <-> dom_rel r x \/ dom_rel r' x.
-  Proof. unfold dom_rel, union; split; ins; desf; eauto. Qed.
+  Lemma dom_seq : dom_rel (r ⨾ r') ⊆₁ dom_rel r.
+  Proof. unfold dom_rel, seq, set_subset.
+         ins; desf; eauto. Qed.
 
-  Lemma codom_union x : codom_rel (r ∪ r') x <-> codom_rel r x \/ codom_rel r' x.
-  Proof. unfold codom_rel, union; split; ins; desf; eauto. Qed.
+  Lemma codom_seq : codom_rel (r ⨾ r') ⊆₁ codom_rel r'.
+  Proof. unfold codom_rel, seq, set_subset.
+         ins; desf; eauto. Qed.
 
-  Lemma dom_eqv x : dom_rel ⦗d⦘ x <-> d x.
-  Proof. unfold dom_rel, eqv_rel; split; ins; desf; eauto. Qed.
+  Lemma dom_union : dom_rel (r ∪ r') ≡₁ dom_rel r ∪₁ dom_rel r'.
+  Proof. unfold dom_rel, union, set_union, set_equiv, set_subset.
+         split; ins; desf; eauto. Qed.
 
-  Lemma codom_eqv x : codom_rel ⦗d⦘ x <-> d x.
-  Proof. unfold codom_rel, eqv_rel; split; ins; desf; eauto. Qed.
+  Lemma codom_union : codom_rel (r ∪ r') ≡₁ codom_rel r ∪₁ codom_rel r'.
+  Proof. unfold codom_rel, union, set_union, set_equiv, set_subset.
+         split; ins; desf; eauto. Qed.
 
-  Lemma dom_eqv1 x : dom_rel (⦗d⦘ ⨾ r) x <-> d x /\ dom_rel r x.
-  Proof. unfold dom_rel, seq, eqv_rel; split; ins; desf; eauto. Qed.
+  Lemma dom_eqv : dom_rel ⦗d⦘ ≡₁ d.
+  Proof. unfold dom_rel, eqv_rel, set_equiv, set_subset.
+         split; ins; desf; eauto. Qed.
 
-  Lemma codom_eqv1 x : codom_rel (r ⨾ ⦗d⦘) x <-> codom_rel r x /\ d x.
-  Proof. unfold codom_rel, seq, eqv_rel; split; ins; desf; eauto. Qed.
+  Lemma codom_eqv : codom_rel ⦗d⦘ ≡₁ d.
+  Proof. unfold codom_rel, eqv_rel, set_equiv, set_subset.
+         split; ins; desf; eauto. Qed.
+
+  Lemma dom_eqv1 : dom_rel (⦗d⦘ ⨾ r) ≡₁ d ∩₁ dom_rel r.
+  Proof. unfold dom_rel, eqv_rel, seq, set_inter, set_equiv, set_subset.
+         split; ins; desf; eauto. Qed.
+
+  Lemma codom_eqv1 : codom_rel (r ⨾ ⦗d⦘) ≡₁ codom_rel r ∩₁ d.
+  Proof. unfold codom_rel, eqv_rel, seq, set_inter, set_equiv, set_subset.
+         split; ins; desf; eauto. Qed.
 
   Lemma transp_doma : domb r d -> doma (transp r) d.
   Proof. unfold doma, domb, transp; eauto. Qed.
@@ -133,9 +148,41 @@ Section Lemmas.
   Lemma domab_helper : 
     r ⊆ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘ <-> doma r d /\ domb r d'.
   Proof.
-    split; ins; splits; unfold doma, domb, inclusion, eqv_rel, seq in *; 
+    split; ins; splits; unfold doma, domb, inclusion, eqv_rel, seq in *;
     ins; desf; try specialize (H _ _ REL); try specialize (H1 _ _ H0);
     desf; splits; eexists; splits; eauto.
+  Qed.
+
+  Lemma dom_to_doma : r ≡ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘ -> doma r d.
+  Proof.
+    intro H; unfold doma; ins.
+    hahn_rewrite H in REL; revert REL; basic_solver.
+  Qed.
+
+  Lemma dom_to_domb : r ≡ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘ -> domb r d'.
+  Proof.
+    intro H; unfold domb; ins.
+    hahn_rewrite H in REL; revert REL; basic_solver.
+  Qed.
+
+  Lemma dom_l : r ≡ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘ -> r ≡ ⦗d⦘ ⨾ r.
+  Proof.
+    unfolder; firstorder.
+  Qed.
+
+  Lemma dom_r : r ≡ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘ -> r ≡ r ⨾ ⦗d'⦘.
+  Proof.
+    unfolder; firstorder.
+  Qed.
+
+  Lemma dom_helper_1 : r ⊆ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘ <-> r ≡ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘.
+  Proof.
+    unfolder; firstorder.
+  Qed.
+
+  Lemma dom_helper_2 : r ⊆ ⦗d⦘ ⨾ (fun _ _ => True) ⨾ ⦗d'⦘ <-> r ≡ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘.
+  Proof.
+    unfolder; firstorder.
   Qed.
 
 End Lemmas.
@@ -199,4 +246,7 @@ Proof.
 Qed.
 
 Hint Rewrite dom_union codom_union dom_eqv codom_eqv dom_eqv1 codom_eqv1 : rel_dom.
-Hint Unfold  doma domb : unfolderDb.
+Hint Unfold  doma domb dom_rel codom_rel : unfolderDb.
+
+Hint Rewrite dom_union codom_union : rel_full.
+

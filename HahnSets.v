@@ -31,12 +31,19 @@ Arguments set_full {A}.
 Arguments set_subset {A}.
 Arguments set_equiv {A}.
 
-Notation "P ∪₁ Q" := (set_union P Q) (at level 50, left associativity).
-Notation "P ∩₁ Q" := (set_inter P Q) (at level 40, left associativity).
-Notation "P \₁ Q" := (set_minus P Q) (at level 46).
-Notation "∅₁"     := (@set_empty _).
-Notation "a ⊆₁ b" := (set_subset a b) (at level 60).
-Notation "a ≡₁ b" := (set_equiv a b)  (at level 60).
+Notation "P ∪₁ Q" := (set_union P Q) (at level 50, left associativity, only parsing).
+Notation "P ∩₁ Q" := (set_inter P Q) (at level 40, left associativity, only parsing).
+Notation "P \₁ Q" := (set_minus P Q) (at level 46, only parsing).
+Notation "∅₁"     := (@set_empty _) (only parsing).
+Notation "a ⊆₁ b" := (set_subset a b) (at level 60, only parsing).
+Notation "a ≡₁ b" := (set_equiv a b)  (at level 60, only parsing).
+
+Notation "P ∪ Q" := (set_union P Q) (at level 50, left associativity) : function_scope.
+Notation "P ∩ Q" := (set_inter P Q) (at level 40, left associativity) : function_scope.
+Notation "P \ Q" := (set_minus P Q) (at level 46) : function_scope.
+Notation "∅"     := (@set_empty _) : function_scope.
+Notation "a ⊆ b" := (set_subset a b) (at level 60) : function_scope.
+Notation "a ≡ b" := (set_equiv a b)  (at level 60) : function_scope.
 
 Section SetProperties.
   Local Ltac u :=
@@ -193,6 +200,15 @@ Section SetProperties.
   Lemma set_subset_union_l s s' s'' : s ∪₁ s' ⊆₁ s'' <-> s ⊆₁ s'' /\ s' ⊆₁ s''.
   Proof. u. Qed.
 
+  Lemma set_subset_union_r1 s s' : s ⊆ s ∪ s'.
+  Proof. u. Qed.
+
+  Lemma set_subset_union_r2 s s' : s' ⊆ s ∪ s'.
+  Proof. u. Qed.
+
+  Lemma set_subset_union_r s s' s'' : s ⊆ s' \/ s ⊆ s'' -> s ⊆ s' ∪ s''.
+  Proof. u. Qed.
+
   Lemma set_subset_inter_r s s' s'' : s ⊆₁ s' ∩₁ s'' <-> s ⊆₁ s' /\ s ⊆₁ s''.
   Proof. u. Qed.
 
@@ -236,6 +252,9 @@ Section SetProperties.
 
   Lemma set_equiv_subset s s' (S1: s ≡₁ s') t t' (S2: t ≡₁ t') : s ⊆₁ t <-> s' ⊆₁ t'.
   Proof. u. Qed.
+
+  Lemma set_equiv_exp s s' (EQ: s ≡₁ s') : forall x, s x <-> s' x.
+  Proof. split; apply EQ. Qed.
 
   (** Absorption properties. *)
 

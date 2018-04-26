@@ -947,16 +947,6 @@ Proof.
   symmetry; apply restr_union.
 Qed.
 
-Lemma ct_restr A (f : A -> Prop) r (UC: upward_closed r f) :
-  (restr_rel f r)⁺ ≡ restr_rel f (r⁺).
-Proof.
-  split; unfold union, restr_rel, inclusion; ins; desf; eauto.
-    split; [|by apply clos_trans_restrD in H].
-    by eapply clos_trans_mon; eauto; unfold restr_rel; ins; desf.
-  clear H0; apply clos_trans_tn1 in H.
-  induction H; eauto 10 using clos_trans.
-Qed.
-
 Lemma restr_eq_union:
   forall (A : Type) (r r' : relation A) (B : Type) (f : A -> B),
   restr_eq_rel f (r ∪ r') ≡

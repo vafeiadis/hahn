@@ -1,6 +1,6 @@
 (** * Support for rewriting *)
 
-Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnFuneq.
+Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnFuneq HahnSets.
 
 Set Implicit Arguments.
 
@@ -320,17 +320,21 @@ Hint Resolve pow_rel_mori : rel.
 
 Ltac apply_unionL_once := 
   first [apply inclusion_union_l | apply inclusion_Union_l | 
-         apply irreflexive_union; split].
+         apply irreflexive_union; split | apply set_subset_union_l; split].
 
 Tactic Notation "unionL" := repeat apply_unionL_once. 
 
-Tactic Notation "unionR" tactic(dir) :=  apply inclusion_union_r; dir.
+Tactic Notation "unionR" tactic(dir) :=  
+  first [apply inclusion_union_r | apply set_subset_union_r]; dir.
 
 Tactic Notation "unionR" tactic(dir) "->" tactic(dir') :=  
   unionR dir; unionR dir'.
 
 Tactic Notation "unionR" tactic(dir) "->" tactic(dir') "->" tactic(dir'') := 
   unionR dir; unionR dir'; unionR dir''.
+
+Tactic Notation "unionR" tactic(dir) "->" tactic(dir') "->" tactic(dir'') "->" tactic(dir''') := 
+  unionR dir; unionR dir'; unionR dir''; unionR dir'''.
 
 Ltac hahn_rel :=
   rels;
@@ -417,7 +421,7 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
   arewrite (exp ⊆ ⦗fun _ => True⦘) at index.
 
 (** Unfolding of relational operations **)
-Hint Unfold dom_rel codom_rel funeq same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
+Hint Unfold funeq same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
   transp clos_refl irreflexive restr_rel minus_rel singl_rel is_total immediate functional : unfolderDb.
 
 Tactic Notation "unfolder_prepare" := 
