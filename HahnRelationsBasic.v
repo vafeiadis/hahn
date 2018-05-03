@@ -92,6 +92,8 @@ Definition Union A (P : A -> Prop) B (r: A -> relation B) x y :=
 
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
+Definition cross_rel {A} (r r' : A -> Prop) := (fun a b => r a /\ r' b).
+
 (** We introduce the following notation. *)
 
 Notation "P ∩ Q" := (inter_rel P Q) (at level 40, left associativity).
@@ -100,6 +102,7 @@ Notation "P \ Q" := (minus_rel P Q) (at level 46).
 Notation "P ⨾ Q" := (seq P Q) (at level 44, right associativity).
 Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
 Notation "∅₂" := (fun _ _ => False).
+Notation "P × Q" := (cross_rel P Q) (at level 29, left associativity).
 
 Notation "a ^? " := (clos_refl a) (at level 1, format "a ^?").
 Notation "a ^^ n" := (pow_rel a n) (at level 1).

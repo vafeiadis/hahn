@@ -422,7 +422,7 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
 
 (** Unfolding of relational operations **)
 Hint Unfold funeq same_relation inclusion union inter_rel restr_eq_rel eqv_rel minus_rel seq
-  transp clos_refl irreflexive restr_rel minus_rel singl_rel is_total immediate functional : unfolderDb.
+  transp clos_refl irreflexive restr_rel minus_rel singl_rel is_total immediate functional cross_rel: unfolderDb.
 
 Tactic Notation "unfolder_prepare" := 
   rewrite ?seqA;
