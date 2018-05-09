@@ -17,6 +17,7 @@ Section SetDefs.
 
   Definition set_empty       := fun x : A => False.
   Definition set_full        := fun x : A => True.
+  Definition set_single a    := fun x : A => x = a .
   Definition set_compl s     := fun x => ~ (s x).
   Definition set_union s s'  := fun x => s x \/ s' x.
   Definition set_inter s s'  := fun x => s x /\ s' x.
@@ -49,10 +50,11 @@ Section SetProperties.
   Local Ltac u :=
     unfold set_union, set_inter, set_minus, set_compl,
            set_equiv, set_subset, set_empty, set_full,
-           reflexive, transitive in *;
+           set_single, reflexive, transitive in *;
     ins; try solve [tauto | firstorder | split; ins; tauto].
 
   Variable A : Type.
+  Implicit Type a : A.
   Implicit Type s : A -> Prop.
 
   (** Properties of set complement. *)
@@ -273,6 +275,35 @@ Section SetProperties.
   Lemma set_minus_absorb_l s s' (SUB: s ⊆₁ s') : s \₁ s' ≡₁ ∅₁.
   Proof. u; firstorder. Qed.
 
+  (** Singleton sets *)
+
+  Lemma set_subset_single_l a s : set_single a ⊆₁ s <-> s a. 
+  Proof. u; intuition; desf. Qed.
+
+  Lemma set_subset_single_r a s :
+    s ⊆₁ set_single a <-> s ≡₁ set_single a \/ s ≡₁ ∅₁.
+  Proof.
+    u; intuition; firstorder.
+    destruct (classic (exists b, s b)) as [M|M]; desf.
+       left; split; ins; desf; eauto.
+       specialize (H _ M); desf.
+    right; split; ins; eauto. 
+  Qed.
+
+  Lemma set_subset_single_single a b :
+    set_single a ⊆₁ set_single b <-> a = b.
+  Proof. u; intuition; desf. Qed.
+
+  Lemma set_equiv_single_single a b :
+    set_single a ≡₁ set_single b <-> a = b.
+  Proof. u; intuition; desf; apply H; ins. Qed.
+
+  Lemma set_nonemptyE s : ~ s ≡₁ ∅₁ <-> exists x, s x.
+  Proof.
+    u; intuition; firstorder.
+    apply NNPP; intro; apply H0; ins; eauto. 
+  Qed.
+
 End SetProperties.
 
 (** Add rewriting support. *)
@@ -301,7 +332,7 @@ Instance set_inter_Propere A : Proper (_ ==> _ ==> _) _ := set_equiv_inter (A:=A
 Instance set_minus_Propere A : Proper (_ ==> _ ==> _) _ := set_equiv_minus (A:=A).
 Instance set_subset_Proper A : Proper (_ ==> _ ==> _) _ := set_equiv_subset (A:=A).
 
-Hint Unfold  set_empty set_full set_compl set_union set_inter set_minus set_subset set_equiv : unfolderDb.
+Hint Unfold  set_empty set_full set_single set_compl set_union set_inter set_minus set_subset set_equiv : unfolderDb.
 
 Lemma set_equiv_refl2 A (x: A -> Prop) :  x ≡₁ x. 
 Proof. reflexivity. Qed.
