@@ -202,13 +202,13 @@ Section SetProperties.
   Lemma set_subset_union_l s s' s'' : s ∪₁ s' ⊆₁ s'' <-> s ⊆₁ s'' /\ s' ⊆₁ s''.
   Proof. u. Qed.
 
-  Lemma set_subset_union_r1 s s' : s ⊆ s ∪ s'.
+  Lemma set_subset_union_r1 s s' : s ⊆₁ s ∪ s'.
   Proof. u. Qed.
 
-  Lemma set_subset_union_r2 s s' : s' ⊆ s ∪ s'.
+  Lemma set_subset_union_r2 s s' : s' ⊆₁ s ∪ s'.
   Proof. u. Qed.
 
-  Lemma set_subset_union_r s s' s'' : s ⊆ s' \/ s ⊆ s'' -> s ⊆ s' ∪ s''.
+  Lemma set_subset_union_r s s' s'' : s ⊆₁ s' \/ s ⊆₁ s'' -> s ⊆₁ s' ∪ s''.
   Proof. u. Qed.
 
   Lemma set_subset_inter_r s s' s'' : s ⊆₁ s' ∩₁ s'' <-> s ⊆₁ s' /\ s ⊆₁ s''.

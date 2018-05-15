@@ -11,6 +11,8 @@ about lists and binary relations.
 - HahnRewrite.v : support for rewriting equivalent relations
 - HahnDom.v : (co)domain of a relation
 - HahnMaxElt.v : maximal elements of a relation
+- HahnMinElt.v : minimum elements of a relation
+- HahnWf.v : well-founded and finitely supported relations
 - HahnMinPath.v : minimal paths/cycles over relations
 - HahnPath.v : paths over relations
 - HahnTotalExt.v : extension of a partial order to a total order.

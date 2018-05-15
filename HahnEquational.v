@@ -1036,9 +1036,20 @@ Section TranspProperties.
     by unfold transp, inclusion; intuition.
   Qed.
 
+  Lemma same_relation_transpE r r' : transp r ≡ transp r' -> r ≡ r'.
+  Proof. 
+    by unfold transp, same_relation, inclusion; intuition.
+  Qed.
+
 End TranspProperties.
 
 Hint Rewrite transp_inv transp_eqv_rel: rel.
+Hint Rewrite transp_inv transp_eqv_rel transp_union transp_seq 
+  transp_inter transp_minus transp_rt transp_ct transp_cr : rel_transp.
+
+Ltac rel_transp := 
+  first [apply inclusion_transpE | apply same_relation_transpE ];
+    autorewrite with rel_transp.
 
 (******************************************************************************)
 (** Properties of [pow_rel] *)

@@ -454,6 +454,20 @@ Ltac hacksimp :=
    | _ => solve [f_equal; clarsimp]
    end.
 
+Ltac clarify_not :=
+  repeat (match goal with
+  | H : ~ False |- _ => clear H
+  | H : ~ _ |- _ => apply imply_to_and in H; desc
+  | H : ~ _ |- _ => apply not_and_or in H; des
+  | H : ~ _ |- _ => apply not_all_ex_not in H; desc
+  end; clarify).
+
+Tactic Notation "tertium_non_datur" constr(P) :=
+  destruct (classic P); clarify_not.
+
+Tactic Notation "tertium_non_datur" constr(P) "as" simple_intropattern(pattern) :=
+  destruct (classic P) as pattern; clarify_not.
+
 (* ************************************************************************** *)
 (** ** Unification helpers *)
 (* ************************************************************************** *)

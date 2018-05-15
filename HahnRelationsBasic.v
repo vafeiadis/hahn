@@ -92,7 +92,7 @@ Definition Union A (P : A -> Prop) B (r: A -> relation B) x y :=
 
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
-Definition cross_rel {A} (r r' : A -> Prop) := (fun a b => r a /\ r' b).
+Definition cross_rel A (r r' : A -> Prop) := (fun a b => r a /\ r' b).
 
 (** We introduce the following notation. *)
 
