@@ -155,12 +155,6 @@ Section finite_support.
     specialize (FS y); desf; exists findom; ins; desf; eauto.
   Qed.
 
-  Lemma fsupp_prodI s1 s2 (F: finite s1) : fsupp (prod_rel s1 s2).
-  Proof.
-    unfold fsupp, seq, eqv_rel; desf; ins; desf. 
-    specialize (FS y); desf; exists findom; ins; desf; eauto.
-  Qed.
-
 End finite_support.
 
 Require Import Setoid Morphisms.
