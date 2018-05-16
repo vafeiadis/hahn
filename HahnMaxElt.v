@@ -326,7 +326,7 @@ End MoreProperties.
 
 Require Import Morphisms.
 
-Instance max_elt_Proper A : Proper (_ ==> _) _ := set_subset_max_elt (A:=A).
-Instance wmax_elt_Proper A : Proper (_ ==> _) _ := set_subset_wmax_elt (A:=A).
+Instance max_elt_Proper A : Proper (_ --> _) _ := set_subset_max_elt (A:=A).
+Instance wmax_elt_Proper A : Proper (_ --> _) _ := set_subset_wmax_elt (A:=A).
 Instance max_elt_Propere A : Proper (_ ==> _) _ := set_equiv_max_elt (A:=A).
 Instance wmax_elt_Propere A : Proper (_ ==> _) _ := set_equiv_wmax_elt (A:=A).

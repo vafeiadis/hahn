@@ -336,7 +336,7 @@ End MoreProperties.
 
 Require Import Morphisms.
 
-Instance min_elt_Proper A : Proper (_ ==> _) _ := set_subset_min_elt (A:=A).
-Instance wmin_elt_Proper A : Proper (_ ==> _) _ := set_subset_wmin_elt (A:=A).
-Instance min_elt_Propere A : Proper (_ ==> _) _ := set_equiv_min_elt (A:=A).
-Instance wmin_elt_Propere A : Proper (_ ==> _) _ := set_equiv_wmin_elt (A:=A).
+Instance min_elt_Proper A : Proper (inclusion --> set_subset) _ := set_subset_min_elt (A:=A).
+Instance wmin_elt_Proper A : Proper (inclusion --> set_subset) _ := set_subset_wmin_elt (A:=A).
+Instance min_elt_Propere A : Proper (same_relation ==> set_equiv) _ := set_equiv_min_elt (A:=A).
+Instance wmin_elt_Propere A : Proper (same_relation ==> set_equiv) _ := set_equiv_wmin_elt (A:=A).
