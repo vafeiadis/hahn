@@ -113,6 +113,54 @@ Section finite_support.
     unfold fsupp in *; ins; specialize (FS y); des; eauto.
   Qed.
 
+  Lemma fsupp_union r1 r2 : fsupp (r1 ∪ r2) <-> fsupp r1 /\ fsupp r2.
+  Proof.
+    unfold fsupp, union in *; intuition; 
+      repeat match goal with [ H : _, y : A |- _ ] => specialize (H y) end; 
+      desf; first [exists (findom ++ findom0) | exists findom];
+      ins; desf; eauto using in_or_app.
+  Qed.
+
+  Lemma fsupp_unionI r1 r2 (FS1: fsupp r1) (FS2: fsupp r2) : fsupp (r1 ∪ r2). 
+  Proof.
+    by apply fsupp_union.
+  Qed.
+
+  Lemma fsupp_list r (FS: fsupp r) l : 
+    exists findom, forall x y (REL: r x y) (IN: In y l), In x findom.
+  Proof.
+    induction l; ins; desf.
+      by exists nil; ins.
+    specialize (FS a); desf.
+    exists (findom ++ findom0); ins; desf; eauto using in_or_app.
+  Qed.
+
+  Lemma fsupp_seqI r1 r2 (FS1: fsupp r1) (FS2: fsupp r2) : fsupp (r1 ⨾ r2). 
+  Proof.
+    unfold fsupp, seq; desf; ins; desf. 
+    specialize (FS2 y); desf.
+    apply fsupp_list with (l:=findom) in FS1; desf.
+    exists findom0; ins; desf; eauto.
+  Qed.
+
+  Lemma fsupp_seq_eqv_l r d (FS: fsupp r) : fsupp (⦗d⦘ ⨾ r). 
+  Proof.
+    unfold fsupp, seq, eqv_rel; desf; ins; desf. 
+    specialize (FS y); desf; exists findom; ins; desf; eauto.
+  Qed.
+
+  Lemma fsupp_seq_eqv_r r d (FS: fsupp r) : fsupp (r ⨾ ⦗d⦘). 
+  Proof.
+    unfold fsupp, seq, eqv_rel; desf; ins; desf. 
+    specialize (FS y); desf; exists findom; ins; desf; eauto.
+  Qed.
+
+  Lemma fsupp_prodI s1 s2 (F: finite s1) : fsupp (prod_rel s1 s2).
+  Proof.
+    unfold fsupp, seq, eqv_rel; desf; ins; desf. 
+    specialize (FS y); desf; exists findom; ins; desf; eauto.
+  Qed.
+
 End finite_support.
 
 Require Import Setoid Morphisms.
@@ -128,4 +176,6 @@ Add Parametric Morphism A : (@fsupp A) with signature
 Proof.
   unfold same_relation; split; ins; desf; eauto using fsupp_mon.
 Qed.
+
+Hint Resolve fsupp_unionI fsupp_seqI fsupp_seq_eqv_l fsupp_seq_eqv_r : rel. 
 
