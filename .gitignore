@@ -3,3 +3,4 @@
 *.glob
 *.v.d
 *.aux
+Makefile.coq

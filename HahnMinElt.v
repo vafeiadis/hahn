@@ -1,5 +1,5 @@
 (******************************************************************************)
-(** * Maximal elements of relations *)
+(** * Minimal elements of relations *)
 (******************************************************************************)
 
 Require Import HahnBase HahnList HahnSets HahnRelationsBasic HahnEquational HahnRewrite.
