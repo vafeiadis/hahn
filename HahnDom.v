@@ -105,11 +105,25 @@ Section Lemmas.
   Proof. unfold codom_rel, eqv_rel, seq, set_inter, set_equiv, set_subset.
          split; ins; desf; eauto. Qed.
 
+  Lemma dom_cross (N: ~ d' ≡₁ ∅): dom_rel (d × d') ≡₁ d.
+  Proof. apply set_nonemptyE in N; unfold dom_rel, cross_rel, set_equiv, set_subset; 
+         split; ins; desf; eauto. Qed.
+
+  Lemma codom_cross (N: ~ d ≡₁ ∅): codom_rel (d × d') ≡₁ d'.
+  Proof. apply set_nonemptyE in N; unfold codom_rel, cross_rel, set_equiv, set_subset; 
+         split; ins; desf; eauto. Qed.
+
   Lemma transp_doma : domb r d -> doma (transp r) d.
   Proof. unfold doma, domb, transp; eauto. Qed.
 
   Lemma transp_domb : doma r d -> domb (transp r) d.
   Proof. unfold doma, domb, transp; eauto. Qed.
+
+  Lemma cross_doma : doma (d × d') d.
+  Proof. unfold doma, cross_rel; ins; desf. Qed.
+
+  Lemma cross_domb : domb (d × d') d'.
+  Proof. unfold domb, cross_rel; ins; desf. Qed.
 
   Lemma doma_implies : (forall a, d a -> d' a) -> doma r d -> doma r d'.
   Proof. unfold doma; eauto. Qed.
@@ -153,6 +167,12 @@ Section Lemmas.
     desf; splits; eexists; splits; eauto.
   Qed.
 
+  Lemma domab_helper2 : 
+    r ⊆ d × d' <-> doma r d /\ domb r d'.
+  Proof.
+    unfold doma, domb, cross_rel, inclusion; intuition; firstorder. 
+  Qed.
+
   Lemma dom_to_doma : r ≡ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘ -> doma r d.
   Proof.
     intro H; unfold doma; ins.
@@ -185,6 +205,12 @@ Section Lemmas.
     unfolder; firstorder.
   Qed.
 
+  Lemma dom_helper_3 : r ⊆ d × d' <-> r ≡ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘.
+  Proof.
+    unfolder; firstorder.
+  Qed.
+
+
 End Lemmas.
 
 End Domains.
@@ -192,7 +218,7 @@ End Domains.
 Hint Resolve
   eqv_doma seq_eqv_doma restr_eq_rel_doma seq_doma union_doma ct_doma seq_r_doma
   eqv_domb seq_eqv_domb restr_eq_rel_domb seq_domb union_domb ct_domb seq_r_domb
-  transp_doma transp_domb
+  transp_doma transp_domb cross_doma cross_domb
 : rel.
 
 Add Parametric Morphism A : (@doma A) with signature
@@ -248,5 +274,5 @@ Qed.
 Hint Rewrite dom_union codom_union dom_eqv codom_eqv dom_eqv1 codom_eqv1 : rel_dom.
 Hint Unfold  doma domb dom_rel codom_rel : unfolderDb.
 
-Hint Rewrite dom_union codom_union : rel_full.
+Hint Rewrite dom_union codom_union dom_cross codom_cross : rel_full.
 

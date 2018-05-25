@@ -129,6 +129,12 @@ Proof.
   repeat red; ins; induction (H0 a); econs; eauto.
 Qed.
 
+Add Parametric Morphism A : (@cross_rel A) with signature
+  set_subset ==> set_subset ==> inclusion as cross_mori.
+Proof.
+  unfold inclusion, cross_rel, set_subset; ins; desf; eauto.
+Qed.
+
 (** Second, for equivalence. *)
 
 Lemma same_relation_exp A (r r' : relation A) (EQ: r ≡ r') :
@@ -282,6 +288,12 @@ Add Parametric Morphism A : (@well_founded A) with signature
   same_relation ==> iff as well_founded_more.
 Proof.
   unfold same_relation; split; eapply well_founded_mori; desf.
+Qed.
+
+Add Parametric Morphism A : (@cross_rel A) with signature
+  set_equiv ==> set_equiv ==> same_relation as cross_more.
+Proof.
+  unfold same_relation, set_equiv; ins; desf; eauto using cross_mori.
 Qed.
 
 (******************************************************************************)
@@ -1088,6 +1100,29 @@ Qed.
 
 (* Hint Resolve pow_t pow_rt : rel.
 Hint Rewrite pow_seq pow_nm pow_unit pow_inclusion : rel. *)
+
+(******************************************************************************)
+(** Properties of cross product *)
+(******************************************************************************)
+
+Section PropertiesCross.
+
+  Variable A : Type.
+  Implicit Type s : A -> Prop.
+
+  Lemma cross_false_r s : s × ∅ ≡ ∅₂.
+  Proof.
+    firstorder.
+  Qed.
+
+  Lemma cross_false_l s : ∅ × s ≡ ∅₂.
+  Proof.
+    firstorder.
+  Qed.
+
+End PropertiesCross.
+
+Hint Rewrite cross_false_l cross_false_r : rel.
 
 (******************************************************************************)
 (** Misc properties *)
