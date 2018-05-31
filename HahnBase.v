@@ -457,7 +457,9 @@ Ltac hacksimp :=
 Ltac clarify_not :=
   repeat (match goal with
   | H : ~ False |- _ => clear H
+  | H : ~ ~ _ |- _ => apply NNPP in H
   | H : ~ _ |- _ => apply imply_to_and in H; desc
+  | H : ~ _ |- _ => apply not_or_and in H; desc
   | H : ~ _ |- _ => apply not_and_or in H; des
   | H : ~ _ |- _ => apply not_all_ex_not in H; desc
   end; clarify).
