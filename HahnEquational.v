@@ -305,131 +305,83 @@ Section PropertiesSeqUnion.
   Variables B A : Type.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
+  Ltac u := autounfold with unfolderDb in *; try solve [intuition; ins; desf; eauto; firstorder].
 
   Lemma seqA r1 r2 r3 : (r1 ⨾ r2) ⨾ r3 ≡ r1 ⨾ (r2 ⨾ r3).
-  Proof.
-    unfold seq; split; red; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_false_l r : ∅₂ ⨾ r ≡ ∅₂.
-  Proof.
-    split; unfold seq, inclusion; ins; desf.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_false_r r : r ⨾ ∅₂ ≡ ∅₂.
-  Proof.
-    split; unfold seq, inclusion; ins; desf.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_id_l r :  ⦗fun _ => True⦘ ⨾ r ≡ r.
-  Proof.
-    unfold eqv_rel, seq; split; red; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_id_r r : r ⨾ ⦗fun _ => True⦘ ≡ r.
-  Proof.
-    unfold eqv_rel, seq; split; red; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma unionA r1 r2 r3 : (r1 ∪ r2) ∪ r3 ≡ r1 ∪ (r2 ∪ r3).
-  Proof.
-    unfold seq, union; split; red; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma unionC r1 r2 : r1 ∪ r2 ≡ r2 ∪ r1.
-  Proof.
-    unfold seq, union; split; red; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma unionAC r r' r'' : r ∪ (r' ∪ r'') ≡ r' ∪ (r ∪ r'').
-  Proof.
-    rewrite <- !unionA, (unionC r r'); vauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma unionK r : r ∪ r ≡ r.
-  Proof.
-    split; eauto with rel.
-  Qed.
+  Proof. u. Qed.
 
   Lemma union_false_r r : r ∪ ∅₂ ≡ r.
-  Proof.
-    split; unfold union, inclusion; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma union_false_l r : ∅₂ ∪ r ≡ r.
-  Proof.
-    by rewrite unionC, union_false_r.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_union_l r1 r2 r : (r1 ∪ r2) ⨾ r ≡ (r1 ⨾ r) ∪ (r2 ⨾ r).
-  Proof.
-    unfold seq, union; split; red; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_union_r r r1 r2 : r ⨾ (r1 ∪ r2) ≡ (r ⨾ r1) ∪ (r ⨾ r2).
-  Proof.
-    unfold seq, union; split; red; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
-  Lemma seq_Union_l P rr r : Union P rr ⨾ r ≡ Union P (fun n => rr n ⨾ r).
-  Proof.
-    unfold seq, Union; split; red; ins; desf; eauto.
-  Qed.
+  Lemma seq_Union_l P rr r : Union_rel P rr ⨾ r ≡ Union_rel P (fun n => rr n ⨾ r).
+  Proof. u. Qed.
 
-  Lemma seq_Union_r r P rr : r ⨾ Union P rr ≡ Union P (fun n => r ⨾ rr n).
-  Proof.
-    unfold seq, Union; split; red; ins; desf; eauto.
-  Qed.
+  Lemma seq_Union_r r P rr : r ⨾ Union_rel P rr ≡ Union_rel P (fun n => r ⨾ rr n).
+  Proof. u. Qed.
 
-  Lemma minus_union_l r1 r2 r :
-    (r1 ∪ r2) \ r ≡ (r1 \ r) ∪ (r2 \ r).
-  Proof.
-    unfold minus_rel, union; split; red; ins; desf; eauto.
-  Qed.
+  Lemma minus_union_l r1 r2 r : (r1 ∪ r2) \ r ≡ (r1 \ r) ∪ (r2 \ r).
+  Proof. u. Qed.
 
   Lemma seq_eqvK (dom : A -> Prop) : ⦗dom⦘ ⨾ ⦗dom⦘ ≡ ⦗dom⦘.
-  Proof.
-    unfold eqv_rel, seq; split; red; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_eqvK_l (dom1 dom2 : A -> Prop) (IMP: forall x, dom2 x -> dom1 x) :
     ⦗dom1⦘ ⨾ ⦗dom2⦘ ≡ ⦗dom2⦘.
-  Proof.
-    unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_eqvK_r (dom1 dom2 : A -> Prop) (IMP: forall x, dom1 x -> dom2 x) :
     ⦗dom1⦘ ⨾ ⦗dom2⦘ ≡ ⦗dom1⦘.
-  Proof.
-    unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_eqvC (doma domb : A -> Prop) :
     ⦗doma⦘ ⨾ ⦗domb⦘ ≡ ⦗domb⦘ ⨾ ⦗doma⦘.
-  Proof.
-    unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
-  Qed.
+  Proof. u. Qed.
 
   Lemma seq_eqv (doma domb : A -> Prop) :
     ⦗doma⦘ ⨾ ⦗domb⦘ ≡ ⦗fun x => doma x /\ domb x⦘.
-  Proof.
-    unfold eqv_rel, seq; split; red; ins; desf; eauto 8.
-  Qed.
+  Proof. u. Qed.
 
   Lemma union_absorb_l r r' (SUB: r ⊆ r') : r ∪ r' ≡ r'.
-  Proof.
-    split; auto with rel.
-  Qed.
+  Proof. u. Qed.
 
   Lemma union_absorb_r r r' (SUB: r ⊆ r') : r' ∪ r ≡ r'.
-  Proof.
-    split; auto with rel.
-  Qed.
+  Proof. u. Qed.
 
   Lemma id_union (s s': A -> Prop) : ⦗s ∪₁ s'⦘ ≡ ⦗s⦘ ∪ ⦗s'⦘.
-  Proof.
-    red; splits; unfold set_union, eqv_rel, union, inclusion; ins; desf; auto.
-  Qed.
+  Proof. u. Qed.
 
 End PropertiesSeqUnion.
 
@@ -520,26 +472,19 @@ Section PropertiesMinus.
 
   Variable A : Type.
   Implicit Type r : relation A.
+  Ltac u := autounfold with unfolderDb in *; try solve [intuition; ins; desf; eauto; firstorder].
 
   Lemma minus_false_r r : r \ ∅₂ ≡ r.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma minus_false_l r : ∅₂ \ r ≡ ∅₂.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma minusK r : r \ r ≡ ∅₂.
-  Proof.
-    unfold minus_rel; split; red; intuition.
-  Qed.
+  Proof. u. Qed.
 
   Lemma minus_absorb r r' (SUB: r ⊆ r') : r \ r' ≡ ∅₂.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
 End PropertiesMinus.
 
@@ -556,20 +501,20 @@ Section PropertiesClos.
 
   Lemma rtE r : r ＊ ≡ ⦗fun _ => True⦘ ∪ r⁺.
   Proof.
-    unfold eqv_rel, union, same_relation, inclusion.
+    autounfold with unfolderDb.
     split; ins; rewrite clos_refl_transE in *; tauto.
   Qed.
 
   Lemma crE r : r ^? ≡ ⦗fun _ => True⦘ ∪ r.
   Proof.
-    unfold eqv_rel, union, same_relation, inclusion, clos_refl.
+    autounfold with unfolderDb.
     split; ins; tauto.
   Qed.
 
   Lemma rtEE r : r ＊ ≡ ⋃ n, r ^^ n.
   Proof.
     split; ins; desc.
-      unfold eqv_rel, Union, same_relation, inclusion; ins.
+      autounfold with unfolderDb; ins.
       induction H using clos_refl_trans_ind_left; desc.
         by exists 0.
       by exists (S a); vauto.
@@ -909,31 +854,31 @@ End ExtraPropertiesClos.
 Lemma seq_eqv_r A (r : relation A) dom :
   r ⨾ ⦗dom⦘ ≡ (fun x y => r x y /\ dom y).
 Proof.
-  unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto.
+  autounfold with unfolderDb; intuition; desf; eauto.
 Qed.
 
 Lemma seq_eqv_l A (r : relation A) dom :
   ⦗dom⦘ ⨾ r ≡ (fun x y => dom x /\ r x y).
 Proof.
-  unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto.
+  autounfold with unfolderDb; intuition; desf; eauto.
 Qed.
 
 Lemma inclusion_seq_eqv_l A (r : relation A) dom :
   ⦗dom⦘ ⨾ r ⊆ r.
 Proof.
-  unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto.
+  autounfold with unfolderDb; intuition; desf; eauto.
 Qed.
 
 Lemma inclusion_seq_eqv_r A (r : relation A) dom :
   r ⨾ ⦗dom⦘ ⊆ r.
 Proof.
-  unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto.
+  autounfold with unfolderDb; intuition; desf; eauto.
 Qed.
 
 Lemma seq_eqv_lr A (r : relation A) dom1 dom2 :
   ⦗dom1⦘ ⨾ r ⨾ ⦗dom2⦘ ≡ (fun x y : A => dom1 x /\ r x y /\ dom2 y).
 Proof.
-  unfold eqv_rel, seq, same_relation, inclusion; intuition; desf; eauto 10.
+  autounfold with unfolderDb; intuition; desf; eauto 10.
 Qed.
 
 (******************************************************************************)

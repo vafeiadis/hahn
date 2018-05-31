@@ -7,16 +7,14 @@ Require Import Wf_nat Omega.
 
 Set Implicit Arguments.
 
-Ltac clarify_not :=
-  repeat (match goal with 
-  | H : ~ False |- _ => clear H
-  | H : ~ _ |- _ => apply imply_to_and in H; desc
-  | H : ~ _ |- _ => apply not_and_or in H; des
-  | H : ~ _ |- _ => apply not_all_ex_not in H; desc
-  end; clarify).
+(** A relation is finitely supported iff every element has a finite number of 
+    predecessors. *)
+Definition fsupp A (r: relation A) :=
+  forall y, exists findom, forall x (REL: r x y), In x findom.
 
-Tactic Notation "tertium_non_datur" constr(P) "as" simple_intropattern(pattern) :=
-  destruct (classic P) as pattern; clarify_not.
+Hint Unfold fsupp ltof : unfolderDb.
+
+(** Properties of well-founded relations. *)
 
 Section well_founded. 
 
@@ -57,15 +55,12 @@ Section well_founded.
 
 End well_founded.
 
+(** Properties of finitely supported relations. *)
+
 Section finite_support. 
 
   Variable A : Type.
   Implicit Types r : relation A. 
-
-  (** A relation is finitely supported iff every element has a finite number of 
-      predecessors. *)
-  Definition fsupp r :=
-    forall y, exists findom, forall x (REL: r x y), In x findom.
     
   Theorem fsupp_well_founded r (FS: fsupp r) 
           (IRR: irreflexive r) (TRANS: transitive r) : 
@@ -110,12 +105,22 @@ Section finite_support.
    
   Lemma fsupp_mon r r' (SUBS: r ⊆ r') (FS: fsupp r') : fsupp r.
   Proof.
-    unfold fsupp in *; ins; specialize (FS y); des; eauto.
+    unfolder in *; ins; specialize (FS y); des; eauto.
+  Qed.
+
+  Lemma fsupp_empty : fsupp (A:=A) ∅₂.
+  Proof.
+    exists nil; ins. 
+  Qed.
+
+  Lemma fsupp_cross (s s': A -> Prop) (F: set_finite s) : fsupp (s × s').
+  Proof.
+    unfolder in *; ins; desf; eexists; ins; desf; eauto.
   Qed.
 
   Lemma fsupp_union r1 r2 : fsupp (r1 ∪ r2) <-> fsupp r1 /\ fsupp r2.
   Proof.
-    unfold fsupp, union in *; intuition; 
+    unfolder in *; intuition; 
       repeat match goal with [ H : _, y : A |- _ ] => specialize (H y) end; 
       desf; first [exists (findom ++ findom0) | exists findom];
       ins; desf; eauto using in_or_app.
@@ -124,6 +129,23 @@ Section finite_support.
   Lemma fsupp_unionI r1 r2 (FS1: fsupp r1) (FS2: fsupp r2) : fsupp (r1 ∪ r2). 
   Proof.
     by apply fsupp_union.
+  Qed.
+
+  Lemma fsupp_Union B s (rr : B -> relation A) 
+        (FIN: set_finite s) (FS: forall x (IN: s x), fsupp (rr x)) :
+    fsupp (Union_rel s rr).
+  Proof.
+    unfolder in *; desf; ins.
+    revert s FIN FS; induction findom; ins.
+      by exists nil; ins; desf; eauto.
+    specialize (IHfindom (fun x => s x /\ x <> a)); ins.
+    specialize_full IHfindom; ins; desf; eauto.
+    by apply FIN in IN; desf; eauto.
+    tertium_non_datur (s a) as [X|X]. 
+      eapply FS in X; desf.
+      exists (findom1 ++ findom0); ins; desf. 
+      tertium_non_datur (a = a0); desf; eauto 8 using in_or_app.
+    exists findom0; ins; desf; apply IHfindom; eexists; splits; eauto; congruence.
   Qed.
 
   Lemma fsupp_list r (FS: fsupp r) l : 
@@ -171,5 +193,6 @@ Proof.
   unfold same_relation; split; ins; desf; eauto using fsupp_mon.
 Qed.
 
+Hint Resolve fsupp_empty fsupp_cross : rel.
 Hint Resolve fsupp_unionI fsupp_seqI fsupp_seq_eqv_l fsupp_seq_eqv_r : rel. 
 

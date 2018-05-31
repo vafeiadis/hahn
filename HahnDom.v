@@ -18,6 +18,8 @@ Section Definitions.
 
 End Definitions.
 
+Hint Unfold doma domb : unfolderDb.
+
 Section Lemmas.
 
   Variables r r' : relation A.
@@ -272,7 +274,6 @@ Proof.
 Qed.
 
 Hint Rewrite dom_union codom_union dom_eqv codom_eqv dom_eqv1 codom_eqv1 : rel_dom.
-Hint Unfold  doma domb dom_rel codom_rel : unfolderDb.
 
 Hint Rewrite dom_union codom_union dom_cross codom_cross : rel_full.
 

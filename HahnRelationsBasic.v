@@ -29,24 +29,6 @@ Section RelDefs.
   Variable f : A -> B.
   Variables r r' : relation A.
 
-  Definition immediate := fun a b =>
-    r a b /\ (forall c (R1: r a c) (R2: r c b), False).
-
-  Definition irreflexive := forall x, r x x -> False.
-
-  Definition is_total :=
-    forall a (IWa: cond a)
-           b (IWb: cond b) (NEQ: a <> b),
-      r a b \/ r b a.
-
-  Definition restr_subset :=
-    forall a (IWa: cond a)
-           b (IWb: cond b) (REL: r a b),
-      r' a b.
-
-  Definition upward_closed (P: A -> Prop) :=
-    forall x y (REL: r x y) (POST: P y), P x.
-
   Definition singl_rel a b : relation A := fun x y => x = a /\ y = b.
 
   Definition inter_rel : relation A := fun x y => r x y /\ r' x y.
@@ -74,6 +56,24 @@ Section RelDefs.
   Definition dom_rel := fun x => exists y, r x y.
   Definition codom_rel := fun y => exists x, r x y.
 
+  Definition immediate : relation A := fun a b =>
+    r a b /\ (forall c (R1: r a c) (R2: r c b), False).
+
+  Definition irreflexive := forall x, r x x -> False.
+
+  Definition is_total :=
+    forall a (IWa: cond a)
+           b (IWb: cond b) (NEQ: a <> b),
+      r a b \/ r b a.
+
+  Definition restr_subset :=
+    forall a (IWa: cond a)
+           b (IWb: cond b) (REL: r a b),
+      r' a b.
+
+  Definition upward_closed (P: A -> Prop) :=
+    forall x y (REL: r x y) (POST: P y), P x.
+
   Definition functional := forall x y z, r x y -> r x z -> y=z.
   
   Definition strict_partial_order := irreflexive /\ transitive r.
@@ -87,12 +87,19 @@ Fixpoint pow_rel A (r: relation A) n :=
   | S n => seq (pow_rel r n) r
   end.
 
-Definition Union A (P : A -> Prop) B (r: A -> relation B) x y :=
+Definition Union_rel A (P : A -> Prop) B (r: A -> relation B) x y :=
   exists a, P a /\ r a x y.
 
 Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
 
 Definition cross_rel A (r r' : A -> Prop) := (fun a b => r a /\ r' b).
+
+Hint Unfold reflexive symmetric transitive inclusion same_relation : unfolderDb. 
+Hint Unfold union transp singl_rel inter_rel minus_rel Union_rel : unfolderDb.
+Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq clos_refl : unfolderDb.
+Hint Unfold clos_refl dom_rel codom_rel cross_rel  : unfolderDb.
+Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb. 
+Hint Unfold strict_partial_order strict_total_order : unfolderDb.
 
 (** We introduce the following notation. *)
 
@@ -114,12 +121,12 @@ Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
 
 Notation "'⋃' x .. y , p" := 
-  (Union (fun _ => True) (fun x => .. (Union (fun _ => True) (fun y => p)) ..))
+  (Union_rel (fun _ => True) (fun x => .. (Union_rel (fun _ => True) (fun y => p)) ..))
   (at level 200, x binder, right associativity,
    format "'[' '⋃' '/ ' x .. y ,  '/ ' p ']'").
-Notation "'⋃⋃' x < n , a" := (Union (fun t => t < n) (fun x => a))
+Notation "'⋃⋃' x < n , a" := (Union_rel (fun t => t < n) (fun x => a))
   (at level 200, x ident, right associativity).
-Notation "'⋃⋃' x <= n , a" := (Union (fun t => t <= n) (fun x => a))
+Notation "'⋃⋃' x <= n , a" := (Union_rel (fun t => t <= n) (fun x => a))
   (at level 200, x ident, right associativity).
 
 (** Here are some alternative non-unicode notations *)
@@ -442,13 +449,13 @@ Proof.
 Qed.
 
 Lemma inclusion_Union_l (P : B -> Prop) (rr : B -> relation A) :
-  (forall x, P x -> rr x ⊆ r') -> Union P rr ⊆ r'.
+  (forall x, P x -> rr x ⊆ r') -> Union_rel P rr ⊆ r'.
 Proof.
   firstorder.
 Qed.
 
 Lemma inclusion_Union_r (x: B) (P : B -> Prop) (rr : B -> relation A) : 
-  P x -> r ⊆ rr x -> r ⊆ Union P rr.
+  P x -> r ⊆ rr x -> r ⊆ Union_rel P rr.
 Proof.
   firstorder.
 Qed.
