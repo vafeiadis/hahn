@@ -23,12 +23,14 @@
 
 ## Specialized simplification tactics
 
+- `clarify_not` simplifies negated hypotheses.
 - `in_simp` simplifies `In x list` assumptions.
 - `rels` simplifies goals with relational operators.
 - `relsf` also does case splits.
 
 ## Forward reasoning 
- 
+
+- `tertium_non_datur X [as Pattern]` does a case split on `X \/ ~X`.
 - `forward eapply H [with ...] as Name` generates subgoals for all the premises of `H`;
   the final subgoal names the conclusion of `H` as `Name`.
 - `exploit H` is similar to `forward eapply H` (adapted from CompCert, deprecated).
