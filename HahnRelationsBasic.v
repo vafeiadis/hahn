@@ -3,11 +3,6 @@ Require Export Relations.
 
 Set Implicit Arguments.
 
-(* Database of lemmas *)
-Create HintDb rel discriminated.
-Create HintDb hahn_full discriminated.
-
-
 (******************************************************************************)
 (** * Relational operators *)
 (******************************************************************************)
@@ -90,7 +85,7 @@ Fixpoint pow_rel A (r: relation A) n :=
 Definition Union_rel A (P : A -> Prop) B (r: A -> relation B) x y :=
   exists a, P a /\ r a x y.
 
-Definition acyclic A (rel: relation A) := irreflexive (clos_trans rel).
+Definition acyclic A (r: relation A) := irreflexive (clos_trans r).
 
 Definition cross_rel A (r r' : A -> Prop) := (fun a b => r a /\ r' b).
 
@@ -702,7 +697,7 @@ Hint Resolve
      reflexive_seq reflexive_rt reflexive_cr
      reflexive_union_l reflexive_union_r reflexive_inter
      transitive_rt transitive_ct
-  : rel.
+  : hahn.
 
 Hint Resolve
      inclusion_refl2 same_relation_refl2
@@ -711,16 +706,16 @@ Hint Resolve
      inclusion_union_r1_search inclusion_union_r2_search inclusion_union_l
      inclusion_seq_mon inclusion_minus_mon
      inclusion_restr_eq_l inclusion_restr_rel_l
-  : rel.
+  : hahn.
 
 Hint Resolve
      inclusion_step_t inclusion_t_t inclusion_t_ind inclusion_rt_rt
-     inclusion_r_rt inclusion_step_rt inclusion_step_cr inclusion_r_cr : rel.
+     inclusion_r_rt inclusion_step_rt inclusion_step_cr inclusion_r_cr : hahn.
 
-Hint Immediate inclusion_acyclic : rel.
+Hint Immediate inclusion_acyclic : hahn.
 
-Hint Immediate inclusion_t_rt : rel.
-Hint Immediate inclusion_eqv_rt inclusion_eqv_cr : rel.
+Hint Immediate inclusion_t_rt : hahn.
+Hint Immediate inclusion_eqv_rt inclusion_eqv_cr : hahn.
 
 Lemma clos_trans_of_clos_trans A (r : relation A) x y :
   r⁺⁺ x y <-> r⁺ x y.

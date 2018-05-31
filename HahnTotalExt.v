@@ -55,7 +55,7 @@ Fixpoint tot_ext A (dom : list A) (r : relation A) : relation A :=
 
 Lemma tot_ext_extends A dom (r : relation A) : r ⊆ tot_ext dom r.
 Proof.
-  induction dom; ins; eauto using one_ext_extends with rel.
+  induction dom; ins; eauto using one_ext_extends with hahn.
 Qed.
 
 Lemma tot_ext_trans A dom (r : relation A) :  transitive (tot_ext dom r).
@@ -65,7 +65,7 @@ Qed.
 
 Lemma tot_ext_extends2 A dom (r : relation A) : r⁺ ⊆ tot_ext dom r.
 Proof.
-  eauto using tot_ext_extends, tot_ext_trans with rel.
+  eauto using tot_ext_extends, tot_ext_trans with hahn.
 Qed.
 
 Lemma tot_ext_irr A (dom : list A) r :
@@ -93,7 +93,7 @@ Qed.
 Lemma tot_ext_extends_dom A dom dom' (r : relation A) : 
   tot_ext dom r ⊆ tot_ext (dom' ++ dom) r.
 Proof.
-  induction dom'; ins; eauto using one_ext_extends with rel.
+  induction dom'; ins; eauto using one_ext_extends with hahn.
 Qed.
 
 (******************************************************************************)
@@ -116,7 +116,7 @@ Qed.
 
 Lemma tot_ext_nat_extends2 r : r⁺ ⊆ tot_ext_nat r.
 Proof.
-  eauto using tot_ext_nat_extends, tot_ext_nat_trans with rel.
+  eauto using tot_ext_nat_extends, tot_ext_nat_trans with hahn.
 Qed.
 
 Lemma tot_ext_nat_irr r : acyclic r -> irreflexive (tot_ext_nat r).
@@ -247,7 +247,7 @@ Lemma tot_ext_suc_trans A dom (r s: relation A) (SUC: Successor r s) :
 Proof.
 unfold tot_ext_suc.
 apply transitiveI; relsf.
-repeat apply inclusion_union_l; eauto with rel.
+repeat apply inclusion_union_l; eauto with hahn.
 - by rewrite ct_ct; rels.
 - rewrite inclusion_t_rt at 1.
   rewrite !seqA, functional_path; [relsf | apply SUC].
@@ -329,13 +329,13 @@ rewrite inclusion_minus_rel.
 cdes SUC; rewrite INC at 3; rels.
 unfold tot_ext_suc.
 rewrite inclusion_t_ind with (r' := tot_ext dom r); 
-  [auto with rel | red; eapply tot_ext_extends | apply tot_ext_trans].
+  [auto with hahn | red; eapply tot_ext_extends | apply tot_ext_trans].
 Qed.
 
 Lemma tot_ext_suc_suc A dom (r s: relation A) (SUC: Successor r s) : 
   Successor (tot_ext_suc dom r s) s.
 Proof.
-  unfold Successor, tot_ext_suc in *; ins; desf; splits; auto with rel.
+  unfold Successor, tot_ext_suc in *; ins; desf; splits; auto with hahn.
   relsf.
   apply inclusion_union_l; ins.
   - rewrite ct_begin at 1.

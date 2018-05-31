@@ -118,11 +118,11 @@ Qed.
 
 End BasicProperties.
 
-Hint Immediate min_elt_weaken : rel.
-Hint Resolve wmin_elt_union min_elt_union : rel.
-Hint Resolve wmin_elt_t wmin_elt_r wmin_elt_rt min_elt_t : rel.
-Hint Resolve min_elt_restr_eq wmin_elt_restr_eq : rel.
-Hint Resolve min_elt_seq1 min_elt_seq2 wmin_elt_seq1 wmin_elt_seq2 : rel.
+Hint Immediate min_elt_weaken : hahn.
+Hint Resolve wmin_elt_union min_elt_union : hahn.
+Hint Resolve wmin_elt_t wmin_elt_r wmin_elt_rt min_elt_t : hahn.
+Hint Resolve min_elt_restr_eq wmin_elt_restr_eq : hahn.
+Hint Resolve min_elt_seq1 min_elt_seq2 wmin_elt_seq1 wmin_elt_seq2 : hahn.
 
 Section MoreProperties.
 
@@ -141,7 +141,7 @@ Lemma seq_min_t r r' b
       (MAX: min_elt r b) (DOM: forall x y, r' x y -> x = b) :
   r ⁺ ⨾ r'  ≡ ∅₂.
 Proof.
-  eauto using seq_min with rel.
+  eauto using seq_min with hahn.
 Qed.
 
 Lemma seq_min_rt r r' b
@@ -167,7 +167,7 @@ Qed.
 Lemma seq_min_t_eq r b (MAX: min_elt r b) :
   r⁺ ⨾⦗eq b⦘ ≡ ∅₂.
 Proof.
-  eauto using seq_min_eq with rel.
+  eauto using seq_min_eq with hahn.
 Qed.
 
 Lemma seq_min_rt_eq r b (MAX: min_elt r b) :
@@ -191,7 +191,7 @@ Qed.
 Lemma seq_min_t_singl r a b (MAX: min_elt r a) :
   r⁺ ⨾ singl_rel a b ≡ ∅₂.
 Proof.
-  eauto using seq_min_singl with rel.
+  eauto using seq_min_singl with hahn.
 Qed.
 
 Lemma seq_min_rt_singl r a b (MAX: min_elt r a) :
@@ -266,7 +266,7 @@ Lemma seq_wmin_t r r' b
       (MAX: wmin_elt r b) (D: forall x y, r' x y -> x = b) :
   r ⁺⨾ r' ⊆ r'.
 Proof.
-  eauto using seq_wmin with rel.
+  eauto using seq_wmin with hahn.
 Qed.
 
 Lemma seq_wmin_rt r r' b
@@ -292,7 +292,7 @@ Qed.
 Lemma seq_wmin_t_eq r b (MAX: wmin_elt r b) :
   r ⁺ ⨾ ⦗eq b⦘ ⊆ ⦗eq b⦘.
 Proof.
-  eauto using seq_wmin_eq with rel.
+  eauto using seq_wmin_eq with hahn.
 Qed.
 
 Lemma seq_wmin_rt_eq r b (MAX: wmin_elt r b) :
@@ -317,7 +317,7 @@ Qed.
 Lemma seq_wmin_t_singl r a b (MAX: wmin_elt r a) :
   r ⁺ ⨾ singl_rel a b ⊆ singl_rel a b.
 Proof.
-  eauto using seq_wmin_singl with rel.
+  eauto using seq_wmin_singl with hahn.
 Qed.
 
 Lemma seq_wmin_rt_singl r a b (MAX: wmin_elt r a) :

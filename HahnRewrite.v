@@ -285,16 +285,16 @@ Ltac simpl_rels :=
   rewrite ?seqA, ?seq_id_l, ?seq_id_r; seq_rewrite ? seq_eqvK.
 
 Ltac rels :=
-  repeat first [progress autorewrite with rel |
+  repeat first [progress autorewrite with hahn |
                 seq_rewrite seq_eqvK |
                 seq_rewrite ct_cr | seq_rewrite ct_rt |
                 seq_rewrite rt_cr | seq_rewrite rt_ct | seq_rewrite rt_rt |
                 seq_rewrite cr_ct | seq_rewrite cr_rt |
                 seq_rewrite <- ct_end | seq_rewrite <- ct_begin ];
-    try done; eauto 3 with rel.
+    try done; eauto 3 with hahn.
 
 Ltac relsf :=
-  repeat first [progress autorewrite with rel |
+  repeat first [progress autorewrite with hahn |
                 seq_rewrite seq_eqvK |
                 seq_rewrite ct_cr | seq_rewrite ct_rt |
                 seq_rewrite rt_cr | seq_rewrite rt_ct | seq_rewrite rt_rt |
@@ -306,14 +306,14 @@ Ltac relsf :=
                                 sin_rewrite (rewrite_trans_seq_cr_l H) |
                                 sin_rewrite (rewrite_trans_seq_cr_r H) |
                                 sin_rewrite (rewrite_trans_seq_cr_cr H) ] end |
-                progress autorewrite with rel rel_full ];
-    try done; eauto 3 with rel.
+                progress autorewrite with hahn hahn_full ];
+    try done; eauto 3 with hahn.
 
-Hint Resolve eq_in_l eq_in_r rt_rt ct_rt rt_ct inclusion_minus_rel rewrite_trans
-  inclusion_seq_eqv_r inclusion_seq_eqv_l ct_end clos_rt_idempotent inclusion_t_rt
-  inclusion_eqv_rel_true cr_ct ct_cr cr_rt rt_cr : rel_full.
+Hint Resolve eq_in_l eq_in_r rt_rt ct_rt rt_ct cr_ct ct_cr cr_rt rt_cr ct_begin ct_end : hahn_full.
+Hint Resolve inclusion_seq_eqv_r inclusion_seq_eqv_l clos_rt_idempotent inclusion_t_rt : hahn_full.
+Hint Resolve inclusion_eqv_rel_true inclusion_minus_rel rewrite_trans : hahn_full.
 
-Hint Resolve pow_rel_mori : rel.
+Hint Resolve pow_rel_mori : hahn.
 
 
 (** Helpful tactics for inclusions *)
@@ -339,7 +339,7 @@ Tactic Notation "unionR" tactic(dir) "->" tactic(dir') "->" tactic(dir'') "->" t
 Ltac hahn_rel :=
   rels;
   try match goal with |- (_ ≡ _) => split end;
-  repeat apply inclusion_union_l; eauto 8 with rel.
+  repeat apply inclusion_union_l; eauto 8 with hahn.
 
 Ltac hahn_frame_r :=
   rewrite <- ?seqA; apply inclusion_seq_mon; [|reflexivity]; rewrite ?seqA.
@@ -362,8 +362,8 @@ Ltac hahn_frame :=
       | |- inclusion _ (clos_trans _ ⨾ _) => fail 1
       | |- _ => apply inclusion_seq_mon; [reflexivity|]
       end);
-  try solve [ apply inclusion_seq_l; try done; auto with rel
-            | apply inclusion_seq_r; try done; auto with rel].
+  try solve [ apply inclusion_seq_l; try done; auto with hahn
+            | apply inclusion_seq_r; try done; auto with hahn].
 
 (** Rewrite with proof search *)
 
@@ -377,21 +377,21 @@ Tactic Notation "arewrite" uconstr(EQ) :=
       evar (typ2 : Type); evar (binder2 : typ2);
       assert (H: EQ binder1 binder2); subst binder1 typ1 binder2 typ2]]; cycle 1;
   [ first [seq_rewrite H|sin_rewrite H]; clear H; rewrite ?seqA
-  | eauto 4 with rel rel_full; try done ]; cycle 1.
+  | eauto 4 with hahn hahn_full; try done ]; cycle 1.
 
 Tactic Notation "arewrite" uconstr(EQ) "at" int_or_var(index) :=
   let H := fresh in
-  assert (H : EQ); [eauto 4 with rel rel_full; try done|
+  assert (H : EQ); [eauto 4 with hahn hahn_full; try done|
                     rewrite H at index; clear H; rewrite ?seqA].
 
 Tactic Notation "arewrite" uconstr(EQ) "by" tactic(t) :=
   let H := fresh in
-    assert (H: EQ) by (by t; eauto with rel rel_full);
+    assert (H: EQ) by (by t; eauto with hahn hahn_full);
     first [seq_rewrite H|sin_rewrite H]; clear H; rewrite ?seqA; try done.
 
 Tactic Notation "arewrite" uconstr(EQ) "at" int_or_var(index) "by" tactic(t) :=
   let H := fresh in
-    assert (H : EQ) by (by t; eauto with rel rel_full);
+    assert (H : EQ) by (by t; eauto with hahn hahn_full);
     rewrite H at index; clear H; rewrite ?seqA; try done.
 
 Tactic Notation "arewrite" "!" uconstr(EQ) :=
@@ -404,7 +404,7 @@ Tactic Notation "arewrite" "!" uconstr(EQ) :=
       evar (typ2 : Type); evar (binder2 : typ2);
       assert (H: EQ binder1 binder2); subst binder1 typ1 binder2 typ2]]; cycle 1;
   [ first [seq_rewrite !H|sin_rewrite !H]; clear H; rewrite ?seqA
-  | eauto 4 with rel rel_full; try done ]; cycle 1.
+  | eauto 4 with hahn hahn_full; try done ]; cycle 1.
 
 
 Tactic Notation "arewrite_false" constr(exp) :=

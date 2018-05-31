@@ -18,6 +18,14 @@ Open Scope list_scope.
 Set Implicit Arguments.
 Unset Strict Implicit.
 
+(** Set up hint databases *)
+Create HintDb hahn discriminated.      (* General stuff, used by done *)
+Create HintDb hahn_refl discriminated. (* Decidable equalities *)
+Create HintDb hahn_full discriminated. (* Expensive lemmas *)
+
+
+
+
 (** Shorthand for applying functional extensionality. *)
 
 Ltac exten := apply functional_extensionality.
@@ -44,7 +52,6 @@ Hint Resolve hahn__true_is_true hahn__not_false_is_true.
 
 (** Set up for basic simplification *)
 
-Create HintDb hahn discriminated.
 
 (** Adaptation of the ss-reflect "[done]" tactic. *)
 
@@ -197,8 +204,6 @@ Proof. by intros until 0; case eqP. Qed.
 
 
 (** Set up for basic simplification: database of reflection lemmas *)
-
-Create HintDb hahn_refl discriminated.
 
 Hint Resolve hahn__internal_eqP neqP : hahn_refl.
 

@@ -108,11 +108,11 @@ Qed.
 
 End BasicProperties.
 
-Hint Immediate max_elt_weaken : rel.
-Hint Resolve wmax_elt_union max_elt_union : rel.
-Hint Resolve wmax_elt_t wmax_elt_r wmax_elt_rt max_elt_t : rel.
-Hint Resolve max_elt_restr_eq wmax_elt_restr_eq : rel.
-Hint Resolve max_elt_seq1 max_elt_seq2 wmax_elt_seq1 wmax_elt_seq2 : rel.
+Hint Immediate max_elt_weaken : hahn.
+Hint Resolve wmax_elt_union max_elt_union : hahn.
+Hint Resolve wmax_elt_t wmax_elt_r wmax_elt_rt max_elt_t : hahn.
+Hint Resolve max_elt_restr_eq wmax_elt_restr_eq : hahn.
+Hint Resolve max_elt_seq1 max_elt_seq2 wmax_elt_seq1 wmax_elt_seq2 : hahn.
 
 Section MoreProperties.
 
@@ -131,7 +131,7 @@ Lemma seq_max_t r r' b
       (MAX: max_elt r' b) (COD: forall x y, r x y -> y = b) :
   r⨾ r' ⁺ ≡ ∅₂.
 Proof.
-  eauto using seq_max with rel.
+  eauto using seq_max with hahn.
 Qed.
 
 Lemma seq_max_rt r r' b
@@ -157,7 +157,7 @@ Qed.
 Lemma seq_eq_max_t r b (MAX: max_elt r b) :
   ⦗eq b⦘ ⨾ r⁺ ≡ ∅₂.
 Proof.
-  eauto using seq_eq_max with rel.
+  eauto using seq_eq_max with hahn.
 Qed.
 
 Lemma seq_eq_max_rt r b (MAX: max_elt r b) :
@@ -181,7 +181,7 @@ Qed.
 Lemma seq_singl_max_t r a b (MAX: max_elt r b) :
   singl_rel a b ⨾ r⁺ ≡ ∅₂.
 Proof.
-  eauto using seq_singl_max with rel.
+  eauto using seq_singl_max with hahn.
 Qed.
 
 Lemma seq_singl_max_rt r a b (MAX: max_elt r b) :
@@ -256,7 +256,7 @@ Lemma seq_wmax_t r r' b
       (MAX: wmax_elt r' b) (COD: forall x y, r x y -> y = b) :
   r⨾ r' ⁺ ⊆ r.
 Proof.
-  eauto using seq_wmax with rel.
+  eauto using seq_wmax with hahn.
 Qed.
 
 Lemma seq_wmax_rt r r' b
@@ -282,7 +282,7 @@ Qed.
 Lemma seq_eq_wmax_t r b (MAX: wmax_elt r b) :
   ⦗eq b⦘⨾ r ⁺ ⊆ ⦗eq b⦘.
 Proof.
-  eauto using seq_eq_wmax with rel.
+  eauto using seq_eq_wmax with hahn.
 Qed.
 
 Lemma seq_eq_wmax_rt r b (MAX: wmax_elt r b) :
@@ -307,7 +307,7 @@ Qed.
 Lemma seq_singl_wmax_t r a b (MAX: wmax_elt r b) :
   singl_rel a b⨾ r ⁺ ⊆ singl_rel a b.
 Proof.
-  eauto using seq_singl_wmax with rel.
+  eauto using seq_singl_wmax with hahn.
 Qed.
 
 Lemma seq_singl_wmax_rt r a b (MAX: wmax_elt r b) :

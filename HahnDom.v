@@ -18,8 +18,6 @@ Section Definitions.
 
 End Definitions.
 
-Hint Unfold doma domb : unfolderDb.
-
 Section Lemmas.
 
   Variables r r' : relation A.
@@ -75,9 +73,11 @@ Section Lemmas.
   Lemma minus_domb : domb r d -> domb (r \ r') d.
   Proof. unfold domb, minus_rel; ins; desf; eauto. Qed.
 
-  Lemma dom_seq : dom_rel (r ⨾ r') ⊆₁ dom_rel r.
-  Proof. unfold dom_rel, seq, set_subset.
-         ins; desf; eauto. Qed.
+  Lemma dom_empty : dom_rel (A:=A) ∅₂ ≡₁ ∅.
+  Proof. unfolder; split; ins; desf. Qed. 
+
+  Lemma codom_empty : codom_rel (A:=A) ∅₂ ≡₁ ∅.
+  Proof. unfolder; split; ins; desf. Qed. 
 
   Lemma codom_seq : codom_rel (r ⨾ r') ⊆₁ codom_rel r'.
   Proof. unfold codom_rel, seq, set_subset.
@@ -217,12 +217,6 @@ End Lemmas.
 
 End Domains.
 
-Hint Resolve
-  eqv_doma seq_eqv_doma restr_eq_rel_doma seq_doma union_doma ct_doma seq_r_doma
-  eqv_domb seq_eqv_domb restr_eq_rel_domb seq_domb union_domb ct_domb seq_r_domb
-  transp_doma transp_domb cross_doma cross_domb
-: rel.
-
 Add Parametric Morphism A : (@doma A) with signature
   inclusion --> set_subset ==> Basics.impl as doma_mori.
 Proof.
@@ -273,7 +267,15 @@ Proof.
   firstorder. 
 Qed.
 
-Hint Rewrite dom_union codom_union dom_eqv codom_eqv dom_eqv1 codom_eqv1 : rel_dom.
 
-Hint Rewrite dom_union codom_union dom_cross codom_cross : rel_full.
+Hint Unfold doma domb : unfolderDb.
 
+Hint Resolve eqv_doma seq_eqv_doma restr_eq_rel_doma : hahn. 
+Hint Resolve seq_doma union_doma ct_doma seq_r_doma : hahn.
+Hint Resolve eqv_domb seq_eqv_domb restr_eq_rel_domb : hahn.
+Hint Resolve seq_domb union_domb ct_domb seq_r_domb : hahn.
+Hint Resolve transp_doma transp_domb cross_doma cross_domb : hahn.
+
+Hint Rewrite dom_empty codom_empty dom_union codom_union : hahn.
+Hint Rewrite dom_eqv codom_eqv dom_eqv1 codom_eqv1 : hahn.
+Hint Rewrite dom_cross codom_cross : hahn_full.

@@ -57,11 +57,11 @@ Section FunEq.
 
 End FunEq.
 
-Hint Resolve
- funeq_union funeq_inter_l funeq_inter_r
- funeq_seq funeq_ct funeq_cr funeq_rt
- funeq_restr funeq_restr_eq funeq_restr_eq_rel
- funeq_eqv_rel funeq_transp funeq_minus : rel.
+Hint Unfold funeq : unfolderDb.
+Hint Resolve funeq_union funeq_inter_l funeq_inter_r : hahn.
+Hint Resolve funeq_seq funeq_ct funeq_cr funeq_rt : hahn.
+Hint Resolve funeq_restr funeq_restr_eq funeq_restr_eq_rel : hahn.
+Hint Resolve funeq_eqv_rel funeq_transp funeq_minus : hahn.
 
 Add Parametric Morphism A B f : (@funeq A B f) with signature
   inclusion --> Basics.impl as funeq_mori.

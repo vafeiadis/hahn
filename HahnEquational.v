@@ -119,7 +119,7 @@ Add Parametric Morphism X : (@pow_rel X) with signature
   inclusion ==> eq ==> inclusion as pow_rel_mori.
 Proof.
   ins. induction y0 as [| y' IH].
-    by simpl; eauto with rel.
+    by simpl; eauto with hahn.
     by simpl; rewrite IH, H.
 Qed.
 
@@ -280,7 +280,7 @@ Add Parametric Morphism X : (@pow_rel X) with signature
 same_relation ==> eq ==> same_relation as pow_rel_more.
 Proof.
   ins. induction y0 as [| y' IH].
-    by simpl; eauto with rel.
+    by simpl; eauto with hahn.
     by simpl; rewrite IH, H.
 Qed.
 
@@ -385,10 +385,10 @@ Section PropertiesSeqUnion.
 
 End PropertiesSeqUnion.
 
-Hint Rewrite seq_false_l seq_false_r union_false_l union_false_r unionK : rel.
-Hint Rewrite seq_id_l seq_id_r seq_eqvK : rel.
+Hint Rewrite seq_false_l seq_false_r union_false_l union_false_r unionK : hahn.
+Hint Rewrite seq_id_l seq_id_r seq_eqvK : hahn.
 
-Hint Rewrite seq_Union_l seq_Union_r seq_union_l seq_union_r : rel_full.
+Hint Rewrite seq_Union_l seq_Union_r seq_union_l seq_union_r : hahn_full.
 
 (******************************************************************************)
 (** Basic properties of relational intersection *)
@@ -462,7 +462,7 @@ Section PropertiesInter.
 
 End PropertiesInter.
 
-Hint Rewrite inter_false_l inter_false_r interK : rel.
+Hint Rewrite inter_false_l inter_false_r interK : hahn.
 
 (******************************************************************************)
 (** Properties of relational difference *)
@@ -488,7 +488,7 @@ Section PropertiesMinus.
 
 End PropertiesMinus.
 
-Hint Rewrite minus_false_l minus_false_r minusK : rel.
+Hint Rewrite minus_false_l minus_false_r minusK : hahn.
 
 (******************************************************************************)
 (** Basic properties of reflexive and transitive closures *)
@@ -552,7 +552,7 @@ Section PropertiesClos.
 
   Lemma ct_of_trans r (T: transitive r) : r⁺ ≡ r.
   Proof.
-    split; eauto with rel.
+    split; eauto with hahn.
   Qed.
 
   Lemma rt_of_trans r (T: transitive r) : r ＊ ≡ r ^?.
@@ -617,44 +617,44 @@ Section PropertiesClos.
 
   Lemma ct_of_ct r: (r⁺)⁺ ≡ r⁺.
   Proof.
-    split; eauto with rel.
+    split; eauto with hahn.
   Qed.
 
   Lemma ct_of_union_ct_l r r' : (r⁺ ∪ r')⁺ ≡ (r ∪ r')⁺.
   Proof.
-    split; eauto 8 with rel.
+    split; eauto 8 with hahn.
   Qed.
 
   Lemma ct_of_union_ct_r r r' : (r ∪ r'⁺)⁺ ≡ (r ∪ r')⁺.
   Proof.
-    split; eauto 8 with rel.
+    split; eauto 8 with hahn.
   Qed.
 
   Lemma ct_of_cr r: (r ^?)⁺ ≡ r ＊.
   Proof.
-    split; eauto with rel.
+    split; eauto with hahn.
     apply inclusion_rt_ind_left; vauto.
-    rewrite ct_begin at 2; eauto with rel.
+    rewrite ct_begin at 2; eauto with hahn.
   Qed.
 
   Lemma ct_of_rt r: (r ＊)⁺ ≡ r ＊.
   Proof.
-    split; eauto with rel.
+    split; eauto with hahn.
   Qed.
 
   Lemma rt_of_ct r : (r⁺) ＊ ≡ r ＊.
   Proof.
-    split; eauto using inclusion_rt_rt2 with rel.
+    split; eauto using inclusion_rt_rt2 with hahn.
   Qed.
 
   Lemma rt_of_cr r : (r ^?) ＊ ≡ r ＊.
   Proof.
-    split; eauto using inclusion_rt_rt2 with rel.
+    split; eauto using inclusion_rt_rt2 with hahn.
   Qed.
 
   Lemma rt_of_rt r : (r ＊) ＊ ≡ r ＊.
   Proof.
-    split; eauto using inclusion_rt_rt2 with rel.
+    split; eauto using inclusion_rt_rt2 with hahn.
   Qed.
 
   Lemma cr_union_l r r' : (r ∪ r') ^? ≡ r ^? ∪ r'.
@@ -701,7 +701,7 @@ End PropertiesClos.
 
 Hint Rewrite cr_of_ct cr_of_cr cr_of_rt
   ct_of_ct ct_of_cr ct_of_rt
-  rt_of_ct rt_of_cr rt_of_rt : rel.
+  rt_of_ct rt_of_cr rt_of_rt : hahn.
 
 Definition good_ctx A (P: relation A -> relation A) :=
   << MON: Morphisms.Proper (inclusion ==> inclusion) P >> /\
@@ -753,7 +753,7 @@ Section good_ctx_lemmas.
 
   Lemma seq_pow_l r n : r ^^ n ⨾ r ≡ r ⨾ r ^^ n.
   Proof.
-    induction n; ins; autorewrite with rel; try done.
+    induction n; ins; autorewrite with hahn; try done.
     by rewrite IHn at 1; rewrite seqA.
   Qed.
 
@@ -805,7 +805,7 @@ Section good_ctx_lemmas.
 End good_ctx_lemmas.
 
 Hint Resolve good_ctx_id good_ctx_const good_ctx_seq_l
-  good_ctx_seq_r good_ctx_union good_ctx_compose : rel.
+  good_ctx_seq_r good_ctx_union good_ctx_compose : hahn.
 
 Section ExtraPropertiesClos.
 
@@ -816,18 +816,18 @@ Section ExtraPropertiesClos.
     (r ⨾ r')⁺ ⨾ r ≡ r ⨾ (r' ⨾ r)⁺.
   Proof.
     split.
-     { apply ct_ind_left with (P := fun x => x ⨾ _); auto with rel;
-       ins; rewrite seqA; eauto with rel.
-       rewrite ct_begin, H, ?seqA; eauto with rel. }
-     apply ct_ind_right with (P := fun x => _ ⨾ x); auto with rel;
-     ins; rewrite <- seqA; eauto with rel.
-     rewrite ct_end, H, <- ?seqA; eauto with rel.
+     { apply ct_ind_left with (P := fun x => x ⨾ _); auto with hahn;
+       ins; rewrite seqA; eauto with hahn.
+       rewrite ct_begin, H, ?seqA; eauto with hahn. }
+     apply ct_ind_right with (P := fun x => _ ⨾ x); auto with hahn;
+     ins; rewrite <- seqA; eauto with hahn.
+     rewrite ct_end, H, <- ?seqA; eauto with hahn.
   Qed.
 
   Lemma rt_seq_swap r r' :
     (r ⨾ r') ＊ ⨾ r ≡ r ⨾ (r' ⨾ r) ＊.
   Proof.
-    by rewrite !rtE; autorewrite with rel rel_full; rewrite ct_seq_swap.
+    by rewrite !rtE; autorewrite with hahn hahn_full; rewrite ct_seq_swap.
   Qed.
 
   Lemma ct_rotl r r' :
@@ -839,10 +839,10 @@ Section ExtraPropertiesClos.
   Lemma crt_double r :
     r ＊ ≡ r ^? ⨾ (r ⨾ r) ＊.
   Proof.
-    split; [|by eauto 7 using inclusion_seq_trans, inclusion_rt_rt2 with rel].
-    apply inclusion_rt_ind_left; eauto with rel.
-    rewrite !crE; autorewrite with rel rel_full.
-    rewrite <- seqA, <- ct_begin; eauto with rel.
+    split; [|by eauto 7 using inclusion_seq_trans, inclusion_rt_rt2 with hahn].
+    apply inclusion_rt_ind_left; eauto with hahn.
+    rewrite !crE; autorewrite with hahn hahn_full.
+    rewrite <- seqA, <- ct_begin; eauto with hahn.
   Qed.
 
 End ExtraPropertiesClos.
@@ -1000,7 +1000,7 @@ Section TranspProperties.
 
 End TranspProperties.
 
-Hint Rewrite transp_inv transp_eqv_rel: rel.
+Hint Rewrite transp_inv transp_eqv_rel: hahn.
 Hint Rewrite transp_inv transp_eqv_rel transp_union transp_seq 
   transp_inter transp_minus transp_rt transp_ct transp_cr : rel_transp.
 
@@ -1036,15 +1036,15 @@ Proof. by ins; rewrite H. Qed.
 
 Lemma pow_rt (n : nat) A (r: relation A) : r^^n ⊆ r＊.
 Proof.
-  induction n; simpl; eauto with rel.
+  induction n; simpl; eauto with hahn.
   rewrite IHn.
-  assert (r ⊆ r＊) by eauto with rel.
+  assert (r ⊆ r＊) by eauto with hahn.
   rewrite H at 2.
   by rewrite rt_rt.
 Qed.
 
-(* Hint Resolve pow_t pow_rt : rel.
-Hint Rewrite pow_seq pow_nm pow_unit pow_inclusion : rel. *)
+(* Hint Resolve pow_t pow_rt : hahn.
+Hint Rewrite pow_seq pow_nm pow_unit pow_inclusion : hahn. *)
 
 (******************************************************************************)
 (** Properties of cross product *)
@@ -1067,7 +1067,7 @@ Section PropertiesCross.
 
 End PropertiesCross.
 
-Hint Rewrite cross_false_l cross_false_r : rel.
+Hint Rewrite cross_false_l cross_false_r : hahn.
 
 (******************************************************************************)
 (** Misc properties *)
@@ -1105,7 +1105,7 @@ Lemma ct_imm1 :
     r ≡ (immediate r)⁺.
 Proof.
   split; cycle 1.
-    by rewrite immediateE, inclusion_minus_rel; auto with rel.
+    by rewrite immediateE, inclusion_minus_rel; auto with hahn.
   assert (M: forall x y, r x y -> In x (undup acts)).
     by ins; eapply in_undup_iff, FIN; vauto.
   red; ins; eapply clos_trans_imm; eauto.
@@ -1117,7 +1117,7 @@ Lemma ct_imm2 :
     r ≡ (immediate r)⁺.
 Proof.
   split; cycle 1.
-    by rewrite immediateE, inclusion_minus_rel; auto with rel.
+    by rewrite immediateE, inclusion_minus_rel; auto with hahn.
   assert (M: forall x y, r x y -> In y (undup acts)).
     by ins; eapply in_undup_iff, FIN; vauto.
   red; ins; eapply clos_trans_imm; eauto.
@@ -1227,7 +1227,7 @@ Lemma inclusion_step2_ct A (r r' r'': relation A) :
   r' ⊆ r'' ->
   r ⨾ r' ⊆ r''⁺.
 Proof.
-  ins; rewrite H, H0, <- ct_ct; eauto with rel.
+  ins; rewrite H, H0, <- ct_ct; eauto with hahn.
 Qed.
 
 Lemma inclusion_ct_seq_eqv_l A dom (r : relation A) :

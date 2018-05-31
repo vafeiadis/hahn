@@ -84,7 +84,7 @@ Section finite_support.
           (IRR: irreflexive r) (TRANS: transitive r) : 
     r ≡ (immediate r)⁺.
   Proof.
-    split; [|by eauto with rel].
+    split; [|by eauto with hahn].
     red; ins.
     specialize (FS y); desf.
     assert (M: forall n, r x n -> r n y -> In n findom) by eauto.
@@ -193,6 +193,6 @@ Proof.
   unfold same_relation; split; ins; desf; eauto using fsupp_mon.
 Qed.
 
-Hint Resolve fsupp_empty fsupp_cross : rel.
-Hint Resolve fsupp_unionI fsupp_seqI fsupp_seq_eqv_l fsupp_seq_eqv_r : rel. 
+Hint Resolve fsupp_empty fsupp_cross : hahn.
+Hint Resolve fsupp_unionI fsupp_seqI fsupp_seq_eqv_l fsupp_seq_eqv_r : hahn.
 

@@ -510,7 +510,7 @@ Add Parametric Morphism A B : (@set_collect A B) with signature
   eq ==> set_equiv ==> set_equiv as set_collect_more.
 Proof. autounfold with unfolderDb; splits; ins; desf; eauto. Qed.
 
-(** Ass support for automation. *)
+(** Add support for automation. *)
 
 Lemma set_subset_refl2 A (x: A -> Prop) :  x ⊆₁ x. 
 Proof. reflexivity. Qed.
@@ -521,25 +521,26 @@ Proof. reflexivity. Qed.
 Hint Immediate set_subset_refl2.
 Hint Resolve set_equiv_refl2.
 
-Hint Rewrite set_compl_empty set_compl_full set_compl_compl : rel.
-Hint Rewrite set_compl_union set_compl_inter set_compl_minus : rel.
-Hint Rewrite set_union_empty_l set_union_empty_r set_union_full_l set_union_full_r : rel.
-Hint Rewrite set_inter_empty_l set_inter_empty_r set_inter_full_l set_inter_full_r : rel.
-Hint Rewrite set_bunion_empty set_bunion_eq : rel.
-Hint Rewrite set_collect_empty set_collect_eq : rel.
-Hint Rewrite set_finite_union : rel.
+Hint Rewrite set_compl_empty set_compl_full set_compl_compl : hahn.
+Hint Rewrite set_compl_union set_compl_inter set_compl_minus : hahn.
+Hint Rewrite set_union_empty_l set_union_empty_r set_union_full_l set_union_full_r : hahn.
+Hint Rewrite set_inter_empty_l set_inter_empty_r set_inter_full_l set_inter_full_r : hahn.
+Hint Rewrite set_bunion_empty set_bunion_eq : hahn.
+Hint Rewrite set_collect_empty set_collect_eq : hahn.
+Hint Rewrite set_finite_union : hahn.
 
-Hint Rewrite set_inter_union_l set_inter_union_r set_union_eq_empty : rel_full.
-Hint Rewrite set_minus_union_l set_minus_union_r set_union_eq_empty : rel_full.
-Hint Rewrite set_subset_union_l set_subset_inter_r : rel_full.
-Hint Rewrite set_minusK set_interK set_unionK : rel_full.
-Hint Rewrite set_bunion_inter_compat_l set_bunion_inter_compat_r : rel_full.
-Hint Rewrite set_bunion_minus_compat_r : rel_full.
-Hint Rewrite set_bunion_union_l set_bunion_union_r : rel_full.
-Hint Rewrite set_collect_union : rel_full. 
+Hint Rewrite set_inter_union_l set_inter_union_r set_union_eq_empty : hahn_full.
+Hint Rewrite set_minus_union_l set_minus_union_r set_union_eq_empty : hahn_full.
+Hint Rewrite set_subset_union_l set_subset_inter_r : hahn_full.
+Hint Rewrite set_minusK set_interK set_unionK : hahn_full.
+Hint Rewrite set_bunion_inter_compat_l set_bunion_inter_compat_r : hahn_full.
+Hint Rewrite set_bunion_minus_compat_r : hahn_full.
+Hint Rewrite set_bunion_union_l set_bunion_union_r : hahn_full.
+Hint Rewrite set_collect_union : hahn_full. 
 
-Hint Immediate set_subset_empty_l set_subset_full_r : rel.
-Hint Resolve set_subset_union_r : rel.
+Hint Immediate set_subset_empty_l set_subset_full_r : hahn.
+Hint Resolve set_subset_union_r : hahn.
 
-Hint Immediate set_finite_empty set_finite_eq set_finite_le set_finite_lt : rel. 
-Hint Resolve set_finite_unionI set_finite_bunion : rel.
+Hint Immediate set_finite_empty set_finite_eq set_finite_le set_finite_lt : hahn. 
+Hint Resolve set_finite_unionI set_finite_bunion : hahn.
+
