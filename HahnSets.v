@@ -368,16 +368,16 @@ Section SetProperties.
     set_bunion s (fun x => ss x ∪₁ ss' x) ≡₁ set_bunion s ss ∪₁ set_bunion s ss'.
   Proof. u. Qed. 
 
-  Lemma set_bunion_inter_compat_l s sb ss ss' :
-    set_bunion s (fun x => sb ∩₁ ss' x) ≡₁ sb ∩₁ set_bunion s ss'.
+  Lemma set_bunion_inter_compat_l s sb ss :
+    set_bunion s (fun x => sb ∩₁ ss x) ≡₁ sb ∩₁ set_bunion s ss.
   Proof. u; split; ins; desf; eauto 8. Qed. 
 
-  Lemma set_bunion_inter_compat_r s sb ss ss' :
-    set_bunion s (fun x => ss' x ∩₁ sb) ≡₁ set_bunion s ss' ∩₁ sb.
+  Lemma set_bunion_inter_compat_r s sb ss :
+    set_bunion s (fun x => ss x ∩₁ sb) ≡₁ set_bunion s ss ∩₁ sb.
   Proof. u; split; ins; desf; eauto 8. Qed. 
 
-  Lemma set_bunion_minus_compat_r s sb ss ss' :
-    set_bunion s (fun x => ss' x \₁ sb) ≡₁ set_bunion s ss' \₁ sb.
+  Lemma set_bunion_minus_compat_r s sb ss :
+    set_bunion s (fun x => ss x \₁ sb) ≡₁ set_bunion s ss \₁ sb.
   Proof. u; split; ins; desf; eauto 8. Qed. 
 
   (** Collect *)
@@ -543,4 +543,3 @@ Hint Resolve set_subset_union_r : hahn.
 
 Hint Immediate set_finite_empty set_finite_eq set_finite_le set_finite_lt : hahn. 
 Hint Resolve set_finite_unionI set_finite_bunion : hahn.
-

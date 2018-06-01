@@ -82,7 +82,7 @@ Fixpoint pow_rel A (r: relation A) n :=
   | S n => seq (pow_rel r n) r
   end.
 
-Definition Union_rel A (P : A -> Prop) B (r: A -> relation B) x y :=
+Definition Union_rel A B (P : A -> Prop) (r: A -> relation B) x y :=
   exists a, P a /\ r a x y.
 
 Definition acyclic A (r: relation A) := irreflexive (clos_trans r).

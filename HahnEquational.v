@@ -135,6 +135,12 @@ Proof.
   unfold inclusion, cross_rel, set_subset; ins; desf; eauto.
 Qed.
 
+Add Parametric Morphism A B : (@Union_rel A B) with signature
+  set_subset ==> eq ==> inclusion as Union_mori.
+Proof.
+  unfold inclusion, Union_rel, set_subset; ins; desf; eauto.
+Qed.
+
 (** Second, for equivalence. *)
 
 Lemma same_relation_exp A (r r' : relation A) (EQ: r ≡ r') :
@@ -296,6 +302,12 @@ Proof.
   unfold same_relation, set_equiv; ins; desf; eauto using cross_mori.
 Qed.
 
+Add Parametric Morphism A B : (@Union_rel A B) with signature
+  set_equiv ==> eq ==> same_relation as Union_more.
+Proof.
+  unfold same_relation, set_equiv; ins; desf; eauto using Union_mori.
+Qed.
+
 (******************************************************************************)
 (** Basic properties of sequential composition and relational union *)
 (******************************************************************************)
@@ -389,6 +401,46 @@ Hint Rewrite seq_false_l seq_false_r union_false_l union_false_r unionK : hahn.
 Hint Rewrite seq_id_l seq_id_r seq_eqvK : hahn.
 
 Hint Rewrite seq_Union_l seq_Union_r seq_union_l seq_union_r : hahn_full.
+
+(******************************************************************************)
+(** Properties of big union *)
+(******************************************************************************)
+
+Section PropertiesBigUnion.
+
+  Variables B A : Type.
+  Implicit Type r : relation A.
+  Implicit Type rr : B -> relation A.
+  Ltac u := autounfold with unfolderDb in *; try solve [intuition; ins; desf; eauto; firstorder].
+
+  Lemma Union_empty rr : Union_rel ∅ rr ≡ ∅₂.
+  Proof. u. Qed.
+  
+  Lemma Union_eq a rr : Union_rel (eq a) rr ≡ rr a.
+  Proof. u; splits; ins; desf; eauto. Qed. 
+
+  Lemma Union_union_l s s' rr :
+    Union_rel (s ∪₁ s') rr ≡ Union_rel s rr ∪ Union_rel s' rr.
+  Proof. u. Qed. 
+
+  Lemma Union_union_r s rr rr' :
+    Union_rel s (fun x => rr x ∪ rr' x) ≡ Union_rel s rr ∪ Union_rel s rr'.
+  Proof. u. Qed. 
+
+  Lemma Union_inter_compat_l s r rr :
+    Union_rel s (fun x => r ∩ rr x) ≡ r ∩ Union_rel s rr.
+  Proof. u; split; ins; desf; eauto 8. Qed. 
+
+  Lemma Union_inter_compat_r s r rr :
+    Union_rel s (fun x => rr x ∩ r) ≡ Union_rel s rr ∩ r.
+  Proof. u; split; ins; desf; eauto 8. Qed. 
+
+  Lemma Union_minus_compat_r s r rr :
+    Union_rel s (fun x => rr x \ r) ≡ Union_rel s rr \ r.
+  Proof. u; split; ins; desf; eauto 8. Qed. 
+
+End PropertiesBigUnion.
+
 
 (******************************************************************************)
 (** Basic properties of relational intersection *)
