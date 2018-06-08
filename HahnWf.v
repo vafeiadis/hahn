@@ -2,8 +2,8 @@
 (** * Well-founded and finitely supported relations *)
 (******************************************************************************)
 
+Require Import Setoid Morphisms Wf_nat Omega.
 Require Import HahnBase HahnList HahnSets HahnRelationsBasic HahnEquational HahnRewrite.
-Require Import Wf_nat Omega.
 
 Set Implicit Arguments.
 
@@ -13,6 +13,19 @@ Definition fsupp A (r: relation A) :=
   forall y, exists findom, forall x (REL: r x y), In x findom.
 
 Hint Unfold fsupp ltof : unfolderDb.
+
+Add Parametric Morphism A : (@fsupp A) with signature
+  inclusion --> Coq.Program.Basics.impl as fsupp_mori.
+Proof.
+  unfolder; ins; desf; specialize (H0 y0); desf; eauto.
+Qed.
+
+Add Parametric Morphism A : (@fsupp A) with signature
+  same_relation ==> iff as fsupp_more.
+Proof.
+  unfold same_relation; split; ins; desf; eapply fsupp_mori; eauto.
+Qed.
+
 
 (** Properties of well-founded relations. *)
 
@@ -113,6 +126,11 @@ Section finite_support.
     exists nil; ins. 
   Qed.
 
+  Lemma fsupp_eqv (d : A -> Prop) : fsupp ⦗d⦘.
+  Proof.
+    unfolder; ins; exists (y :: nil); ins; desf; eauto. 
+  Qed.
+
   Lemma fsupp_cross (s s': A -> Prop) (F: set_finite s) : fsupp (s × s').
   Proof.
     unfolder in *; ins; desf; eexists; ins; desf; eauto.
@@ -131,9 +149,9 @@ Section finite_support.
     by apply fsupp_union.
   Qed.
 
-  Lemma fsupp_Union B s (rr : B -> relation A) 
+  Lemma fsupp_bunion B s (rr : B -> relation A) 
         (FIN: set_finite s) (FS: forall x (IN: s x), fsupp (rr x)) :
-    fsupp (Union_rel s rr).
+    fsupp (bunion s rr).
   Proof.
     unfolder in *; desf; ins.
     revert s FIN FS; induction findom; ins.
@@ -177,22 +195,13 @@ Section finite_support.
     specialize (FS y); desf; exists findom; ins; desf; eauto.
   Qed.
 
+  Lemma fsupp_ct_rt r : fsupp r⁺ -> fsupp r＊. 
+  Proof.
+    rewrite rtE, fsupp_union; eauto using fsupp_eqv.
+  Qed.
+
 End finite_support.
 
-Require Import Setoid Morphisms.
 
-Add Parametric Morphism A : (@fsupp A) with signature
-  inclusion --> Coq.Program.Basics.impl as fsupp_mori.
-Proof.
-  red; ins; eapply fsupp_mon; eauto.
-Qed.
-
-Add Parametric Morphism A : (@fsupp A) with signature
-  same_relation ==> iff as fsupp_more.
-Proof.
-  unfold same_relation; split; ins; desf; eauto using fsupp_mon.
-Qed.
-
-Hint Resolve fsupp_empty fsupp_cross : hahn.
-Hint Resolve fsupp_unionI fsupp_seqI fsupp_seq_eqv_l fsupp_seq_eqv_r : hahn.
-
+Hint Resolve fsupp_empty fsupp_eqv fsupp_cross : hahn.
+Hint Resolve fsupp_unionI fsupp_seqI fsupp_ct_rt : hahn.

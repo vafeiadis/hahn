@@ -43,14 +43,18 @@ Notation "P \₁ Q" := (set_minus P Q) (at level 46, only parsing).
 Notation "∅₁"     := (@set_empty _) (only parsing).
 Notation "a ⊆₁ b" := (set_subset a b) (at level 60, only parsing).
 Notation "a ≡₁ b" := (set_equiv a b)  (at level 60, only parsing).
-Notation "'⋃₁' x .. y , p" := 
-  (set_bunion (fun _ => True) (fun x => .. (set_bunion (fun _ => True) (fun y => p)) ..))
-  (at level 200, x binder, y binder, right associativity,
-   format "'[' '⋃₁' '/ ' x .. y ,  '/ ' p ']'").
-Notation "'⋃⋃₁' x < n , a" := (set_bunion (fun t => t < n) (fun x => a))
-  (at level 200, x ident, right associativity).
-Notation "'⋃⋃₁' x <= n , a" := (set_bunion (fun t => t <= n) (fun x => a))
-  (at level 200, x ident, right associativity).
+Notation "⋃₁ x ∈ s , a" := (set_bunion s (fun x => a))
+  (at level 200, x ident, right associativity, 
+   format "'[' ⋃₁ '/ ' x  ∈  s ,  '/ ' a ']'").
+Notation "'⋃₁' x , a" := (set_bunion (fun _ => True) (fun x => a))
+  (at level 200, x ident, right associativity,
+   format "'[' ⋃₁ '/ ' x ,  '/ ' a ']'").
+Notation "'⋃₁' x < n , a" := (set_bunion (fun t => t < n) (fun x => a))
+  (at level 200, x ident, right associativity,
+   format "'[' ⋃₁ '/ ' x  <  n ,  '/ ' a ']'").
+Notation "'⋃₁' x <= n , a" := (set_bunion (fun t => t <= n) (fun x => a))
+  (at level 200, x ident, right associativity,
+   format "'[' ⋃₁ '/ ' x  <=  n ,  '/ ' a ']'").
 
 Notation "P ∪ Q" := (set_union P Q) (at level 50, left associativity) : function_scope.
 Notation "P ∩ Q" := (set_inter P Q) (at level 40, left associativity) : function_scope.
@@ -248,17 +252,18 @@ Section SetProperties.
   Lemma set_subset_minus s s' (S1: s ⊆₁ s') t t' (S2: t' ⊆₁ t) : s \₁ t ⊆₁ s' \₁ t'.
   Proof. u. Qed.
 
-  Lemma set_subset_bunion_l s ss sb (H: forall x (COND: s x), ss x ⊆ sb) : set_bunion s ss ⊆ sb.
+  Lemma set_subset_bunion_l s ss sb (H: forall x (COND: s x), ss x ⊆ sb) : (⋃₁x ∈ s, ss x) ⊆ sb.
   Proof. u. Qed.
 
-  Lemma set_subset_bunion_r s ss sb a (H: s a) (H': sb ⊆ ss a) : sb ⊆ set_bunion s ss.
+  Lemma set_subset_bunion_r s ss sb a (H: s a) (H': sb ⊆ ss a) : sb ⊆ ⋃₁x ∈ s, ss x.
   Proof. u. Qed.
 
   Lemma set_subset_bunion s s' (S: s ⊆₁ s') ss ss' (SS: forall x (COND: s x), ss x ⊆₁ ss' x) : 
-    set_bunion s ss ⊆₁ set_bunion s' ss'.
+    (⋃₁x ∈ s, ss x) ⊆₁ ⋃₁x ∈ s, ss' x.
   Proof. u. Qed.
 
-  Lemma set_subset_bunion_guard s s' (S: s ⊆₁ s') ss ss' (EQ: ss = ss') : set_bunion s ss ⊆₁ set_bunion s' ss'.
+  Lemma set_subset_bunion_guard s s' (S: s ⊆₁ s') ss ss' (EQ: ss = ss') : 
+    (⋃₁x ∈ s, ss x) ⊆₁ (⋃₁x ∈ s', ss' x).
   Proof. subst; u. Qed.
 
   Lemma set_subset_collect f s s' (S: s ⊆₁ s') : set_collect f s ⊆₁ set_collect f s'.
@@ -434,6 +439,21 @@ Section SetProperties.
       eexists (findom0 ++ findom1); ins; desf. 
       tertium_non_datur (y = a); desf; eauto 8 using in_or_app.
     eexists findom0; ins; desf; apply IHfindom; eexists; splits; eauto; congruence.
+  Qed.
+
+  Lemma set_disjointE s s' : s ∩ s' ≡₁ ∅ <-> forall x, s x -> s' x -> False.
+  Proof.
+    firstorder.
+  Qed.
+
+  Lemma set_le n : (fun i => i <= n) ≡₁ (fun i => i < n) ∪ (eq n). 
+  Proof.      
+    u; intuition; omega.
+  Qed.
+
+  Lemma set_lt n : (fun i => i < n) ≡₁ (fun i => i <= n) \ (eq n). 
+  Proof.      
+    u; intuition; omega.
   Qed.
 
 End SetProperties.

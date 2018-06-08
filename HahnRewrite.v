@@ -319,8 +319,9 @@ Hint Resolve pow_rel_mori : hahn.
 (** Helpful tactics for inclusions *)
 
 Ltac apply_unionL_once := 
-  first [apply inclusion_union_l | apply inclusion_Union_l | 
-         apply irreflexive_union; split | apply set_subset_union_l; split].
+  first [apply inclusion_union_l | apply inclusion_bunion_l; intros | 
+         apply set_subset_union_l; split | apply set_subset_bunion_l; intros |
+         apply irreflexive_union; split].
 
 Tactic Notation "unionL" := repeat apply_unionL_once. 
 
@@ -339,7 +340,7 @@ Tactic Notation "unionR" tactic(dir) "->" tactic(dir') "->" tactic(dir'') "->" t
 Ltac hahn_rel :=
   rels;
   try match goal with |- (_ ≡ _) => split end;
-  repeat apply inclusion_union_l; eauto 8 with hahn.
+  unionL; eauto 8 with hahn.
 
 Ltac hahn_frame_r :=
   rewrite <- ?seqA; apply inclusion_seq_mon; [|reflexivity]; rewrite ?seqA.

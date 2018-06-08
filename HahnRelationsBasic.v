@@ -51,6 +51,9 @@ Section RelDefs.
   Definition dom_rel := fun x => exists y, r x y.
   Definition codom_rel := fun y => exists x, r x y.
 
+  Definition collect_rel : relation B := fun x y =>
+    exists x' y', r x' y' /\ f x' = x /\ f y' = y.
+
   Definition immediate : relation A := fun a b =>
     r a b /\ (forall c (R1: r a c) (R2: r c b), False).
 
@@ -82,7 +85,7 @@ Fixpoint pow_rel A (r: relation A) n :=
   | S n => seq (pow_rel r n) r
   end.
 
-Definition Union_rel A B (P : A -> Prop) (r: A -> relation B) x y :=
+Definition bunion A B (P : A -> Prop) (r: A -> relation B) x y :=
   exists a, P a /\ r a x y.
 
 Definition acyclic A (r: relation A) := irreflexive (clos_trans r).
@@ -90,9 +93,9 @@ Definition acyclic A (r: relation A) := irreflexive (clos_trans r).
 Definition cross_rel A (r r' : A -> Prop) := (fun a b => r a /\ r' b).
 
 Hint Unfold reflexive symmetric transitive inclusion same_relation : unfolderDb. 
-Hint Unfold union transp singl_rel inter_rel minus_rel Union_rel : unfolderDb.
+Hint Unfold union transp singl_rel inter_rel minus_rel bunion : unfolderDb.
 Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq clos_refl : unfolderDb.
-Hint Unfold clos_refl dom_rel codom_rel cross_rel  : unfolderDb.
+Hint Unfold clos_refl dom_rel codom_rel cross_rel collect_rel : unfolderDb.
 Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb. 
 Hint Unfold strict_partial_order strict_total_order : unfolderDb.
 
@@ -106,7 +109,7 @@ Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
 Notation "∅₂" := (fun _ _ => False).
 Notation "P × Q" := (cross_rel P Q) (at level 29, left associativity).
 
-Notation "a ^? " := (clos_refl a) (at level 1, format "a ^?").
+Notation "a ^?" := (clos_refl a) (at level 1, format "a ^?").
 Notation "a ^^ n" := (pow_rel a n) (at level 1).
 
 Notation "a ⁺" := (clos_trans a) (at level 1, format "a ⁺").
@@ -115,14 +118,18 @@ Notation "a ⁻¹" := (transp a) (at level 1, format "a ⁻¹").
 Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
 
-Notation "'⋃' x .. y , p" := 
-  (Union_rel (fun _ => True) (fun x => .. (Union_rel (fun _ => True) (fun y => p)) ..))
-  (at level 200, x binder, right associativity,
-   format "'[' '⋃' '/ ' x .. y ,  '/ ' p ']'").
-Notation "'⋃⋃' x < n , a" := (Union_rel (fun t => t < n) (fun x => a))
-  (at level 200, x ident, right associativity).
-Notation "'⋃⋃' x <= n , a" := (Union_rel (fun t => t <= n) (fun x => a))
-  (at level 200, x ident, right associativity).
+Notation "⋃ x ∈ s , a" := (bunion s (fun x => a))
+  (at level 200, x ident, right associativity, 
+   format "'[' ⋃ '/ ' x  ∈  s ,  '/ ' a ']'").
+Notation "'⋃' x , a" := (bunion (fun _ => True) (fun x => a))
+  (at level 200, x ident, right associativity,
+   format "'[' ⋃ '/ ' x ,  '/ ' a ']'").
+Notation "'⋃' x < n , a" := (bunion (fun t => t < n) (fun x => a))
+  (at level 200, x ident, right associativity,
+   format "'[' ⋃ '/ ' x  <  n ,  '/ ' a ']'").
+Notation "'⋃' x <= n , a" := (bunion (fun t => t <= n) (fun x => a))
+  (at level 200, x ident, right associativity,
+   format "'[' ⋃ '/ ' x  <=  n ,  '/ ' a ']'").
 
 (** Here are some alternative non-unicode notations *)
 
@@ -443,14 +450,14 @@ Proof.
   unfold inclusion, union; ins; desf; eauto.
 Qed.
 
-Lemma inclusion_Union_l (P : B -> Prop) (rr : B -> relation A) :
-  (forall x, P x -> rr x ⊆ r') -> Union_rel P rr ⊆ r'.
+Lemma inclusion_bunion_l (P : B -> Prop) (rr : B -> relation A) :
+  (forall x, P x -> rr x ⊆ r') -> bunion P rr ⊆ r'.
 Proof.
   firstorder.
 Qed.
 
-Lemma inclusion_Union_r (x: B) (P : B -> Prop) (rr : B -> relation A) : 
-  P x -> r ⊆ rr x -> r ⊆ Union_rel P rr.
+Lemma inclusion_bunion_r (x: B) (P : B -> Prop) (rr : B -> relation A) : 
+  P x -> r ⊆ rr x -> r ⊆ bunion P rr.
 Proof.
   firstorder.
 Qed.

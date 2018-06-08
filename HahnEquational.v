@@ -11,6 +11,10 @@ Set Implicit Arguments.
 (** Set up setoid rewriting *)
 (******************************************************************************)
 
+Hint Unfold Basics.impl : unfolderDb.
+Local Ltac u := autounfold with unfolderDb in *; splits; ins; desf;
+                try solve [intuition; desf; eauto].
+
 (** First, for inclusion. *)
 
 Add Parametric Relation (A : Type) : (relation A) (@inclusion A)
@@ -20,69 +24,48 @@ Add Parametric Relation (A : Type) : (relation A) (@inclusion A)
 
 Add Parametric Morphism A : (@inclusion A) with signature
   inclusion --> inclusion ++> Basics.impl as inclusion_mori.
-Proof.
-  unfold inclusion, Basics.impl; ins; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@union A) with signature
   inclusion ==> inclusion ==> inclusion as union_mori.
-Proof.
-  unfold inclusion, union; intuition; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@inter_rel A) with signature
   inclusion ==> inclusion ==> inclusion as inter_rel_mori.
-Proof.
-  unfold inclusion, inter_rel; intuition; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@minus_rel A) with signature
   inclusion ++> inclusion --> inclusion as minus_rel_mori.
-Proof.
-  unfold inclusion, minus_rel; intuition; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@seq A) with signature
   inclusion ==> inclusion ==> inclusion as seq_mori.
-Proof.
-  unfold inclusion, seq; intuition; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@irreflexive A) with signature
   inclusion --> Basics.impl as irreflexive_mori.
-Proof.
-  unfold inclusion, irreflexive, Basics.impl; intuition; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@clos_trans A) with signature
   inclusion ==> inclusion as clos_trans_mori.
-Proof.
-  unfold inclusion; eauto using clos_trans_mon.
-Qed.
+Proof. u; eauto using clos_trans_mon. Qed.
+
 
 Add Parametric Morphism A : (@clos_refl_trans A) with signature
   inclusion ==> inclusion as clos_refl_trans_mori.
-Proof.
-  unfold inclusion; eauto using clos_refl_trans_mon.
-Qed.
+Proof. u; eauto using clos_refl_trans_mon. Qed.
 
 Add Parametric Morphism A : (@clos_refl A) with signature
   inclusion ==> inclusion as clos_refl_mori.
-Proof.
-  unfold inclusion, clos_refl; intuition; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A P : (@restr_rel A P) with signature
   inclusion ==> inclusion as restr_rel_mori.
-Proof.
-  unfold inclusion, restr_rel; intuition; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A B : (@restr_eq_rel A B) with signature
   eq ==> inclusion ==> inclusion as restr_eq_rel_mori.
-Proof.
-  unfold inclusion, restr_eq_rel; intuition; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@acyclic A) with signature
   inclusion --> Basics.impl as acyclic_mori.
@@ -92,28 +75,19 @@ Qed.
 
 Add Parametric Morphism A : (@is_total A) with signature
   set_subset --> inclusion ++> Basics.impl as is_total_mori.
-Proof.
-  unfold inclusion, is_total, Basics.impl; ins; desf.
-  eapply H1 in NEQ; desf; eauto.
-Qed.
+Proof. u; ins; desf; eapply H1 in NEQ; desf; eauto. Qed.
 
 Add Parametric Morphism A : (@transp A) with signature
   inclusion ==> inclusion as transp_mori.
-Proof.
-  unfold inclusion, transp; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@functional A) with signature
   inclusion --> Basics.impl as functional_mori.
-Proof.
-  unfold same_relation, inclusion, functional; ins; desf; red; ins; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@eqv_rel A) with signature
   set_subset ==> inclusion as eqv_rel_mori.
-Proof.
-  unfold inclusion, set_subset, eqv_rel; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism X : (@pow_rel X) with signature
   inclusion ==> eq ==> inclusion as pow_rel_mori.
@@ -131,15 +105,15 @@ Qed.
 
 Add Parametric Morphism A : (@cross_rel A) with signature
   set_subset ==> set_subset ==> inclusion as cross_mori.
-Proof.
-  unfold inclusion, cross_rel, set_subset; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
-Add Parametric Morphism A B : (@Union_rel A B) with signature
-  set_subset ==> eq ==> inclusion as Union_mori.
-Proof.
-  unfold inclusion, Union_rel, set_subset; ins; desf; eauto.
-Qed.
+Add Parametric Morphism A B : (@bunion A B) with signature
+  set_subset ==> eq ==> inclusion as bunion_mori.
+Proof. u. Qed.
+
+Add Parametric Morphism A B : (@collect_rel A B) with signature 
+  eq ==> inclusion ==> inclusion as collect_rel_mori.
+Proof. u; eauto 8. Qed.
 
 (** Second, for equivalence. *)
 
@@ -148,13 +122,13 @@ Lemma same_relation_exp A (r r' : relation A) (EQ: r ≡ r') :
 Proof. split; apply EQ. Qed.
 
 Lemma same_relation_refl A : reflexive (@same_relation A).
-Proof. split; ins. Qed.
+Proof. u. Qed.
 
 Lemma same_relation_sym A : symmetric (@same_relation A).
-Proof. unfold same_relation; split; ins; desf. Qed.
+Proof. u. Qed.
 
 Lemma same_relation_trans A : transitive (@same_relation A).
-Proof. unfold same_relation; split; ins; desf; red; eauto. Qed.
+Proof. u. Qed.
 
 Add Parametric Relation (A : Type) : (relation A) (@same_relation A)
  reflexivity proved by (@same_relation_refl A)
@@ -164,83 +138,55 @@ Add Parametric Relation (A : Type) : (relation A) (@same_relation A)
 
 Add Parametric Morphism A : (@inclusion A) with signature
   same_relation ==> same_relation ==> iff as inclusion_more.
-Proof.
-  unfold same_relation; ins; desf; split; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@union A) with signature
   same_relation ==> same_relation ==> same_relation as union_more.
-Proof.
-  unfold same_relation, union; ins; desf; split; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@inter_rel A) with signature
   same_relation ==> same_relation ==> same_relation as inter_rel_more.
-Proof.
-  unfold same_relation, inter_rel; ins; desf; split; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@minus_rel A) with signature
   same_relation ==> same_relation ==> same_relation as minus_rel_more.
-Proof.
-  unfold same_relation, minus_rel; ins; desf; split; red; intuition.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@seq A) with signature
   same_relation ==> same_relation ==> same_relation as seq_more.
-Proof.
-  unfold same_relation, seq; ins; desf; split; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@immediate A) with signature
   same_relation ==> same_relation as immediate_more.
-Proof.
-  ins; rewrite !immediateE; rewrite H; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@eqv_dom_rel A) with signature
   (@Permutation _) ==> same_relation as eqv_dom_rel_more.
-Proof.
-  by unfold same_relation, eqv_dom_rel; ins; desf; split; red; ins; desf;
-     rewrite H in *.
-Qed.
+Proof. by u; rewrite H in *. Qed.
 
 Add Parametric Morphism A P : (@restr_rel A P) with signature
   same_relation ==> same_relation as restr_rel_more.
-Proof.
-  unfold same_relation, restr_rel; ins; desf; split; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A B : (@restr_eq_rel A B) with signature
   eq ==> same_relation ==> same_relation as restr_eq_rel_more.
-Proof.
-  unfold same_relation, restr_eq_rel; intuition; eauto using restr_eq_rel_mori.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@clos_trans A) with signature
   same_relation ==> same_relation as clos_trans_more.
-Proof.
-  unfold same_relation; ins; desf; split; red; ins; desf; eauto using clos_trans_mon.
-Qed.
+Proof. u; eauto using clos_trans_mon. Qed.
 
 Add Parametric Morphism A : (@clos_refl_trans A) with signature
   same_relation ==> same_relation as clos_relf_trans_more.
-Proof.
-  unfold same_relation; ins; desf; split; red; ins; desf;
-  eauto using clos_refl_trans_mon.
-Qed.
+Proof. u; eauto using clos_refl_trans_mon. Qed.
 
 Add Parametric Morphism A : (@clos_refl A) with signature
   same_relation ==> same_relation as clos_relf_more.
-Proof.
-  unfold same_relation, clos_refl; ins; desf; split; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@irreflexive A) with signature
   same_relation ==> iff as irreflexive_more.
-Proof.
-  unfold same_relation; ins; desf; split; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@acyclic A) with signature
   same_relation ==> iff as acyclic_more.
@@ -250,44 +196,30 @@ Qed.
 
 Add Parametric Morphism A : (@transitive A) with signature
   same_relation ==> iff as transitive_more.
-Proof.
-  unfold same_relation; ins; desf; split; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@is_total A) with signature
   @set_equiv _ ==> same_relation ==> iff as is_total_more.
 Proof.
-  unfold is_total, same_relation, inclusion, set_equiv; split. 
-  intros H1 a Ha b Hb NEQ; desf.
-  by cut(x0 a b \/ x0 b a); [ins; desf; eauto| apply H1; firstorder].
-  intros H1 a Ha b Hb NEQ; desf.
-  by cut(y0 a b \/ y0 b a); [ins; desf; eauto| apply H1; firstorder].
+  u; split; ins; desf; apply H3 in NEQ; desf; eauto.
 Qed.
 
 Add Parametric Morphism A : (@transp A) with signature
   same_relation ==> same_relation as transp_more.
-Proof.
-  unfold same_relation, transp; ins; desf; eauto; split; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@functional A) with signature
   same_relation ==> Basics.impl as functional_more.
-Proof.
-  unfold same_relation, inclusion, functional; ins; desf; red; ins; desf; eauto.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@eqv_rel A) with signature
   @set_equiv _ ==> same_relation as eqv_rel_more.
-Proof.
-  unfold same_relation, inclusion, set_equiv, eqv_rel; firstorder.
-Qed.
+Proof. u. Qed.
 
 Add Parametric Morphism X : (@pow_rel X) with signature
 same_relation ==> eq ==> same_relation as pow_rel_more.
 Proof.
-  ins. induction y0 as [| y' IH].
-    by simpl; eauto with hahn.
-    by simpl; rewrite IH, H.
+  by ins; induction y0 as [| y' IH]; ins; rewrite IH, H.
 Qed.
 
 Add Parametric Morphism A : (@well_founded A) with signature
@@ -298,15 +230,17 @@ Qed.
 
 Add Parametric Morphism A : (@cross_rel A) with signature
   set_equiv ==> set_equiv ==> same_relation as cross_more.
-Proof.
-  unfold same_relation, set_equiv; ins; desf; eauto using cross_mori.
-Qed.
+Proof. u. Qed.
 
-Add Parametric Morphism A B : (@Union_rel A B) with signature
-  set_equiv ==> eq ==> same_relation as Union_more.
-Proof.
-  unfold same_relation, set_equiv; ins; desf; eauto using Union_mori.
-Qed.
+Add Parametric Morphism A B : (@bunion A B) with signature
+  set_equiv ==> eq ==> same_relation as bunion_more.
+Proof. u. Qed.
+
+Add Parametric Morphism A B : (@collect_rel A B) with signature 
+  eq ==> same_relation ==> same_relation as collect_rel_more.
+Proof. u; eauto 8. Qed.
+
+
 
 (******************************************************************************)
 (** Basic properties of sequential composition and relational union *)
@@ -317,7 +251,8 @@ Section PropertiesSeqUnion.
   Variables B A : Type.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
-  Ltac u := autounfold with unfolderDb in *; try solve [intuition; ins; desf; eauto; firstorder].
+  Ltac u := autounfold with unfolderDb in *; 
+            try solve [intuition; ins; desf; eauto; firstorder].
 
   Lemma seqA r1 r2 r3 : (r1 ⨾ r2) ⨾ r3 ≡ r1 ⨾ (r2 ⨾ r3).
   Proof. u. Qed.
@@ -358,10 +293,10 @@ Section PropertiesSeqUnion.
   Lemma seq_union_r r r1 r2 : r ⨾ (r1 ∪ r2) ≡ (r ⨾ r1) ∪ (r ⨾ r2).
   Proof. u. Qed.
 
-  Lemma seq_Union_l P rr r : Union_rel P rr ⨾ r ≡ Union_rel P (fun n => rr n ⨾ r).
+  Lemma seq_bunion_l P rr r : bunion P rr ⨾ r ≡ (⋃n ∈ P, rr n ⨾ r). 
   Proof. u. Qed.
 
-  Lemma seq_Union_r r P rr : r ⨾ Union_rel P rr ≡ Union_rel P (fun n => r ⨾ rr n).
+  Lemma seq_bunion_r r P rr : r ⨾ bunion P rr ≡ (⋃n ∈ P, r ⨾ rr n). 
   Proof. u. Qed.
 
   Lemma minus_union_l r1 r2 r : (r1 ∪ r2) \ r ≡ (r1 \ r) ∪ (r2 \ r).
@@ -400,7 +335,7 @@ End PropertiesSeqUnion.
 Hint Rewrite seq_false_l seq_false_r union_false_l union_false_r unionK : hahn.
 Hint Rewrite seq_id_l seq_id_r seq_eqvK : hahn.
 
-Hint Rewrite seq_Union_l seq_Union_r seq_union_l seq_union_r : hahn_full.
+Hint Rewrite seq_bunion_l seq_bunion_r seq_union_l seq_union_r : hahn_full.
 
 (******************************************************************************)
 (** Properties of big union *)
@@ -411,32 +346,33 @@ Section PropertiesBigUnion.
   Variables B A : Type.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
-  Ltac u := autounfold with unfolderDb in *; try solve [intuition; ins; desf; eauto; firstorder].
+  Ltac u := autounfold with unfolderDb in *; 
+            try solve [intuition; ins; desf; eauto; firstorder].
 
-  Lemma Union_empty rr : Union_rel ∅ rr ≡ ∅₂.
+  Lemma bunion_empty rr : bunion ∅ rr ≡ ∅₂.
   Proof. u. Qed.
   
-  Lemma Union_eq a rr : Union_rel (eq a) rr ≡ rr a.
+  Lemma bunion_eq a rr : bunion (eq a) rr ≡ rr a.
   Proof. u; splits; ins; desf; eauto. Qed. 
 
-  Lemma Union_union_l s s' rr :
-    Union_rel (s ∪₁ s') rr ≡ Union_rel s rr ∪ Union_rel s' rr.
+  Lemma bunion_union_l s s' rr :
+    bunion (s ∪₁ s') rr ≡ bunion s rr ∪ bunion s' rr.
   Proof. u. Qed. 
 
-  Lemma Union_union_r s rr rr' :
-    Union_rel s (fun x => rr x ∪ rr' x) ≡ Union_rel s rr ∪ Union_rel s rr'.
+  Lemma bunion_union_r s rr rr' :
+    bunion s (fun x => rr x ∪ rr' x) ≡ bunion s rr ∪ bunion s rr'.
   Proof. u. Qed. 
 
-  Lemma Union_inter_compat_l s r rr :
-    Union_rel s (fun x => r ∩ rr x) ≡ r ∩ Union_rel s rr.
+  Lemma bunion_inter_compat_l s r rr :
+    bunion s (fun x => r ∩ rr x) ≡ r ∩ bunion s rr.
   Proof. u; split; ins; desf; eauto 8. Qed. 
 
-  Lemma Union_inter_compat_r s r rr :
-    Union_rel s (fun x => rr x ∩ r) ≡ Union_rel s rr ∩ r.
+  Lemma bunion_inter_compat_r s r rr :
+    bunion s (fun x => rr x ∩ r) ≡ bunion s rr ∩ r.
   Proof. u; split; ins; desf; eauto 8. Qed. 
 
-  Lemma Union_minus_compat_r s r rr :
-    Union_rel s (fun x => rr x \ r) ≡ Union_rel s rr \ r.
+  Lemma bunion_minus_compat_r s r rr :
+    bunion s (fun x => rr x \ r) ≡ bunion s rr \ r.
   Proof. u; split; ins; desf; eauto 8. Qed. 
 
 End PropertiesBigUnion.
@@ -452,65 +388,41 @@ Section PropertiesInter.
   Implicit Type r : relation A.
 
   Lemma interA r1 r2 r3 : (r1 ∩ r2) ∩ r3 ≡ r1 ∩ (r2 ∩ r3).
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma interC r1 r2 : r1 ∩ r2 ≡ r2 ∩ r1.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma interAC r r' r'' : r ∩ (r' ∩ r'') ≡ r' ∩ (r ∩ r'').
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma interK r : r ∩ r ≡ r.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma inter_false_r r : r ∩ ∅₂ ≡ ∅₂.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma inter_false_l r : ∅₂ ∩ r ≡ ∅₂.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma inter_union_r r r1 r2 : r ∩ (r1 ∪ r2) ≡ (r ∩ r1) ∪ (r ∩ r2).
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma inter_union_l r r1 r2 : (r1 ∪ r2) ∩ r ≡ (r1 ∩ r) ∪ (r2 ∩ r).
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma inter_absorb_l r r' (SUB: r ⊆ r') : r' ∩ r ≡ r.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma inter_absorb_r r r' (SUB: r ⊆ r') : r ∩ r' ≡ r.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma inter_trans (r r' i : relation A) (T: transitive i) :
-  (r ∩ i) ⨾ (r' ∩ i) ⊆ (r ⨾ r') ∩ i.
-  Proof.
-    firstorder.
-  Qed.
+    (r ∩ i) ⨾ (r' ∩ i) ⊆ (r ⨾ r') ∩ i.
+  Proof. u. Qed.
 
   Lemma inter_inclusion (r i : relation A) : r ∩ i ⊆ r.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
 End PropertiesInter.
 
@@ -524,7 +436,6 @@ Section PropertiesMinus.
 
   Variable A : Type.
   Implicit Type r : relation A.
-  Ltac u := autounfold with unfolderDb in *; try solve [intuition; ins; desf; eauto; firstorder].
 
   Lemma minus_false_r r : r \ ∅₂ ≡ r.
   Proof. u. Qed.
@@ -553,24 +464,20 @@ Section PropertiesClos.
 
   Lemma rtE r : r ＊ ≡ ⦗fun _ => True⦘ ∪ r⁺.
   Proof.
-    autounfold with unfolderDb.
-    split; ins; rewrite clos_refl_transE in *; tauto.
+    u; rewrite clos_refl_transE in *; tauto.
   Qed.
 
   Lemma crE r : r ^? ≡ ⦗fun _ => True⦘ ∪ r.
-  Proof.
-    autounfold with unfolderDb.
-    split; ins; tauto.
-  Qed.
+  Proof. u. Qed.
 
-  Lemma rtEE r : r ＊ ≡ ⋃ n, r ^^ n.
+  Lemma rtEE r : r＊ ≡ ⋃n, r ^^ n.
   Proof.
     split; ins; desc.
-      autounfold with unfolderDb; ins.
+      u. 
       induction H using clos_refl_trans_ind_left; desc.
         by exists 0.
       by exists (S a); vauto.
-    apply inclusion_Union_l; ins.
+    apply inclusion_bunion_l; ins.
     induction x; ins; [|rewrite IHx];
       unfold eqv_rel, seq; red; ins; desf; vauto.
   Qed.
@@ -587,7 +494,7 @@ Section PropertiesClos.
 
   Lemma ctEE r : r⁺ ≡ ⋃ n, r ^^ (S n).
   Proof.
-    by rewrite ct_end, rtEE, seq_Union_l.
+    by rewrite ct_end, rtEE, seq_bunion_l.
   Qed.
 
   Lemma rt_begin r :
@@ -779,14 +686,14 @@ Section good_ctx_lemmas.
     good_ctx (fun x => P x ⨾ r).
   Proof.
     cdes GP; split; unnw; ins; [by do 2 red; ins; rewrite H|].
-    by rewrite CUN, seq_Union_l.
+    by rewrite CUN, seq_bunion_l.
   Qed.
 
   Lemma good_ctx_seq_r P (GP : good_ctx P) r :
     good_ctx (fun x => r ⨾ P x).
   Proof.
     cdes GP; split; unnw; ins; [by do 2 red; ins; rewrite H|].
-    by rewrite CUN, seq_Union_r.
+    by rewrite CUN, seq_bunion_r.
   Qed.
 
   Lemma good_ctx_union P (GP : good_ctx P) Q (GQ : good_ctx Q) :
@@ -800,7 +707,7 @@ Section good_ctx_lemmas.
     good_ctx (fun x => P (Q x)).
   Proof.
     cdes GP; cdes GQ; split; unnw; ins; [by do 2 red; ins; rewrite H|].
-    rewrite CUN0, CUN; apply inclusion_Union_l; vauto.
+    rewrite CUN0, CUN; apply inclusion_bunion_l; vauto.
   Qed.
 
   Lemma seq_pow_l r n : r ^^ n ⨾ r ≡ r ⨾ r ^^ n.
@@ -815,7 +722,7 @@ Section good_ctx_lemmas.
     P r＊ ⊆ r'.
   Proof.
     ins; cdes G; rewrite (proj1 (rtEE _)).
-    etransitivity; [eapply CUN|apply inclusion_Union_l]; ins.
+    etransitivity; [eapply CUN|apply inclusion_bunion_l]; ins.
     induction x; ins; rewrite (proj1 (seq_pow_l _ _)); eauto.
   Qed.
 
@@ -825,7 +732,7 @@ Section good_ctx_lemmas.
     P r＊ ⊆ r'.
   Proof.
     ins; cdes G; rewrite (proj1 (rtEE _)).
-    etransitivity; [eapply CUN|apply inclusion_Union_l]; ins.
+    etransitivity; [eapply CUN|apply inclusion_bunion_l]; ins.
     induction x; ins; eauto.
   Qed.
 
@@ -843,7 +750,7 @@ Section good_ctx_lemmas.
     P r ⊆ r' -> (forall k, P k ⊆ r' -> P (k ⨾ r) ⊆ r') -> P ( r⁺ ) ⊆ r'.
   Proof.
     ins; cdes G; rewrite (proj1 (ctEE _)).
-    etransitivity; [eapply CUN|apply inclusion_Union_l]; ins.
+    etransitivity; [eapply CUN|apply inclusion_bunion_l]; ins.
     induction x; ins; eauto.
     by rewrite (proj1 (seq_id_l _)).
   Qed.
@@ -1108,18 +1015,36 @@ Section PropertiesCross.
   Implicit Type s : A -> Prop.
 
   Lemma cross_false_r s : s × ∅ ≡ ∅₂.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
   Lemma cross_false_l s : ∅ × s ≡ ∅₂.
-  Proof.
-    firstorder.
-  Qed.
+  Proof. u. Qed.
 
 End PropertiesCross.
 
 Hint Rewrite cross_false_l cross_false_r : hahn.
+
+(******************************************************************************)
+(** Properties of [collect_rel] *)
+(******************************************************************************)
+
+Lemma collect_rel_empty A B (f : A -> B) : collect_rel f ∅₂ ≡ ∅₂.
+Proof. u. Qed.
+
+Lemma collect_rel_cross A B (f : A -> B) s s' :
+  collect_rel f (s × s') ≡ set_collect f s × set_collect f s'.
+Proof. u; eauto 8. Qed.
+
+Lemma collect_rel_union A B (f : A -> B) s s' :
+  collect_rel f (s ∪ s') ≡ collect_rel f s ∪ collect_rel f s'.
+Proof. u; eauto 8. Qed.
+
+Lemma collect_rel_bunion A B (f : A -> B) C (s : C -> Prop) rr :
+  collect_rel f (⋃x ∈ s, rr x) ≡ ⋃x ∈ s, collect_rel f (rr x).
+Proof. u; eauto 8. Qed.
+
+Hint Rewrite collect_rel_empty collect_rel_cross : hahn.
+Hint Rewrite collect_rel_union collect_rel_bunion : hahn.
 
 (******************************************************************************)
 (** Misc properties *)
@@ -1137,6 +1062,8 @@ Proof.
   by unfold acyclic; rewrite ct_rotl, irreflexive_seqC, !seqA, <- ct_end.
 Qed.
 
+Lemma restr_seq_compl_l A d (r : relation A) : restr_rel d (⦗set_compl d⦘ ;; r) ≡ ∅₂.
+Proof. u. Qed.
 
 Lemma clos_trans_imm :
   forall A (r : relation A) (I: irreflexive r)

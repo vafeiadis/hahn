@@ -824,24 +824,25 @@ Proof.
   by rewrite ct_end, seqA, H, <- seqA, <- ct_end, ct_unit.
 Qed.
 
-(** Paths involving [Union] *)
+(** Paths involving [bunion] *)
 (******************************************************************************)
 
 Lemma pow_union_decomposition (n : nat) A (d p: relation A) :
-  (d ∪ p)^^n ⊆ p^^n ∪ (⋃⋃ k < n, p^^k ⨾ d ⨾ (d ∪ p)^^(n - k - 1)).
+  (d ∪ p)^^n ⊆ p^^n ∪ (⋃k < n, p^^k ⨾ d ⨾ (d ∪ p)^^(n - k - 1)).
 Proof.
   induction n using (well_founded_ind Wf_nat.lt_wf).
   destruct n as [| n']; [by firstorder|].
   simpl (_ ^^ (S n')).
-  rewrite !seq_pow_l, H; clear H; try done; relsf.
-  unionL; repeat apply inclusion_Union_l; intros; eauto with hahn.
-  - unionR right; eapply inclusion_Union_r with 0; ins; try omega; rels.
+  rewrite !seq_pow_l, H; clear H; try done. 
+  autorewrite with hahn; autorewrite with hahn hahn_full.
+  unionL; eauto with hahn.
+  - unionR right; eapply inclusion_bunion_r with 0; ins; try omega; rels.
     replace (n' - 0) with n' by omega; eauto with hahn. 
-  - unionR right; eapply inclusion_Union_r with 0; ins; try omega; rels.
+  - unionR right; eapply inclusion_bunion_r with 0; ins; try omega; rels.
     hahn_frame_l.
     arewrite (d ⊆ (d ∪ p) ^^ 1) at 1 by simpl; rels.
     arewrite (p ⊆ d ∪ p) at 1; rewrite !pow_nm.
     replace (x + (1 + (n' - x - 1))) with (n' - 0) by omega; rels.
-  - unionR right; eapply inclusion_Union_r with (S x); ins; try omega; rels.
+  - unionR right; eapply inclusion_bunion_r with (S x); ins; try omega; rels.
     by rewrite seq_pow_l, !seqA.
 Qed.
