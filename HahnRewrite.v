@@ -88,31 +88,55 @@ End HelperLemmas.
 
 (** We proceed with a set of rewrite tactics *)
 
+Tactic Notation "hahnf_rewrite" uconstr(EQ) :=
+  match goal with
+    | |- _ _ _ => eapply hahn_inclusion_exp; [solve[rewrite EQ; apply inclusion_refl2]|]
+    | |- _ _ => eapply hahn_subset_exp; [solve[rewrite EQ; apply set_subset_refl2]|]
+    | |- _ => rewrite EQ
+  end.
+
+Tactic Notation "hahnf_rewrite" "<-" uconstr(EQ) :=
+  match goal with
+    | |- _ _ _ => eapply hahn_inclusion_exp; [solve[rewrite <- EQ; apply inclusion_refl2]|]
+    | |- _ _ => eapply hahn_subset_exp; [solve[rewrite <- EQ; apply set_subset_refl2]|]
+    | |- _ => rewrite <- EQ
+  end.
+
+Tactic Notation "hahnf_rewrite" uconstr(EQ) "in" hyp(H) :=
+  match type of H with
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|solve[rewrite EQ; apply inclusion_refl2]]
+    | _ _ => eapply hahn_subset_exp in H; [|solve[rewrite EQ; apply set_subset_refl2]]
+    | _ => rewrite EQ in H
+  end.
+
+Tactic Notation "hahnf_rewrite" "<-" uconstr(EQ) "in" hyp(H) :=
+  match type of H with
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|solve[rewrite <- EQ; apply inclusion_refl2]]
+    | _ _ => eapply hahn_subset_exp in H; [|solve[rewrite <- EQ; apply set_subset_refl2]]
+    | _ => rewrite <- EQ in H
+  end.
+
 Tactic Notation "hahn_rewrite" uconstr(EQ) :=
   match goal with
-    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite EQ; simple apply inclusion_refl2|]
-    | |- _ _ => eapply hahn_subset_exp; [rewrite EQ; simple apply set_subset_refl2|]
+    | |- _ _ _ => eapply hahn_inclusion_exp; [solve [rewrite EQ; apply inclusion_refl2]|]
     | |- _ => rewrite EQ
   end.
 
 Tactic Notation "hahn_rewrite" "<-" uconstr(EQ) :=
   match goal with
-    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite <- EQ; simple apply inclusion_refl2|]
-    | |- _ _ => eapply hahn_subset_exp; [rewrite <- EQ; simple apply set_subset_refl2|]
+    | |- _ _ _ => eapply hahn_inclusion_exp; [solve [rewrite <- EQ; apply inclusion_refl2]|]
     | |- _ => rewrite <- EQ
   end.
 
 Tactic Notation "hahn_rewrite" uconstr(EQ) "in" hyp(H) :=
   match type of H with
-    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite EQ; simple apply inclusion_refl2]
-    | _ _ => eapply hahn_subset_exp in H; [|rewrite EQ; simple apply set_subset_refl2]
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|solve [rewrite EQ; apply inclusion_refl2]]
     | _ => rewrite EQ in H
   end.
 
 Tactic Notation "hahn_rewrite" "<-" uconstr(EQ) "in" hyp(H) :=
   match type of H with
-    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite <- EQ; simple apply inclusion_refl2]
-    | _ _ => eapply hahn_subset_exp in H; [|rewrite <- EQ; simple apply set_subset_refl2]
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|solve [rewrite <- EQ; apply inclusion_refl2]]
     | _ => rewrite <- EQ in H
   end.
 
@@ -514,7 +538,7 @@ Tactic Notation "arewrite_id" constr(exp) "at" int_or_var(index) :=
 Tactic Notation "unfolder_prepare" := 
   rewrite ?seqA;
   repeat hahn_rewrite seq_eqv;
-  repeat seq_rewrite seq_eqv;
+  repeat hahn_seq_rewrite seq_eqv;
   repeat hahn_rewrite seq_eqv_lr;
   repeat hahn_rewrite seq_eqv_r;
   repeat hahn_rewrite seq_eqv_l;
