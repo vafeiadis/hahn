@@ -810,6 +810,11 @@ End ExtraPropertiesClos.
 (** Properties of [eqv_rel] *)
 (******************************************************************************)
 
+Lemma eqv_empty A : ⦗@set_empty A⦘ ≡ ∅₂.
+Proof.
+  autounfold with unfolderDb; intuition; desf; eauto.
+Qed.
+  
 Lemma seq_eqv_r A (r : relation A) dom :
   r ⨾ ⦗dom⦘ ≡ (fun x y => r x y /\ dom y).
 Proof.
@@ -840,6 +845,8 @@ Proof.
   autounfold with unfolderDb; intuition; desf; eauto 10.
 Qed.
 
+Hint Rewrite eqv_empty : hahn.
+
 (******************************************************************************)
 (** Properties of restrictions *)
 (******************************************************************************)
@@ -851,10 +858,28 @@ Proof.
   unfold restr_rel; split; red; ins; desf; rewrite H in *; eauto.
 Qed.
 
+Lemma restr_restr A (d d' : A -> Prop) r :
+  restr_rel d (restr_rel d' r) ≡ restr_rel (d' ∩₁ d) r. 
+Proof.
+  autounfold with unfolderDb; intuition; desf; eauto. 
+Qed. 
+
+Lemma restr_relE A (d : A -> Prop) r :
+  restr_rel d r ≡ <| d |> ;; r ;; <| d |>. 
+Proof.
+  rewrite seq_eqv_lr; autounfold with unfolderDb; intuition.
+Qed. 
+
 Lemma restr_union A (f : A -> Prop) r r' :
   restr_rel f (r ∪ r') ≡ restr_rel f r ∪ restr_rel f r'.
 Proof.
-  split; unfold union, restr_rel, inclusion; ins; desf; eauto.
+  autounfold with unfolderDb; intuition; desf; eauto. 
+Qed.
+
+Lemma restr_bunion A B (f : B -> Prop) (s: A -> Prop) rr :
+  restr_rel f (⋃x ∈ s, rr x) ≡ ⋃x ∈ s, restr_rel f (rr x).
+Proof.
+  autounfold with unfolderDb; intuition; desf; eauto. 
 Qed.
 
 Lemma union_restr A (f : A -> Prop) r r' :
@@ -863,23 +888,32 @@ Proof.
   symmetry; apply restr_union.
 Qed.
 
-Lemma restr_eq_union:
-  forall (A : Type) (r r' : relation A) (B : Type) (f : A -> B),
-  restr_eq_rel f (r ∪ r') ≡
-  restr_eq_rel f r ∪ restr_eq_rel f r'.
+Lemma bunion_restr A B (f : B -> Prop) (s: A -> Prop) rr :
+  (⋃x ∈ s, restr_rel f (rr x)) ≡ restr_rel f (⋃x ∈ s, rr x).
 Proof.
-  unfold restr_eq_rel, union, same_relation, inclusion; intuition.
+  autounfold with unfolderDb; intuition; desf; eauto. 
 Qed.
 
-Lemma restr_eq_elim :
-  forall A (r : relation A) B (f: A -> B)
-         (R: forall x y, r x y -> f x = f y),
+Lemma restr_eq_union A r r' B (f : A -> B) :
+  restr_eq_rel f (r ∪ r') ≡ restr_eq_rel f r ∪ restr_eq_rel f r'.
+Proof.
+  autounfold with unfolderDb; intuition; desf; eauto. 
+Qed.
+
+Lemma restr_eq_bunion A (s : A -> Prop) B (rr: A -> relation B) C (f : B -> C) :
+  restr_eq_rel f (⋃x ∈ s, rr x) ≡ ⋃x ∈ s, restr_eq_rel f (rr x).
+Proof.
+  autounfold with unfolderDb; intuition; desf; eauto. 
+Qed.
+
+Lemma restr_eq_elim A (r : relation A) B (f: A -> B) 
+      (R: forall x y, r x y -> f x = f y) :
    restr_eq_rel f r ≡ r.
 Proof.
   unfold restr_eq_rel; split; red; ins; intuition.
 Qed.
 
-Lemma restr_eq_seq_eqv_rel A (r : relation A) (B : Type) (f : A -> B) dom :
+Lemma restr_eq_seq_eqv_rel A (r : relation A) B (f : A -> B) dom :
   restr_eq_rel f (r⨾ ⦗dom⦘) ≡ restr_eq_rel f r⨾ ⦗dom⦘.
 Proof.
   ins; rewrite !seq_eqv_r; unfold restr_eq_rel.

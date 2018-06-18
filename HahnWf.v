@@ -44,7 +44,7 @@ Section well_founded.
     exists (fun n => a (S n)); ins.
   Qed.
 
-  Lemma wf_impl_min_elt r (WF: well_founded r) B (NONEMPTY: ~ B ≡₁ ∅₁) :
+  Lemma wf_impl_min_elt r (WF: well_founded r) B (NONEMPTY: ~ B ≡₁ ∅) :
     exists b, B b /\ forall b', B b' -> ~ r b' b.
   Proof.
     apply set_nonemptyE in NONEMPTY; desc.

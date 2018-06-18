@@ -29,6 +29,7 @@ Section SetDefs.
   Definition set_coinfinite s:= ~ set_finite (set_compl s).
   Definition set_collect f s := fun x => exists y, s y /\ f y = x.
   Definition set_bunion s ss := fun x => exists y, s y /\ ss y x.
+  Definition set_disjoint s s':= forall x (IN: s x) (IN': s' x), False.
 
 End SetDefs.
 
@@ -37,12 +38,12 @@ Arguments set_full {A}.
 Arguments set_subset {A}.
 Arguments set_equiv {A}.
 
-Notation "P ∪₁ Q" := (set_union P Q) (at level 50, left associativity, only parsing).
-Notation "P ∩₁ Q" := (set_inter P Q) (at level 40, left associativity, only parsing).
-Notation "P \₁ Q" := (set_minus P Q) (at level 46, only parsing).
-Notation "∅₁"     := (@set_empty _) (only parsing).
-Notation "a ⊆₁ b" := (set_subset a b) (at level 60, only parsing).
-Notation "a ≡₁ b" := (set_equiv a b)  (at level 60, only parsing).
+Notation "P ∪₁ Q" := (set_union P Q) (at level 50, left associativity).
+Notation "P ∩₁ Q" := (set_inter P Q) (at level 40, left associativity).
+Notation "P \₁ Q" := (set_minus P Q) (at level 46).
+Notation "∅"     := (@set_empty _).
+Notation "a ⊆₁ b" := (set_subset a b) (at level 60).
+Notation "a ≡₁ b" := (set_equiv a b)  (at level 60).
 Notation "⋃₁ x ∈ s , a" := (set_bunion s (fun x => a))
   (at level 200, x ident, right associativity, 
    format "'[' ⋃₁ '/ ' x  ∈  s ,  '/ ' a ']'").
@@ -56,16 +57,18 @@ Notation "'⋃₁' x <= n , a" := (set_bunion (fun t => t <= n) (fun x => a))
   (at level 200, x ident, right associativity,
    format "'[' ⋃₁ '/ ' x  <=  n ,  '/ ' a ']'").
 
+(*
 Notation "P ∪ Q" := (set_union P Q) (at level 50, left associativity) : function_scope.
 Notation "P ∩ Q" := (set_inter P Q) (at level 40, left associativity) : function_scope.
 Notation "P \ Q" := (set_minus P Q) (at level 46) : function_scope.
 Notation "∅"     := (@set_empty _) : function_scope.
 Notation "a ⊆ b" := (set_subset a b) (at level 60) : function_scope.
-Notation "a ≡ b" := (set_equiv a b)  (at level 60) : function_scope.
+Notation "a ≡ b" := (set_equiv a b)  (at level 60) : function_scope. *)
+
 
 Hint Unfold set_empty set_full set_compl set_union set_inter : unfolderDb.
 Hint Unfold set_minus set_subset set_equiv set_coinfinite set_finite : unfolderDb.
-Hint Unfold set_collect set_bunion : unfolderDb.
+Hint Unfold set_collect set_bunion set_disjoint : unfolderDb.
 
 (** Basic properties of set operations *)
 (******************************************************************************)
@@ -82,10 +85,10 @@ Section SetProperties.
 
   (** Properties of set complement. *)
 
-  Lemma set_compl_empty : set_compl ∅₁ ≡₁ @set_full A.
+  Lemma set_compl_empty : set_compl ∅ ≡₁ @set_full A.
   Proof. u. Qed.
 
-  Lemma set_compl_full : set_compl (@set_full A) ≡₁ ∅₁.
+  Lemma set_compl_full : set_compl (@set_full A) ≡₁ ∅.
   Proof. u. Qed.
 
   Lemma set_compl_compl s : set_compl (set_compl s) ≡₁ s.
@@ -114,10 +117,10 @@ Section SetProperties.
   Lemma set_unionK s : s ∪₁ s ≡₁ s.
   Proof. u. Qed.
 
-  Lemma set_union_empty_l s : ∅₁ ∪₁ s ≡₁ s.
+  Lemma set_union_empty_l s : ∅ ∪₁ s ≡₁ s.
   Proof. u. Qed.
 
-  Lemma set_union_empty_r s : s ∪₁ ∅₁ ≡₁ s.
+  Lemma set_union_empty_r s : s ∪₁ ∅ ≡₁ s.
   Proof. u. Qed.
 
   Lemma set_union_full_l s : set_full ∪₁ s ≡₁ set_full.
@@ -146,10 +149,10 @@ Section SetProperties.
   Lemma set_interK s : s ∩₁ s ≡₁ s.
   Proof. u. Qed.
 
-  Lemma set_inter_empty_l s : ∅₁ ∩₁ s ≡₁ ∅₁.
+  Lemma set_inter_empty_l s : ∅ ∩₁ s ≡₁ ∅.
   Proof. u. Qed.
 
-  Lemma set_inter_empty_r s : s ∩₁ ∅₁ ≡₁ ∅₁.
+  Lemma set_inter_empty_r s : s ∩₁ ∅ ≡₁ ∅.
   Proof. u. Qed.
 
   Lemma set_inter_full_l s : set_full ∩₁ s ≡₁ s.
@@ -175,7 +178,7 @@ Section SetProperties.
   Lemma set_minusE s s' : s \₁ s' ≡₁ s ∩₁ set_compl s'.
   Proof. u. Qed.
 
-  Lemma set_minusK s : s \₁ s ≡₁ ∅₁.
+  Lemma set_minusK s : s \₁ s ≡₁ ∅.
   Proof. u. Qed.
 
   Lemma set_minus_inter_l s s' s'' :
@@ -204,7 +207,7 @@ Section SetProperties.
 
   (** Properties of set inclusion. *)
 
-  Lemma set_subsetE s s' : s ⊆₁ s' <-> s \₁ s' ≡₁ ∅₁.
+  Lemma set_subsetE s s' : s ⊆₁ s' <-> s \₁ s' ≡₁ ∅.
   Proof. u; intuition; apply NNPP; firstorder. Qed.
 
   Lemma set_subset_refl : reflexive _ (@set_subset A).
@@ -213,10 +216,10 @@ Section SetProperties.
   Lemma set_subset_trans : transitive _ (@set_subset A).
   Proof. u. Qed.
 
-  Lemma set_subset_empty_l s : ∅₁ ⊆₁ s.
+  Lemma set_subset_empty_l s : ∅ ⊆₁ s.
   Proof. u. Qed.
 
-  Lemma set_subset_empty_r s : s ⊆₁ ∅₁ <-> s ≡₁ ∅₁.
+  Lemma set_subset_empty_r s : s ⊆₁ ∅ <-> s ≡₁ ∅.
   Proof. u. Qed.
 
   Lemma set_subset_full_l s : set_full ⊆₁ s <-> s ≡₁ set_full.
@@ -228,13 +231,13 @@ Section SetProperties.
   Lemma set_subset_union_l s s' s'' : s ∪₁ s' ⊆₁ s'' <-> s ⊆₁ s'' /\ s' ⊆₁ s''.
   Proof. u. Qed.
 
-  Lemma set_subset_union_r1 s s' : s ⊆₁ s ∪ s'.
+  Lemma set_subset_union_r1 s s' : s ⊆₁ s ∪₁ s'.
   Proof. u. Qed.
 
-  Lemma set_subset_union_r2 s s' : s' ⊆₁ s ∪ s'.
+  Lemma set_subset_union_r2 s s' : s' ⊆₁ s ∪₁ s'.
   Proof. u. Qed.
 
-  Lemma set_subset_union_r s s' s'' : s ⊆₁ s' \/ s ⊆₁ s'' -> s ⊆₁ s' ∪ s''.
+  Lemma set_subset_union_r s s' s'' : s ⊆₁ s' \/ s ⊆₁ s'' -> s ⊆₁ s' ∪₁ s''.
   Proof. u. Qed.
 
   Lemma set_subset_inter_r s s' s'' : s ⊆₁ s' ∩₁ s'' <-> s ⊆₁ s' /\ s ⊆₁ s''.
@@ -252,10 +255,10 @@ Section SetProperties.
   Lemma set_subset_minus s s' (S1: s ⊆₁ s') t t' (S2: t' ⊆₁ t) : s \₁ t ⊆₁ s' \₁ t'.
   Proof. u. Qed.
 
-  Lemma set_subset_bunion_l s ss sb (H: forall x (COND: s x), ss x ⊆ sb) : (⋃₁x ∈ s, ss x) ⊆ sb.
+  Lemma set_subset_bunion_l s ss sb (H: forall x (COND: s x), ss x ⊆₁ sb) : (⋃₁x ∈ s, ss x) ⊆₁ sb.
   Proof. u. Qed.
 
-  Lemma set_subset_bunion_r s ss sb a (H: s a) (H': sb ⊆ ss a) : sb ⊆ ⋃₁x ∈ s, ss x.
+  Lemma set_subset_bunion_r s ss sb a (H: s a) (H': sb ⊆₁ ss a) : sb ⊆₁ ⋃₁x ∈ s, ss x.
   Proof. u. Qed.
 
   Lemma set_subset_bunion s s' (S: s ⊆₁ s') ss ss' (SS: forall x (COND: s x), ss x ⊆₁ ss' x) : 
@@ -325,7 +328,7 @@ Section SetProperties.
   Lemma set_inter_absorb_r s s' (SUB: s ⊆₁ s') : s ∩₁ s' ≡₁ s.
   Proof. u. Qed.
 
-  Lemma set_minus_absorb_l s s' (SUB: s ⊆₁ s') : s \₁ s' ≡₁ ∅₁.
+  Lemma set_minus_absorb_l s s' (SUB: s ⊆₁ s') : s \₁ s' ≡₁ ∅.
   Proof. u. Qed.
 
   (** Singleton sets *)
@@ -334,7 +337,7 @@ Section SetProperties.
   Proof. u; intuition; desf. Qed.
 
   Lemma set_subset_single_r a s :
-    s ⊆₁ eq a <-> s ≡₁ eq a \/ s ≡₁ ∅₁.
+    s ⊆₁ eq a <-> s ≡₁ eq a \/ s ≡₁ ∅.
   Proof.
     u; intuition; firstorder.
     destruct (classic (exists b, s b)) as [M|M]; desf.
@@ -351,7 +354,7 @@ Section SetProperties.
     eq a ≡₁ eq b <-> a = b.
   Proof. u; intuition; desf; apply H; ins. Qed.
 
-  Lemma set_nonemptyE s : ~ s ≡₁ ∅₁ <-> exists x, s x.
+  Lemma set_nonemptyE s : ~ s ≡₁ ∅ <-> exists x, s x.
   Proof.
     u; intuition; firstorder.
     apply NNPP; intro; apply H0; ins; eauto. 
@@ -441,17 +444,65 @@ Section SetProperties.
     eexists findom0; ins; desf; apply IHfindom; eexists; splits; eauto; congruence.
   Qed.
 
-  Lemma set_disjointE s s' : s ∩ s' ≡₁ ∅ <-> forall x, s x -> s' x -> False.
-  Proof.
-    firstorder.
-  Qed.
+  (** Set disjointness *)
 
-  Lemma set_le n : (fun i => i <= n) ≡₁ (fun i => i < n) ∪ (eq n). 
+  Lemma set_disjointE s s' : set_disjoint s s' <-> s ∩₁ s' ≡₁ ∅.
+  Proof. u. Qed.
+
+  Lemma set_disjointC s s' : set_disjoint s s' <-> set_disjoint s' s.
+  Proof. u. Qed.
+
+  Lemma set_disjoint_empty_l s : set_disjoint ∅ s.
+  Proof. u. Qed.
+
+  Lemma set_disjoint_empty_r s : set_disjoint s ∅.
+  Proof. u. Qed.
+
+  Lemma set_disjoint_eq_l a s : set_disjoint (eq a) s <-> ~ s a.
+  Proof. u; split; ins; desf; eauto. Qed.
+
+  Lemma set_disjoint_eq_r a s : set_disjoint s (eq a) <-> ~ s a.
+  Proof. u; split; ins; desf; eauto. Qed.
+
+  Lemma set_disjoint_eq_eq a b : set_disjoint (eq a) (eq b) <-> a <> b.
+  Proof. u; split; ins; desf; eauto. Qed.
+
+  Lemma set_disjoint_union_l s s' s'' : 
+    set_disjoint (s ∪₁ s') s'' <-> set_disjoint s s'' /\ set_disjoint s' s''.
+  Proof. u. Qed.
+
+  Lemma set_disjoint_union_r s s' s'' : 
+    set_disjoint s (s' ∪₁ s'') <-> set_disjoint s s' /\ set_disjoint s s''.
+  Proof. u. Qed.
+
+  Lemma set_disjoint_bunion_l s ss sr : 
+    set_disjoint (set_bunion s ss) sr <-> forall x (IN: s x), set_disjoint (ss x) sr.
+  Proof. u. Qed.
+
+  Lemma set_disjoint_bunion_r s ss sr : 
+    set_disjoint sr (set_bunion s ss) <-> forall x (IN: s x), set_disjoint sr (ss x).
+  Proof. u. Qed.
+
+  Lemma set_disjoint_subset_l s s' (SUB: s ⊆₁ s') s'' : 
+    set_disjoint s' s'' -> set_disjoint s s''.
+  Proof. u. Qed.
+
+  Lemma set_disjoint_subset_r s s' (SUB: s ⊆₁ s') s'' : 
+    set_disjoint s'' s' -> set_disjoint s'' s.
+  Proof. u. Qed.
+
+  Lemma set_disjoint_subset s s' (SUB: s ⊆₁ s') sr sr' (SUB': sr ⊆₁ sr') : 
+    set_disjoint s' sr' -> set_disjoint s sr.
+  Proof. u. Qed.
+
+  (** Miscellaneous *)
+
+  Lemma set_le n : (fun i => i <= n) ≡₁ (fun i => i < n) ∪₁ (eq n). 
   Proof.      
     u; intuition; omega.
   Qed.
 
-  Lemma set_lt n : (fun i => i < n) ≡₁ (fun i => i <= n) \ (eq n). 
+  Lemma set_lt n : (fun i => i < n) ≡₁ (fun i => i <= n) \₁ (eq n). 
   Proof.      
     u; intuition; omega.
   Qed.
@@ -470,7 +521,7 @@ Proof.
 Qed.
 
 Lemma set_coinfinite_fresh (s: nat -> Prop) (COINF: set_coinfinite s) :
-  exists b, ~ s b /\ set_coinfinite (s ∪ eq b).
+  exists b, ~ s b /\ set_coinfinite (s ∪₁ eq b).
 Proof.
   autounfold with unfolderDb in *.
   tertium_non_datur (forall b, s b).
@@ -530,6 +581,14 @@ Add Parametric Morphism A B : (@set_collect A B) with signature
   eq ==> set_equiv ==> set_equiv as set_collect_more.
 Proof. autounfold with unfolderDb; splits; ins; desf; eauto. Qed.
 
+Add Parametric Morphism A : (@set_disjoint A) with signature 
+  set_subset --> set_subset --> Basics.impl as set_disjoint_mori.
+Proof. red; autounfold with unfolderDb; ins; desf; eauto. Qed.
+
+Add Parametric Morphism A : (@set_disjoint A) with signature 
+  set_equiv ==> set_equiv ==> iff as set_disjoint_more.
+Proof. red; autounfold with unfolderDb; splits; ins; desf; eauto. Qed.
+
 (** Add support for automation. *)
 
 Lemma set_subset_refl2 A (x: A -> Prop) :  x ⊆₁ x. 
@@ -548,6 +607,7 @@ Hint Rewrite set_inter_empty_l set_inter_empty_r set_inter_full_l set_inter_full
 Hint Rewrite set_bunion_empty set_bunion_eq : hahn.
 Hint Rewrite set_collect_empty set_collect_eq : hahn.
 Hint Rewrite set_finite_union : hahn.
+Hint Rewrite set_disjoint_eq_eq set_disjoint_eq_l set_disjoint_eq_r : hahn.
 
 Hint Rewrite set_inter_union_l set_inter_union_r set_union_eq_empty : hahn_full.
 Hint Rewrite set_minus_union_l set_minus_union_r set_union_eq_empty : hahn_full.
@@ -557,9 +617,12 @@ Hint Rewrite set_bunion_inter_compat_l set_bunion_inter_compat_r : hahn_full.
 Hint Rewrite set_bunion_minus_compat_r : hahn_full.
 Hint Rewrite set_bunion_union_l set_bunion_union_r : hahn_full.
 Hint Rewrite set_collect_union : hahn_full. 
+Hint Rewrite set_disjoint_union_l set_disjoint_union_r : hahn_full.
+Hint Rewrite set_disjoint_bunion_l set_disjoint_bunion_r : hahn_full.
 
 Hint Immediate set_subset_empty_l set_subset_full_r : hahn.
-Hint Resolve set_subset_union_r : hahn.
-
 Hint Immediate set_finite_empty set_finite_eq set_finite_le set_finite_lt : hahn. 
+Hint Immediate set_disjoint_empty_l set_disjoint_empty_r : hahn. 
+
+Hint Resolve set_subset_union_r : hahn.
 Hint Resolve set_finite_unionI set_finite_bunion : hahn.

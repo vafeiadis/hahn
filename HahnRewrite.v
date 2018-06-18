@@ -12,6 +12,12 @@ Section HelperLemmas.
   Variable A : Type.
   Variables r1 r2 r3 r4 r5 r6 r7 r r' : relation A.
 
+  Lemma hahn_subset_exp (s s' : A -> Prop) :
+    s ⊆₁ s' -> forall x, s x -> s' x.
+  Proof.
+    eauto.
+  Qed.
+
   Lemma hahn_inclusion_exp :
     r ⊆ r' -> forall x y, r x y -> r' x y.
   Proof.
@@ -82,34 +88,35 @@ End HelperLemmas.
 
 (** We proceed with a set of rewrite tactics *)
 
-Lemma inclusion_refl_helper A (x y : relation A) : x = y -> x ⊆ y.
-Proof. by ins; subst. Qed. 
-
 Tactic Notation "hahn_rewrite" uconstr(EQ) :=
   match goal with
-    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite EQ; apply inclusion_refl_helper; reflexivity|]
+    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite EQ; simple apply inclusion_refl2|]
+    | |- _ _ => eapply hahn_subset_exp; [rewrite EQ; simple apply set_subset_refl2|]
     | |- _ => rewrite EQ
   end.
 
 Tactic Notation "hahn_rewrite" "<-" uconstr(EQ) :=
   match goal with
-    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite <- EQ; apply inclusion_refl_helper; reflexivity|]
+    | |- _ _ _ => eapply hahn_inclusion_exp; [rewrite <- EQ; simple apply inclusion_refl2|]
+    | |- _ _ => eapply hahn_subset_exp; [rewrite <- EQ; simple apply set_subset_refl2|]
     | |- _ => rewrite <- EQ
   end.
 
 Tactic Notation "hahn_rewrite" uconstr(EQ) "in" hyp(H) :=
   match type of H with
-    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite EQ; apply inclusion_refl_helper; reflexivity]
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite EQ; simple apply inclusion_refl2]
+    | _ _ => eapply hahn_subset_exp in H; [|rewrite EQ; simple apply set_subset_refl2]
     | _ => rewrite EQ in H
   end.
 
 Tactic Notation "hahn_rewrite" "<-" uconstr(EQ) "in" hyp(H) :=
   match type of H with
-    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite <- EQ; apply inclusion_refl_helper; reflexivity]
+    | _ _ _ => eapply hahn_inclusion_exp in H; [|rewrite <- EQ; simple apply inclusion_refl2]
+    | _ _ => eapply hahn_subset_exp in H; [|rewrite <- EQ; simple apply set_subset_refl2]
     | _ => rewrite <- EQ in H
   end.
 
-Tactic Notation "seq_rewrite" uconstr(x) :=
+Tactic Notation "hahn_seq_rewrite" uconstr(x) :=
   first [ hahn_rewrite x
         | hahn_rewrite (seq2 x)
         | hahn_rewrite (fun a => seq2 (x a))
@@ -148,7 +155,46 @@ Tactic Notation "seq_rewrite" uconstr(x) :=
         | hahn_rewrite (fun a b c d e f => seq6 (x a b c d e f))
         ].
 
-Tactic Notation "seq_rewrite" "<-" uconstr(x) :=
+Tactic Notation "seq_rewrite" uconstr(x) :=
+  first [ rewrite x
+        | rewrite (seq2 x)
+        | rewrite (fun a => seq2 (x a))
+        | rewrite (fun a b => seq2 (x a b))
+        | rewrite (fun a b c => seq2 (x a b c))
+        | rewrite (fun a b c d => seq2 (x a b c d))
+        | rewrite (fun a b c d e => seq2 (x a b c d e))
+        | rewrite (fun a b c d e f => seq2 (x a b c d e f))
+        | rewrite (seq3 x)
+        | rewrite (fun a => seq3 (x a))
+        | rewrite (fun a b => seq3 (x a b))
+        | rewrite (fun a b c => seq3 (x a b c))
+        | rewrite (fun a b c d => seq3 (x a b c d))
+        | rewrite (fun a b c d e => seq3 (x a b c d e))
+        | rewrite (fun a b c d e f => seq3 (x a b c d e f))
+        | rewrite (seq4 x)
+        | rewrite (fun a => seq4 (x a))
+        | rewrite (fun a b => seq4 (x a b))
+        | rewrite (fun a b c => seq4 (x a b c))
+        | rewrite (fun a b c d => seq4 (x a b c d))
+        | rewrite (fun a b c d e => seq4 (x a b c d e))
+        | rewrite (fun a b c d e f => seq4 (x a b c d e f))
+        | rewrite (seq5 x)
+        | rewrite (fun a => seq5 (x a))
+        | rewrite (fun a b => seq5 (x a b))
+        | rewrite (fun a b c => seq5 (x a b c))
+        | rewrite (fun a b c d => seq5 (x a b c d))
+        | rewrite (fun a b c d e => seq5 (x a b c d e))
+        | rewrite (fun a b c d e f => seq5 (x a b c d e f))
+        | rewrite (seq6 x)
+        | rewrite (fun a => seq6 (x a))
+        | rewrite (fun a b => seq6 (x a b))
+        | rewrite (fun a b c => seq6 (x a b c))
+        | rewrite (fun a b c d => seq6 (x a b c d))
+        | rewrite (fun a b c d e => seq6 (x a b c d e))
+        | rewrite (fun a b c d e f => seq6 (x a b c d e f))
+        ].
+
+Tactic Notation "hahn_seq_rewrite" "<-" uconstr(x) :=
   first [ hahn_rewrite <- x
         | hahn_rewrite (seq2 (same_relation_sym x))
         | hahn_rewrite (seq2 (same_relation_sym (x _)))
@@ -190,6 +236,50 @@ Tactic Notation "seq_rewrite" "<-" uconstr(x) :=
         | hahn_rewrite (fun a b c d => seq6 (same_relation_sym (x a b c d)))
         | hahn_rewrite (fun a b c d e => seq6 (same_relation_sym (x a b c d e)))
         | hahn_rewrite (fun a b c d e f => seq6 (same_relation_sym (x a b c d e f)))
+        ].
+
+Tactic Notation "seq_rewrite" "<-" uconstr(x) :=
+  first [ rewrite <- x
+        | rewrite (seq2 (same_relation_sym x))
+        | rewrite (seq2 (same_relation_sym (x _)))
+        | rewrite (seq2 (same_relation_sym (x _ _)))
+        | rewrite (seq2 (same_relation_sym (x _ _ _)))
+        | rewrite (seq2 (same_relation_sym (x _ _ _ _)))
+        | rewrite (seq2 (same_relation_sym (x _ _ _ _ _)))
+        | rewrite (fun a => seq2 (same_relation_sym (x a)))
+        | rewrite (fun a b => seq2 (same_relation_sym (x a b)))
+        | rewrite (fun a b c => seq2 (same_relation_sym (x a b c)))
+        | rewrite (fun a b c d => seq2 (same_relation_sym (x a b c d)))
+        | rewrite (fun a b c d e => seq2 (same_relation_sym (x a b c d e)))
+        | rewrite (fun a b c d e f => seq2 (same_relation_sym (x a b c d e f)))
+        | rewrite (seq3 (same_relation_sym x))
+        | rewrite (fun a => seq3 (same_relation_sym (x a)))
+        | rewrite (fun a b => seq3 (same_relation_sym (x a b)))
+        | rewrite (fun a b c => seq3 (same_relation_sym (x a b c)))
+        | rewrite (fun a b c d => seq3 (same_relation_sym (x a b c d)))
+        | rewrite (fun a b c d e => seq3 (same_relation_sym (x a b c d e)))
+        | rewrite (fun a b c d e f => seq3 (same_relation_sym (x a b c d e f)))
+        | rewrite (seq4 (same_relation_sym x))
+        | rewrite (fun a => seq4 (same_relation_sym (x a)))
+        | rewrite (fun a b => seq4 (same_relation_sym (x a b)))
+        | rewrite (fun a b c => seq4 (same_relation_sym (x a b c)))
+        | rewrite (fun a b c d => seq4 (same_relation_sym (x a b c d)))
+        | rewrite (fun a b c d e => seq4 (same_relation_sym (x a b c d e)))
+        | rewrite (fun a b c d e f => seq4 (same_relation_sym (x a b c d e f)))
+        | rewrite (seq5 (same_relation_sym x))
+        | rewrite (fun a => seq5 (same_relation_sym (x a)))
+        | rewrite (fun a b => seq5 (same_relation_sym (x a b)))
+        | rewrite (fun a b c => seq5 (same_relation_sym (x a b c)))
+        | rewrite (fun a b c d => seq5 (same_relation_sym (x a b c d)))
+        | rewrite (fun a b c d e => seq5 (same_relation_sym (x a b c d e)))
+        | rewrite (fun a b c d e f => seq5 (same_relation_sym (x a b c d e f)))
+        | rewrite (seq6 (same_relation_sym x))
+        | rewrite (fun a => seq6 (same_relation_sym (x a)))
+        | rewrite (fun a b => seq6 (same_relation_sym (x a b)))
+        | rewrite (fun a b c => seq6 (same_relation_sym (x a b c)))
+        | rewrite (fun a b c d => seq6 (same_relation_sym (x a b c d)))
+        | rewrite (fun a b c d e => seq6 (same_relation_sym (x a b c d e)))
+        | rewrite (fun a b c d e f => seq6 (same_relation_sym (x a b c d e f)))
         ].
 
 Tactic Notation "seq_rewrite" "!" uconstr(x) :=
@@ -249,8 +339,6 @@ Tactic Notation "sin_rewrite" "!" uconstr(x) :=
 Tactic Notation "sin_rewrite" "?" uconstr(x) :=
   repeat sin_rewrite x.
 
-
-
 Lemma rewrite_trans A (r: relation A) :
   transitive r -> r ⨾ r ⊆ r.
 Proof.
@@ -282,7 +370,7 @@ Proof.
 Qed.
 
 Ltac simpl_rels :=
-  rewrite ?seqA, ?seq_id_l, ?seq_id_r; seq_rewrite ? seq_eqvK.
+  rewrite ?eqv_empty, ?seq_false_l, ?seq_false_r, ?seq_id_l, ?seq_id_r, ?seqA; seq_rewrite ? seq_eqvK.
 
 Ltac rels :=
   repeat first [progress autorewrite with hahn |
@@ -319,9 +407,9 @@ Hint Resolve pow_rel_mori : hahn.
 (** Helpful tactics for inclusions *)
 
 Ltac apply_unionL_once := 
-  first [apply inclusion_union_l | apply inclusion_bunion_l; intros | 
-         apply set_subset_union_l; split | apply set_subset_bunion_l; intros |
-         apply irreflexive_union; split].
+  first [apply irreflexive_union; split |
+         apply inclusion_union_l | apply inclusion_bunion_l; intros | 
+         apply set_subset_union_l; split | apply set_subset_bunion_l; intros].
 
 Tactic Notation "unionL" := repeat apply_unionL_once. 
 
