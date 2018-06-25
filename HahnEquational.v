@@ -177,7 +177,7 @@ Add Parametric Morphism A : (@clos_trans A) with signature
 Proof. u; eauto using clos_trans_mon. Qed.
 
 Add Parametric Morphism A : (@clos_refl_trans A) with signature
-  same_relation ==> same_relation as clos_relf_trans_more.
+  same_relation ==> same_relation as clos_refl_trans_more.
 Proof. u; eauto using clos_refl_trans_mon. Qed.
 
 Add Parametric Morphism A : (@clos_refl A) with signature
