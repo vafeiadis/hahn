@@ -43,6 +43,6 @@ script:
 - set -e
 - echo 'Building Hahn...';
   echo -en 'travis_fold:start:Hahn.build';
-  make
+  make;
   echo -en 'travis_fold:end:Hahn.build'
 
