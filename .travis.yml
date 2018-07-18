@@ -1,0 +1,48 @@
+dist: trusty
+language: ocaml
+cache:
+  apt: true
+  directories:
+  - $HOME/.opam
+addons:
+  apt:
+    sources:
+    - avsm
+    packages:
+    - opam
+    - aspcud
+env:
+  global:
+  - NJOBS=2
+  - OPAMYES=true
+  matrix:
+#      - COMPILER="4.04.0"
+#      - COMPILER="4.04.1"
+#      - COMPILER="4.04.2"
+#      - COMPILER="4.05.0"
+#      - COMPILER="4.06.0"
+      - COMPILER="4.06.1"
+matrix:
+  fast_finish: true
+os:
+    - linux
+
+install:
+- "[ -e .opam ] || travis_wait opam init -j ${NJOBS} --compiler=${COMPILER} -n -y"
+- eval $(opam config env)
+- opam config var root
+#- opam repo add coq-released https://coq.inria.fr/opam/released || true
+#- opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev || true
+- opam update
+- opam install coq
+- opam list
+- ocamlc -v
+- coqc -v
+
+script:
+- set -e
+- echo 'Building Hahn...';
+  echo -en 'travis_fold:start:Hahn.build';
+  make
+  echo -en 'travis_fold:end:Hahn.build'
+
