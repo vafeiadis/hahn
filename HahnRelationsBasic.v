@@ -13,6 +13,7 @@ Arguments union [A] R1 R2 x y.
 Arguments reflexive [A] R.
 Arguments symmetric [A] R.
 Arguments transitive [A] R.
+Arguments antisymmetric [A] R.
 Arguments inclusion {A} R1 R2.
 Arguments same_relation {A} R1 R2.
 Arguments transp [A] R x y.
@@ -97,7 +98,7 @@ Hint Unfold union transp singl_rel inter_rel minus_rel bunion : unfolderDb.
 Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq clos_refl : unfolderDb.
 Hint Unfold clos_refl dom_rel codom_rel cross_rel collect_rel : unfolderDb.
 Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb. 
-Hint Unfold strict_partial_order strict_total_order : unfolderDb.
+Hint Unfold antisymmetric strict_partial_order strict_total_order : unfolderDb.
 
 (** We introduce the following notation. *)
 
@@ -130,6 +131,12 @@ Notation "'⋃' x < n , a" := (bunion (fun t => t < n) (fun x => a))
 Notation "'⋃' x <= n , a" := (bunion (fun t => t <= n) (fun x => a))
   (at level 200, x ident, right associativity,
    format "'[' ⋃ '/ ' x  <=  n ,  '/ ' a ']'").
+Notation "'⋃' x > n , a" := (bunion (fun t => n < t) (fun x => a))
+  (at level 200, x ident, right associativity,
+   format "'[' ⋃ '/ ' x  >  n ,  '/ ' a ']'").
+Notation "'⋃' x >= n , a" := (bunion (fun t => n <= t) (fun x => a))
+  (at level 200, x ident, right associativity,
+   format "'[' ⋃ '/ ' x  >=  n ,  '/ ' a ']'").
 
 (** Here are some alternative non-unicode notations *)
 
@@ -267,6 +274,26 @@ Lemma clos_trans_restr_eqD x y :
   clos_trans (restr_eq_rel f r) x y -> f x = f y.
 Proof.
   unfold restr_eq_rel; induction 1; ins; desf; congruence.
+Qed.
+
+Lemma acyclic_antisymmetric :
+  acyclic r -> antisymmetric r.
+Proof.
+  clear; autounfold with unfolderDb; intuition.
+  exfalso; eauto using clos_trans.
+Qed.
+
+Lemma trans_irr_antisymmetric :
+  irreflexive r -> transitive r -> antisymmetric r.
+Proof.
+  auto using acyclic_antisymmetric, trans_irr_acyclic.
+Qed.
+
+Lemma strict_partial_order_antisymmetric :
+  strict_partial_order r -> antisymmetric r.
+Proof.
+  unfold strict_partial_order; ins; desc. 
+  auto using trans_irr_antisymmetric.
 Qed.
 
 Lemma irreflexive_inclusion:
@@ -714,6 +741,8 @@ Hint Resolve
      inclusion_seq_mon inclusion_minus_mon
      inclusion_restr_eq_l inclusion_restr_rel_l
   : hahn.
+
+Hint Resolve trans_irr_antisymmetric strict_partial_order_antisymmetric : hahn.
 
 Hint Resolve
      inclusion_step_t inclusion_t_t inclusion_t_ind inclusion_rt_rt
