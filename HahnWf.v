@@ -66,7 +66,15 @@ Section well_founded.
     tertium_non_datur (immediate r a b) as [?|NIM]; eauto.
   Qed.
 
+  Lemma wf_restr r (WF: well_founded r) cond : well_founded (restr_rel cond r).
+  Proof.
+    red; ins; induction a using (well_founded_induction WF).
+    constructor; ins; unfolder in H0; desf; eauto.
+  Qed.
+
 End well_founded.
+
+Hint Resolve wf_restr : hahn.
 
 (** Properties of finitely supported relations. *)
 
@@ -200,8 +208,14 @@ Section finite_support.
     rewrite rtE, fsupp_union; eauto using fsupp_eqv.
   Qed.
 
+  Lemma fsupp_restr r (FS: fsupp r) cond : fsupp (restr_rel cond r).
+  Proof.
+    firstorder.
+  Qed.
+
+
 End finite_support.
 
 
 Hint Resolve fsupp_empty fsupp_eqv fsupp_cross : hahn.
-Hint Resolve fsupp_unionI fsupp_seqI fsupp_ct_rt : hahn.
+Hint Resolve fsupp_unionI fsupp_seqI fsupp_ct_rt fsupp_restr : hahn.
