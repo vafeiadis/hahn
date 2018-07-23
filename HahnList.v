@@ -16,9 +16,31 @@ Set Implicit Arguments.
 (******************************************************************************)
 
 Definition appA := app_ass.
+Definition length_nil A : length (@nil A) = 0 := eq_refl. 
+Definition length_cons A (a: A) l : length (a :: l) = S (length l) := eq_refl. 
+Definition length_app := app_length.
+Definition length_rev := rev_length.
+Definition length_map := map_length.
+Definition length_combine := combine_length.
+Definition length_prod := prod_length.
+Definition length_firstn := firstn_length.
+Definition length_seq := seq_length.
+Definition length_repeat := repeat_length.
+
+Hint Rewrite length_nil length_cons length_app length_rev length_map : calc_length.
+Hint Rewrite length_combine length_prod length_firstn length_seq  : calc_length.
+Hint Rewrite length_repeat : calc_length.
 
 Lemma in_cons_iff A (a b : A) l : In b (a :: l) <-> a = b \/ In b l.
 Proof. done. Qed.
+
+Lemma in_app_l A (a : A) l l' : In a l -> In a (l ++ l').
+Proof. eauto using in_or_app. Qed.
+
+Lemma in_app_r A (a : A) l l' : In a l' -> In a (l ++ l').
+Proof. eauto using in_or_app. Qed.
+
+Hint Resolve in_app_l in_app_r in_cons in_eq : hahn.
 
 Lemma In_split2 :
   forall A (x: A) l (IN: In x l),
@@ -46,6 +68,8 @@ Lemma app_nth A n l l' (d : A) :
 Proof.
   desf; eauto using app_nth1, app_nth2.
 Qed.
+
+Definition nth_app := app_nth. 
 
 (** List filtering *)
 (******************************************************************************)
@@ -119,6 +143,30 @@ Proof.
 Qed.
 
 Instance filterP_Proper A : Proper (_ ==> _ ==> _) _ := Permutation_filterP2 (A:=A).
+
+
+Lemma filterP_eq_nil A f (l: list A): 
+  filterP f l = nil <-> forall x (IN: In x l) (COND: f x), False.
+Proof.
+  split; ins.
+  * enough (In x nil) by done.
+    rewrite <- H; apply in_filterP_iff; eauto.
+  * induction l; ins; desf; eauto; exfalso; eauto.
+Qed.
+    
+Lemma filterP_eq_cons A f (l l': list A) x: 
+  filterP f l = x :: l' -> 
+  f x /\ 
+  exists p p', 
+    l = p ++ x :: p' /\ 
+    (forall x (IN: In x p) (COND: f x), False) /\
+    l' = filterP f p'.
+Proof.
+  induction l; ins; desf. 
+    by splits; ins; eexists nil; eexists; splits; ins; desf; eauto.
+  eapply IHl in H; desc; splits; ins; desf. 
+  eexists (_ :: _); eexists; splits; ins; desf; eauto.
+Qed.
 
 
 (** List flattening *)
@@ -419,25 +467,23 @@ Section map_filter.
 End map_filter.
 
 
-(** Lemmas about sorting *)
+(** Lemmas about Forall *)
 (******************************************************************************)
 
-Lemma sorted_perm_eq : forall A (cmp: A -> A -> Prop)
-  (TRANS: transitive _ cmp)
-  (ANTIS: antisymmetric _ cmp)
-  l l' (P: Permutation l l')
-  (S : StronglySorted cmp l) (S' : StronglySorted cmp l'), l = l'.
+Lemma Forall_cons A (P : A -> Prop) a l :
+  Forall P (a :: l) <-> P a /\ Forall P l.
 Proof.
-  induction l; ins.
-    by apply Permutation_nil in P; desf.
-  assert (X: In a l') by eauto using Permutation_in, Permutation_sym, in_eq.
-  apply In_split2 in X; desf; apply Permutation_cons_app_inv in P.
-  destruct l1; ins; [by inv S; inv S'; eauto using f_equal|].
-  assert (X: In a0 l) by eauto using Permutation_in, Permutation_sym, in_eq.
-  inv S; inv S'; rewrite Forall_forall in *; ins.
-  destruct X0; left; apply ANTIS; eauto using in_eq, in_or_app.
+  split; intro H; desf; vauto; inversion H; desf. 
+Qed. 
+
+Lemma Forall_app A (P : A -> Prop) l1 l2 :
+  Forall P (l1 ++ l2) <-> Forall P l1 /\ Forall P l2.
+Proof.
+  induction l1; ins; [by intuition; vauto|].
+  by rewrite !Forall_cons, IHl1, and_assoc.
 Qed.
 
+Definition ForallE := Forall_forall.
 
 (** [dprod] *)
 (******************************************************************************)
@@ -559,6 +605,11 @@ Proof.
     apply nth_overflow; ins; omega.
   by assert (i = n) by omega; desf; rewrite minus_diag.
 Qed.
+
+Definition length_mk_list := mk_list_length.
+Definition nth_mk_list := mk_list_nth. 
+
+Hint Rewrite length_mk_list : calc_length.
 
 
 (** [max_of_list] *)
