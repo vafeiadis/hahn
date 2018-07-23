@@ -19,6 +19,8 @@ about lists and binary relations.
 - HahnRelationsBasic.v : binary relations
 - HahnRewrite.v : support for rewriting equivalent relations
 - HahnSets.v : lemmas about sets (i.e., unary relations)
+- HahnSegment.v : lemmas about segments of total orders
+- HahnSorted.v : lemmas about sortedness of lists 
 - HahnTotalExt.v : extension of a partial order to a total order.
 - HahnTotalList.v : building finite relations for program order.
 
