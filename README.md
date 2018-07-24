@@ -23,10 +23,11 @@ about lists and binary relations.
 - HahnSorted.v : lemmas about sortedness of lists 
 - HahnTotalExt.v : extension of a partial order to a total order.
 - HahnTotalList.v : building finite relations for program order.
+- Zorn.v : A mechanization of Zorn's lemma (thanks to Johannes Kloos)
 
 ## Build
 
-- Install [Coq](http://coq.inria.fr) 8.6 or 8.7 
+- Install [Coq](http://coq.inria.fr) 8.8 or above
 - make
 
 ## Use
