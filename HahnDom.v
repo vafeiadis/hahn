@@ -1,6 +1,6 @@
 Require Import HahnBase HahnSets HahnRelationsBasic.
 Require Import HahnRewrite.
-Require Import Classical Setoid.
+Require Import Setoid.
 Set Implicit Arguments.
 
 (** * Calculating the (co)domain of a relation *)

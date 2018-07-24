@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase HahnSets.
-Require Import ClassicalDescription Omega Setoid Morphisms Sorted.
+Require Import Omega Setoid Morphisms Sorted.
 Require Export List Permutation.
 
 Set Implicit Arguments.

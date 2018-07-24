@@ -2,7 +2,7 @@
 (** * Function update *)
 (******************************************************************************)
 
-Require Import HahnBase List ClassicalDescription.
+Require Import HahnBase List.
 Set Implicit Arguments.
 
 (** Function update *)

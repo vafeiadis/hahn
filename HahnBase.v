@@ -10,7 +10,7 @@
 
 Require Import Bool Arith ZArith String.
 Require ClassicalFacts.
-Require Export Classical FunctionalExtensionality ProofIrrelevance.
+Require Export ClassicalDescription FunctionalExtensionality.
 
 Open Scope bool_scope.
 Open Scope list_scope.

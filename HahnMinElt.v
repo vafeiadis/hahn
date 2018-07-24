@@ -2,8 +2,9 @@
 (** * Minimal elements of relations *)
 (******************************************************************************)
 
-Require Import HahnBase HahnList HahnSets HahnRelationsBasic HahnEquational HahnRewrite.
-Require Import HahnMaxElt Classical NPeano Omega Setoid.
+Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
+Require Import HahnEquational HahnRewrite HahnMaxElt.
+Require Import NPeano Omega Setoid.
 
 Set Implicit Arguments.
 

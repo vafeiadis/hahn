@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase.
-Require Import List Omega Classical Relations Setoid Morphisms.
+Require Import List Omega Relations Setoid Morphisms.
 
 Set Implicit Arguments.
 

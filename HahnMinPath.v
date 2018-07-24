@@ -2,8 +2,8 @@
 (** * Minimal paths and cycles *)
 (******************************************************************************)
 
-Require Import Classical NPeano Omega.
-Require Import HahnBase HahnList HahnRelationsBasic (*HahnMaxElt*) HahnRewrite.
+Require Import NPeano Omega.
+Require Import HahnBase HahnList HahnRelationsBasic HahnRewrite.
 
 Set Implicit Arguments.
 

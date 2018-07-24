@@ -2,7 +2,7 @@
 (** * Equational properties of relations *)
 (******************************************************************************)
 
-Require Import Classical NPeano Omega Permutation List Setoid.
+Require Import NPeano Omega Permutation List Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnSets.
 
 Set Implicit Arguments.

@@ -4,7 +4,6 @@
 
 Require Import HahnBase HahnSets HahnList HahnRelationsBasic HahnWf HahnMinElt.
 Require Import HahnEquational HahnSorted.
-Require Import ClassicalDescription IndefiniteDescription.
 
 Set Implicit Arguments.
 
@@ -49,9 +48,21 @@ Proof.
     destruct (N x'); vauto. 
 Qed.
 
+Lemma starting_segment_exists_unique A cond (r: relation A) 
+    (STO: strict_total_order cond r) (FSUPP: fsupp r) x (Cx: cond x):
+  exists! l, << SORTED: StronglySorted r l >> /\ 
+             << INIT: forall x', cond x' /\ r^* x' x <->  In x' l >>.
+Proof.
+  assert (X:=starting_segment_exists STO FSUPP x Cx); desc.
+  destruct STO.
+  exists l; split; ins; desc.
+  eapply StronglySorted_eq; eauto.
+  by ins; rewrite <- INIT, INIT0.
+Qed.
+
 Definition starting_segment A cond R STO FSUPP x Cx := 
-   proj1_sig (constructive_indefinite_description _ 
-                (@starting_segment_exists A cond R STO FSUPP x Cx)).
+   proj1_sig (constructive_definite_description _ 
+                (@starting_segment_exists_unique A cond R STO FSUPP x Cx)).
    
 Lemma starting_segment_property A cond R STO FSUPP x Cx:
   << SORTED: StronglySorted R  (@starting_segment A cond R STO FSUPP x Cx) >> /\ 

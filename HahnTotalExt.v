@@ -2,7 +2,7 @@
 (** * Extension of a partial order to a total order *)
 (******************************************************************************)
 
-Require Import NPeano Omega Setoid Classical.
+Require Import NPeano Omega Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnRewrite.
 Require Import HahnMaxElt.
 
@@ -376,3 +376,4 @@ Add Parametric Morphism A : (@tot_ext_suc A) with signature
 Proof.
   by unfold tot_ext_suc; ins; rewrite H, H0. 
 Qed.
+
