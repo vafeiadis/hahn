@@ -382,14 +382,13 @@ Qed.
 (******************************************************************************)
 (** A generic version relying on Zorn's lemma *)
 
-
 Lemma partial_order_included_in_total_order A (R: relation A) (POR: strict_partial_order R):
   exists R', inclusion R R' /\ strict_total_order (fun _ => True) R'.
 Proof.
   forward apply (@zorns_lemma {Q: relation A | <<SUBST: R ⊆ Q>> /\ <<PO: strict_partial_order Q>>} 
-                              (fun R1 R2 => proj1_sig R1 ⊆ proj1_sig R2)) as MAX.
-  { (* subset is preorder *)
-    split; red; ins. eby eapply inclusion_trans. }
+                              (fun R1 R2 => proj1_sig R1 ⊆ proj1_sig R2)) 
+    as [[M ?] MAX]; desc; simpls.
+  { firstorder. (* subset is preorder *) }
   { (* every chain has an upper bound *)
     intros C CHAIN.
     tertium_non_datur (C ≡₁ ∅) as [EMP|NEMP].
@@ -412,9 +411,7 @@ Proof.
           all: match goal with H: proj1_sig ?rel _ _ |- _ => exists rel; destruct rel; split; ins; desf end.
           all: match goal with TRANS: strict_partial_order ?rel |- ?rel _ _ => eby eapply TRANS end. }
   (* We now know that a maximal element exists. We need to show that's the one we were looking for. *)
-  destruct MAX as [M MAX]; exists (proj1_sig M).
-  split; [by destruct M; desf | ].
-  destruct M as [M]; split; desf.
+  exists M; do 2 (split; ins).
   red; ins.
   apply NNPP; intro INCOMP; clarify_not.
   remember (fun x y => (x = a /\ y = b) \/
