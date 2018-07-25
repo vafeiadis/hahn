@@ -50,7 +50,6 @@ Add Parametric Morphism A : (@clos_trans A) with signature
   inclusion ==> inclusion as clos_trans_mori.
 Proof. u; eauto using clos_trans_mon. Qed.
 
-
 Add Parametric Morphism A : (@clos_refl_trans A) with signature
   inclusion ==> inclusion as clos_refl_trans_mori.
 Proof. u; eauto using clos_refl_trans_mon. Qed.
@@ -59,12 +58,16 @@ Add Parametric Morphism A : (@clos_refl A) with signature
   inclusion ==> inclusion as clos_refl_mori.
 Proof. u. Qed.
 
-Add Parametric Morphism A P : (@restr_rel A P) with signature
-  inclusion ==> inclusion as restr_rel_mori.
+Add Parametric Morphism A : (@restr_rel A) with signature
+  set_subset ==> inclusion ==> inclusion as restr_rel_mori.
 Proof. u. Qed.
 
 Add Parametric Morphism A B : (@restr_eq_rel A B) with signature
   eq ==> inclusion ==> inclusion as restr_eq_rel_mori.
+Proof. u. Qed.
+
+Add Parametric Morphism A B : (@map_rel A B) with signature 
+    eq ==> inclusion ==> inclusion as map_rel_mori.
 Proof. u. Qed.
 
 Add Parametric Morphism A : (@acyclic A) with signature
@@ -164,12 +167,16 @@ Add Parametric Morphism A : (@eqv_dom_rel A) with signature
   (@Permutation _) ==> same_relation as eqv_dom_rel_more.
 Proof. by u; rewrite H in *. Qed.
 
-Add Parametric Morphism A P : (@restr_rel A P) with signature
-  same_relation ==> same_relation as restr_rel_more.
+Add Parametric Morphism A : (@restr_rel A) with signature
+  set_equiv ==> same_relation ==> same_relation as restr_rel_more.
 Proof. u. Qed.
 
 Add Parametric Morphism A B : (@restr_eq_rel A B) with signature
   eq ==> same_relation ==> same_relation as restr_eq_rel_more.
+Proof. u. Qed.
+
+Add Parametric Morphism A B : (@map_rel A B) with signature 
+    eq ==> same_relation ==> same_relation as map_rel_more.
 Proof. u. Qed.
 
 Add Parametric Morphism A : (@clos_trans A) with signature
@@ -854,71 +861,81 @@ Hint Rewrite eqv_empty : hahn.
 Lemma same_relation_restr A (f : A -> Prop) r r' :
    (forall x (CONDx: f x) y (CONDy: f y), r x y <-> r' x y) ->
    (restr_rel f r ≡ restr_rel f r').
-Proof.
-  unfold restr_rel; split; red; ins; desf; rewrite H in *; eauto.
-Qed.
+Proof. u; firstorder. Qed.
 
 Lemma restr_restr A (d d' : A -> Prop) r :
   restr_rel d (restr_rel d' r) ≡ restr_rel (d' ∩₁ d) r. 
-Proof.
-  autounfold with unfolderDb; intuition; desf; eauto. 
-Qed. 
+Proof. u. Qed.
+
+Lemma restrC A (d d': A -> Prop) r :
+  restr_rel d (restr_rel d' r) ≡ restr_rel d' (restr_rel d r). 
+Proof. u. Qed.
 
 Lemma restr_relE A (d : A -> Prop) r :
   restr_rel d r ≡ <| d |> ;; r ;; <| d |>. 
-Proof.
-  rewrite seq_eqv_lr; autounfold with unfolderDb; intuition.
-Qed. 
+Proof. rewrite seq_eqv_lr; u. Qed. 
 
 Lemma restr_union A (f : A -> Prop) r r' :
   restr_rel f (r ∪ r') ≡ restr_rel f r ∪ restr_rel f r'.
-Proof.
-  autounfold with unfolderDb; intuition; desf; eauto. 
-Qed.
+Proof. u. Qed.
+
+Lemma restr_inter A (f : A -> Prop) r r' :
+  restr_rel f (r ∩ r') ≡ restr_rel f r ∩ restr_rel f r'.
+Proof. u. Qed.
+
+Lemma restr_minus A (f : A -> Prop) r r' :
+  restr_rel f (r \ r') ≡ restr_rel f r \ restr_rel f r'.
+Proof. u. Qed.
+
+Lemma restr_minus_alt A (f : A -> Prop) r r' :
+  restr_rel f (r \ r') ≡ restr_rel f r \ r'.
+Proof. u. Qed.
 
 Lemma restr_bunion A B (f : B -> Prop) (s: A -> Prop) rr :
   restr_rel f (⋃x ∈ s, rr x) ≡ ⋃x ∈ s, restr_rel f (rr x).
-Proof.
-  autounfold with unfolderDb; intuition; desf; eauto. 
-Qed.
+Proof. u. Qed.
 
 Lemma union_restr A (f : A -> Prop) r r' :
   restr_rel f r ∪ restr_rel f r' ≡ restr_rel f (r ∪ r').
-Proof.
-  symmetry; apply restr_union.
-Qed.
+Proof. u. Qed.
 
 Lemma bunion_restr A B (f : B -> Prop) (s: A -> Prop) rr :
   (⋃x ∈ s, restr_rel f (rr x)) ≡ restr_rel f (⋃x ∈ s, rr x).
-Proof.
-  autounfold with unfolderDb; intuition; desf; eauto. 
-Qed.
+Proof. u. Qed.
+
+Lemma restr_ct A (d: A -> Prop) r :
+  (restr_rel d r)⁺ ⊆ restr_rel d r⁺.
+Proof. u; induction H; desf; eauto using clos_trans. Qed.
+
+Lemma restr_seq_eqv_l A (f : A -> Prop) d r :
+  restr_rel f (⦗d⦘⨾ r) ≡ ⦗d⦘⨾ restr_rel f r.
+Proof. u; eauto 6. Qed.
+
+Lemma restr_seq_eqv_r A (f : A -> Prop) r d :
+  restr_rel f (r⨾ ⦗d⦘) ≡ restr_rel f r⨾ ⦗d⦘.
+Proof. u; eauto 6. Qed.
 
 Lemma restr_eq_union A r r' B (f : A -> B) :
   restr_eq_rel f (r ∪ r') ≡ restr_eq_rel f r ∪ restr_eq_rel f r'.
-Proof.
-  autounfold with unfolderDb; intuition; desf; eauto. 
-Qed.
+Proof. u. Qed.
 
 Lemma restr_eq_bunion A (s : A -> Prop) B (rr: A -> relation B) C (f : B -> C) :
   restr_eq_rel f (⋃x ∈ s, rr x) ≡ ⋃x ∈ s, restr_eq_rel f (rr x).
-Proof.
-  autounfold with unfolderDb; intuition; desf; eauto. 
-Qed.
+Proof. u. Qed.
 
 Lemma restr_eq_elim A (r : relation A) B (f: A -> B) 
       (R: forall x y, r x y -> f x = f y) :
    restr_eq_rel f r ≡ r.
-Proof.
-  unfold restr_eq_rel; split; red; ins; intuition.
-Qed.
+Proof. u. Qed.
 
-Lemma restr_eq_seq_eqv_rel A (r : relation A) B (f : A -> B) dom :
+Lemma restr_eq_seq_eqv_l A (r : relation A) B (f : A -> B) dom :
+  restr_eq_rel f (⦗dom⦘⨾ r) ≡ ⦗dom⦘⨾ restr_eq_rel f r.
+Proof. u. Qed.
+
+Lemma restr_eq_seq_eqv_r A (r : relation A) B (f : A -> B) dom :
   restr_eq_rel f (r⨾ ⦗dom⦘) ≡ restr_eq_rel f r⨾ ⦗dom⦘.
-Proof.
-  ins; rewrite !seq_eqv_r; unfold restr_eq_rel.
-  split; red; ins; desf.
-Qed.
+Proof. u. Qed.
+
 
 
 (******************************************************************************)
@@ -929,72 +946,51 @@ Section TranspProperties.
 
   Variable A : Type.
   Implicit Type r : relation A.
-  Implicit Type dom : A -> Prop.
+  Implicit Type d : A -> Prop.
 
   Lemma transp_inv r : r⁻¹ ⁻¹ ≡ r.
-  Proof.
-    unfold transp; split; red; intuition.
-  Qed.
+  Proof. u. Qed.
 
-  Lemma transp_eqv_rel dom : ⦗dom⦘⁻¹ ≡ ⦗dom⦘.
-  Proof.
-    unfold eqv_rel, transp; split; red; ins; desf.
-  Qed.
+  Lemma transp_eqv_rel d : ⦗d⦘⁻¹ ≡ ⦗d⦘.
+  Proof. u. Qed.
+
+  Lemma transp_cross d d' : (d × d')⁻¹ ≡ (d' × d).
+  Proof. u. Qed.
 
   Lemma transp_union r1 r2 : (r1 ∪ r2)⁻¹ ≡ r1⁻¹ ∪ r2⁻¹.
-  Proof.
-    unfold transp, union; split; red; intuition.
-  Qed.
+  Proof. u. Qed.
 
   Lemma transp_seq r1 r2 : (r1 ⨾ r2)⁻¹ ≡ r2⁻¹ ⨾ r1⁻¹.
-  Proof.
-    unfold transp, seq; split; red; ins; desf; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma transp_inter r1 r2 : (r1 ∩ r2)⁻¹ ≡ r1⁻¹ ∩ r2⁻¹.
-  Proof.
-    unfold transp, inter_rel; split; red; intuition.
-  Qed.
+  Proof. u. Qed.
 
   Lemma transp_minus r1 r2 : (r1 \ r2)⁻¹ ≡ r1⁻¹ \ r2⁻¹.
-  Proof.
-    unfold transp, minus_rel; split; red; intuition.
-  Qed.
+  Proof. u. Qed.
 
   Lemma transp_rt r : (r＊) ⁻¹ ≡ (r⁻¹)＊.
-  Proof.
-    unfold transp, seq; split; red; ins; induction H; vauto.
-  Qed.
+  Proof. u; induction H; vauto. Qed.
 
   Lemma transp_ct r : (r⁺)⁻¹ ≡ (r⁻¹)⁺.
-  Proof.
-    unfold transp, seq; split; red; ins; induction H; vauto.
-  Qed.
+  Proof. u; induction H; vauto. Qed.
 
   Lemma transp_cr r : (r^?)⁻¹ ≡ (r⁻¹)^?.
-  Proof.
-    unfold transp, clos_refl; split; red; intuition.
-  Qed.
+  Proof. u. Qed.
 
   Lemma transitive_transp r : transitive r -> transitive (r⁻¹).
-  Proof.
-    unfold transp, transitive; eauto.
-  Qed.
+  Proof. u. Qed.
 
   Lemma inclusion_transpE r r' : r⁻¹ ⊆ r'⁻¹ -> r ⊆ r'.
-  Proof.
-    by unfold transp, inclusion; intuition.
-  Qed.
+  Proof. u. Qed.
 
   Lemma same_relation_transpE r r' : transp r ≡ transp r' -> r ≡ r'.
-  Proof. 
-    by unfold transp, same_relation, inclusion; intuition.
-  Qed.
+  Proof. u. Qed.
 
 End TranspProperties.
 
-Hint Rewrite transp_inv transp_eqv_rel: hahn.
-Hint Rewrite transp_inv transp_eqv_rel transp_union transp_seq 
+Hint Rewrite transp_inv transp_cross transp_eqv_rel : hahn.
+Hint Rewrite transp_inv transp_cross transp_eqv_rel transp_union transp_seq 
   transp_inter transp_minus transp_rt transp_ct transp_cr : rel_transp.
 
 Ltac rel_transp := 
@@ -1002,8 +998,37 @@ Ltac rel_transp :=
     autorewrite with rel_transp.
 
 (******************************************************************************)
+(** Properties of [map_rel] *)
+(******************************************************************************)
+
+Lemma map_rel_false A B (f : A -> B) :
+  map_rel f ∅₂ ≡ ∅₂.
+Proof. u. Qed.
+
+Lemma map_rel_cross A B (f : A -> B) s s' :
+  map_rel f (s × s') ≡ (fun x => s (f x)) × (fun x => s' (f x)).
+Proof. u. Qed.
+
+Lemma map_rel_union A B (f : A -> B) r r' :
+  map_rel f (r ∪ r') ≡ map_rel f r ∪ map_rel f r'.
+Proof. u. Qed.
+
+Lemma map_rel_inter A B (f : A -> B) r r' :
+  map_rel f (r ∩ r') ≡ map_rel f r ∩ map_rel f r'.
+Proof. u. Qed.
+
+Lemma map_rel_minus A B (f : A -> B) r r' :
+  map_rel f (r \ r') ≡ map_rel f r \ map_rel f r'.
+Proof. u. Qed.
+
+Lemma map_rel_restr A B (f : A -> B) d r :
+  map_rel f (restr_rel d r) ≡ restr_rel (fun x => d (f x)) (map_rel f r).
+Proof. u. Qed.
+
+(******************************************************************************)
 (** Properties of [pow_rel] *)
 (******************************************************************************)
+
 Lemma pow_t A n (r: relation A) : transitive r -> r ⨾ r^^n ⊆ r.
 Proof.
   ins; induction n; simpl.
@@ -1053,6 +1078,9 @@ Section PropertiesCross.
 
   Lemma cross_false_l s : ∅ × s ≡ ∅₂.
   Proof. u. Qed.
+
+  Lemma ct_of_cross s s' : (s × s')⁺ ≡ s × s'.
+  Proof. u; induction H; desf; eauto. Qed.
 
 End PropertiesCross.
 

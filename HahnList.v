@@ -483,6 +483,20 @@ Proof.
   by rewrite !Forall_cons, IHl1, and_assoc.
 Qed.
 
+Lemma Forall_filter A (P: A -> Prop) f l : 
+  Forall P l -> Forall P (filter f l).
+Proof.
+  rewrite !Forall_forall; ins.
+  rewrite in_filter_iff in H0; desf; eauto.
+Qed.
+
+Lemma Forall_filterP A (P: A -> Prop) f l : 
+  Forall P l -> Forall P (filterP f l).
+Proof.
+  rewrite !Forall_forall; ins.
+  rewrite in_filterP_iff in H0; desf; eauto.
+Qed.
+
 Definition ForallE := Forall_forall.
 
 (** [dprod] *)

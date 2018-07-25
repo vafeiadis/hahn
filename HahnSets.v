@@ -77,7 +77,7 @@ Section SetProperties.
   Local Ltac u :=
     autounfold with unfolderDb in *; ins; try solve [tauto | firstorder | split; ins; tauto].
 
-  Variables A B : Type.
+  Variables A B C : Type.
   Implicit Type a : A.
   Implicit Type f : A -> B.
   Implicit Type s : A -> Prop.
@@ -376,6 +376,10 @@ Section SetProperties.
     set_bunion s (fun x => ss x ∪₁ ss' x) ≡₁ set_bunion s ss ∪₁ set_bunion s ss'.
   Proof. u. Qed. 
 
+  Lemma set_bunion_bunion_l s ss (ss' : B -> C -> Prop) :
+    (⋃₁x ∈ (⋃₁y ∈ s, ss y), ss' x) ≡₁ ⋃₁y ∈ s, ⋃₁x ∈ ss y, ss' x.
+  Proof. u. Qed.
+
   Lemma set_bunion_inter_compat_l s sb ss :
     set_bunion s (fun x => sb ∩₁ ss x) ≡₁ sb ∩₁ set_bunion s ss.
   Proof. u; split; ins; desf; eauto 8. Qed. 
@@ -402,6 +406,10 @@ Section SetProperties.
   Lemma set_collect_union f s s' :
     set_collect f (s ∪₁ s') ≡₁ set_collect f s ∪₁ set_collect f s'.
   Proof. u. Qed. 
+
+  Lemma set_collect_bunion f (s : B -> Prop) (ss : B -> A -> Prop) :
+    set_collect f (⋃₁x ∈ s, ss x) ≡₁ ⋃₁x ∈ s, set_collect f (ss x).
+  Proof. u. Qed.
 
   (** Finite sets *)
 
@@ -604,8 +612,8 @@ Hint Rewrite set_compl_empty set_compl_full set_compl_compl : hahn.
 Hint Rewrite set_compl_union set_compl_inter set_compl_minus : hahn.
 Hint Rewrite set_union_empty_l set_union_empty_r set_union_full_l set_union_full_r : hahn.
 Hint Rewrite set_inter_empty_l set_inter_empty_r set_inter_full_l set_inter_full_r : hahn.
-Hint Rewrite set_bunion_empty set_bunion_eq : hahn.
-Hint Rewrite set_collect_empty set_collect_eq : hahn.
+Hint Rewrite set_bunion_empty set_bunion_eq set_bunion_bunion_l : hahn.
+Hint Rewrite set_collect_empty set_collect_eq set_collect_bunion : hahn.
 Hint Rewrite set_finite_union : hahn.
 Hint Rewrite set_disjoint_eq_eq set_disjoint_eq_l set_disjoint_eq_r : hahn.
 

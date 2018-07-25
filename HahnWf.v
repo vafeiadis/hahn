@@ -213,9 +213,15 @@ Section finite_support.
     firstorder.
   Qed.
 
+  Lemma functional_inv_fsupp r (F: functional r⁻¹) : fsupp r.
+  Proof.
+    unfolder; ins.
+    tertium_non_datur (exists x, r x y); ins; desf.
+    - exists (x :: nil); ins; eauto.
+    - exists nil; ins; eauto. 
+  Qed.
 
 End finite_support.
-
 
 Hint Resolve fsupp_empty fsupp_eqv fsupp_cross : hahn.
 Hint Resolve fsupp_unionI fsupp_seqI fsupp_ct_rt fsupp_restr : hahn.

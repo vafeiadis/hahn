@@ -2,8 +2,7 @@
 (** * Lemmas about sorted lists *)
 (******************************************************************************)
 
-Require Import HahnBase HahnSets HahnList HahnRelationsBasic HahnWf HahnMinElt.
-Require Import HahnEquational.
+Require Import HahnBase HahnSets HahnList HahnRelationsBasic HahnEquational.
 Require Export Sorted.
 
 Set Implicit Arguments.
@@ -45,6 +44,20 @@ Proof.
   rewrite StronglySorted_app_iff; tauto.
 Qed.
 
+Lemma StronglySorted_filter A r f (l : list A): 
+  StronglySorted r l -> StronglySorted r (filter f l).
+Proof.
+  induction l; ins; eauto; desf; rewrite StronglySorted_cons_iff in *; desf.
+  all: splits; desf; eauto using Forall_filter.
+Qed.
+
+Lemma StronglySorted_filterP A r f (l : list A): 
+  StronglySorted r l -> StronglySorted r (filterP f l).
+Proof.
+  induction l; ins; eauto; desf; rewrite StronglySorted_cons_iff in *; desf.
+  all: splits; desf; eauto using Forall_filterP.
+Qed.
+
 Lemma NoDup_StronglySorted A (r: relation A) (IRR: irreflexive r) 
       l (SS: StronglySorted r l): 
   NoDup l.
@@ -73,7 +86,6 @@ Proof.
   destruct X0; left; apply ANTIS; eauto with hahn. 
 Qed.
 
-
 Lemma StronglySorted_eq A (r: relation A) (ORD: strict_partial_order r) l l'
    (SS: StronglySorted r l) (SS': StronglySorted r l')
    (EQ: forall x, In x l <-> In x l'): l = l'. 
@@ -89,4 +101,3 @@ Proof.
   rewrite StronglySorted_cons_iff, ForallE in *.
   firstorder.
 Qed.
-

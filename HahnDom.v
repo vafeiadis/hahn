@@ -73,6 +73,24 @@ Section Lemmas.
   Lemma minus_domb : domb r d -> domb (r \ r') d.
   Proof. unfold domb, minus_rel; ins; desf; eauto. Qed.
 
+  Lemma doma_inter_r : doma r (d ∩₁ d') <-> doma r d /\ doma r d'.
+  Proof. firstorder.  Qed.
+
+  Lemma domb_inter_r : domb r (d ∩₁ d') <-> domb r d /\ domb r d'.
+  Proof. firstorder.  Qed.
+
+  Lemma restr_doma : doma (restr_rel d r) d.
+  Proof. firstorder. Qed. 
+
+  Lemma restr_domb : domb (restr_rel d r) d.
+  Proof. firstorder. Qed. 
+
+  Lemma restr_doma_mon : doma r d -> doma (restr_rel d' r) d.
+  Proof. firstorder. Qed. 
+
+  Lemma restr_domb_mon : domb r d -> domb (restr_rel d' r) d.
+  Proof. firstorder. Qed. 
+
   Lemma dom_empty : dom_rel (A:=A) ∅₂ ≡₁ ∅.
   Proof. unfolder; split; ins; desf. Qed. 
 
@@ -217,6 +235,7 @@ End Lemmas.
 
 End Domains.
 
+
 Add Parametric Morphism A : (@doma A) with signature
   inclusion --> set_subset ==> Basics.impl as doma_mori.
 Proof.
@@ -272,9 +291,10 @@ Hint Unfold doma domb : unfolderDb.
 
 Hint Resolve eqv_doma seq_eqv_doma restr_eq_rel_doma : hahn. 
 Hint Resolve seq_doma union_doma ct_doma seq_r_doma : hahn.
+Hint Resolve transp_doma cross_doma restr_doma restr_doma_mon : hahn.
 Hint Resolve eqv_domb seq_eqv_domb restr_eq_rel_domb : hahn.
 Hint Resolve seq_domb union_domb ct_domb seq_r_domb : hahn.
-Hint Resolve transp_doma transp_domb cross_doma cross_domb : hahn.
+Hint Resolve transp_domb cross_domb restr_domb restr_domb_mon : hahn.
 
 Hint Rewrite dom_empty codom_empty dom_union codom_union : hahn.
 Hint Rewrite dom_eqv codom_eqv dom_eqv1 codom_eqv1 : hahn.

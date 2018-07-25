@@ -47,6 +47,8 @@ Section RelDefs.
   Definition seq : relation A :=
     fun x y => exists z, r x z /\ r' z y.
 
+  Definition map_rel (r'' : relation B) : relation A := fun x y => r'' (f x) (f y).
+
   Definition clos_refl : relation A := fun x y => x = y \/ r x y.
 
   Definition dom_rel := fun x => exists y, r x y.
@@ -95,7 +97,7 @@ Definition cross_rel A (r r' : A -> Prop) := (fun a b => r a /\ r' b).
 
 Hint Unfold reflexive symmetric transitive inclusion same_relation : unfolderDb. 
 Hint Unfold union transp singl_rel inter_rel minus_rel bunion : unfolderDb.
-Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq clos_refl : unfolderDb.
+Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq map_rel : unfolderDb.
 Hint Unfold clos_refl dom_rel codom_rel cross_rel collect_rel : unfolderDb.
 Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb. 
 Hint Unfold antisymmetric strict_partial_order strict_total_order : unfolderDb.
@@ -420,26 +422,22 @@ Lemma same_relation_refl2 : r ≡ r.
 Proof. split; ins. Qed.
 
 Lemma inclusion_inter_l1 : r ∩ r' ⊆ r.
-Proof. firstorder. Qed.
+Proof. clear; firstorder. Qed.
 
 Lemma inclusion_inter_l2 : r ∩ r' ⊆ r'.
-Proof. firstorder. Qed.
+Proof. clear; firstorder. Qed.
 
-Lemma inclusion_inter_l1_search :
-  r ⊆ r'' -> r ∩ r' ⊆ r''.
-Proof. firstorder. Qed.
+Lemma inclusion_inter_l1_search : r ⊆ r'' -> r ∩ r' ⊆ r''.
+Proof. clear; firstorder. Qed.
 
-Lemma inclusion_inter_l2_search :
-  r' ⊆ r'' -> r ∩ r' ⊆ r''.
-Proof. firstorder. Qed.
+Lemma inclusion_inter_l2_search : r' ⊆ r'' -> r ∩ r' ⊆ r''.
+Proof. clear; firstorder. Qed.
 
-Lemma inclusion_inter_r :
-  r ⊆ r' -> r ⊆ r'' -> r ⊆ r' ∩ r''.
-Proof. firstorder. Qed.
+Lemma inclusion_inter_r : r ⊆ r' -> r ⊆ r'' -> r ⊆ r' ∩ r''.
+Proof. clear; firstorder. Qed.
 
-Lemma inclusion_inter_mon s s' :
-  r ⊆ r' -> s ⊆ s' -> r ∩ s ⊆ r' ∩ s'.
-Proof. firstorder. Qed.
+Lemma inclusion_inter_mon s s' : r ⊆ r' -> s ⊆ s' -> r ∩ s ⊆ r' ∩ s'.
+Proof. clear; firstorder. Qed.
 
 Lemma inclusion_union_r1 : r ⊆ r ∪ r'.
 Proof. vauto. Qed.
@@ -447,20 +445,17 @@ Proof. vauto. Qed.
 Lemma inclusion_union_r2 : r' ⊆ r ∪ r'.
 Proof. vauto. Qed.
 
-Lemma inclusion_union_l :
-  r ⊆ r'' -> r' ⊆ r'' -> r ∪ r' ⊆ r''.
+Lemma inclusion_union_l : r ⊆ r'' -> r' ⊆ r'' -> r ∪ r' ⊆ r''.
 Proof.
   unfold union; red; intros; desf; auto.
 Qed.
 
-Lemma inclusion_union_r1_search :
-  r ⊆ r' -> r ⊆ r' ∪ r''.
+Lemma inclusion_union_r1_search : r ⊆ r' -> r ⊆ r' ∪ r''.
 Proof.
   unfold union; red; intros; desf; auto.
 Qed.
 
-Lemma inclusion_union_r2_search :
-  r ⊆ r'' -> r ⊆ r' ∪ r''.
+Lemma inclusion_union_r2_search : r ⊆ r'' -> r ⊆ r' ∪ r''.
 Proof.
   unfold union; red; intros; desf; auto.
 Qed.
@@ -480,13 +475,13 @@ Qed.
 Lemma inclusion_bunion_l (P : B -> Prop) (rr : B -> relation A) :
   (forall x, P x -> rr x ⊆ r') -> bunion P rr ⊆ r'.
 Proof.
-  firstorder.
+  clear; firstorder.
 Qed.
 
 Lemma inclusion_bunion_r (x: B) (P : B -> Prop) (rr : B -> relation A) : 
   P x -> r ⊆ rr x -> r ⊆ bunion P rr.
 Proof.
-  firstorder.
+  clear; firstorder.
 Qed.
 
 Lemma inclusion_seq_mon s s' : r ⊆ r' -> s ⊆ s' -> r ⨾ s ⊆ r' ⨾ s'.
@@ -690,35 +685,55 @@ Qed.
 (******************************************************************************)
 
 Lemma functional_alt :
-  functional r <-> r⁻¹ ⨾ r ⊆ ⦗fun _ : A => True⦘.
+  functional r <-> r⁻¹ ⨾ r ⊆ ⦗fun _ => True⦘.
 Proof.
   unfold functional, seq, transp, eqv_rel, inclusion.
   split; ins; desf; [|apply H]; eauto.
 Qed.
 
-Lemma functional_eqv_rel :
-  functional ⦗dom⦘.
+Lemma functional_eqv_rel : functional ⦗dom⦘.
 Proof.
   unfold functional, eqv_rel; ins; desf.
 Qed.
 
 Lemma functional_seq  :
-  functional r ->
-  functional r' ->
-  functional (r ⨾ r').
+  functional r -> functional r' -> functional (r ⨾ r').
 Proof.
   unfold functional, seq; ins; desf.
   assert (z0 = z1); subst; eauto.
 Qed.
 
 Lemma functional_union  :
-  functional r ->
-  functional r' ->
+  functional r -> functional r' ->
   (forall x, dom_rel r x -> dom_rel r' x -> False) ->
   functional (r ∪ r').
 Proof.
   unfold functional, union, dom_rel; ins; desf; eauto;
     try solve [exfalso; eauto].
+Qed.
+
+Lemma functional_inter_l : functional r -> functional (r ∩ r').
+Proof. clear; firstorder. Qed.
+
+Lemma functional_inter_r : functional r' -> functional (r ∩ r').
+Proof. clear; firstorder. Qed.
+
+Lemma functional_minus : functional r -> functional (r \ r').
+Proof. clear; firstorder. Qed.
+
+Lemma functional_restr : functional r -> functional (restr_rel dom r).
+Proof. clear; firstorder. Qed.
+
+Lemma functionalE : functional r -> exists f, forall x y, r x y <-> f x = Some y.
+Proof.
+  clear; unfold functional; ins.
+  forward apply unique_choice 
+    with (R := fun x y => y = None /\ ~ (exists m, r x m) \/
+                          exists m, y = Some m /\ r x m) as X; ins; desf.
+    by tertium_non_datur (exists m, r x m); desc; [exists (Some m)| exists None]; 
+       split; ins; desf; try f_equal; eauto; try solve [exfalso; eauto].
+  exists f; ins; specialize (X x); split; ins; desf; try solve [exfalso; eauto].
+  rewrite X; f_equal; eauto.
 Qed.
 
 End BasicProperties.

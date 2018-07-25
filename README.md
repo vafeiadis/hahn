@@ -4,6 +4,7 @@ Hahn is a Coq library that contains a useful collection of lemmas and tactics
 about lists and binary relations.
 
 - Hahn.v : exports all other files except HahnExtraNotation.v
+- HahnAcyclic.v : proving acyclicity of relations
 - HahnBase.v : basic tactics used throughout the development
 - HahnDom.v : (co)domain of a relation
 - HahnEquational.v : relational equivalences
