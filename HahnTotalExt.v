@@ -5,7 +5,6 @@
 Require Import NPeano Omega Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnRewrite.
 Require Import HahnSets HahnMaxElt.
-Require Import Zorn.
 
 Set Implicit Arguments.
 
@@ -379,51 +378,4 @@ Proof.
 Qed.
 
 
-(******************************************************************************)
-(** A generic version relying on Zorn's lemma *)
-
-Lemma partial_order_included_in_total_order A (R: relation A) (POR: strict_partial_order R):
-  exists R', inclusion R R' /\ strict_total_order (fun _ => True) R'.
-Proof.
-  forward apply (@zorns_lemma {Q: relation A | <<SUBST: R ⊆ Q>> /\ <<PO: strict_partial_order Q>>} 
-                              (fun R1 R2 => proj1_sig R1 ⊆ proj1_sig R2)) 
-    as [[M ?] MAX]; desc; simpls.
-  { firstorder. (* subset is preorder *) }
-  { (* every chain has an upper bound *)
-    intros C CHAIN.
-    tertium_non_datur (C ≡₁ ∅) as [EMP|NEMP].
-    * (* find an upper bound of an empty chain i.e. show that the set is nonempty *)
-      exists (exist (fun Q => R ⊆ Q /\ strict_partial_order Q) R (conj (inclusion_refl _) POR)); ins.
-      by apply EMP in H. 
-    * (* find an upper bound of a non-empty chain *)
-      clear NEMP0; rename n into Q.
-      remember ((fun x y => exists Q, <<CQ: C Q>> /\ <<Qab: proj1_sig Q x y>>)) as M.
-      enough (MOK: R ⊆ M /\ strict_partial_order M).
-        by exists (exist _ M MOK); ins; desf; vauto.
-      desf; splits.
-      + red; ins; exists Q; destruct Q; ins; desf; eauto.
-      + split; red; ins; desf.
-        - destruct Q0; ins; desf.
-          eby eapply a0.
-        - specialize (CHAIN _ _ H H0); desf.
-          all: match goal with INCL: ?rel ⊆ _ |- _
-               => (match goal with REL : ?rel _ _ |- _ => apply INCL in REL end) end.
-          all: match goal with H: proj1_sig ?rel _ _ |- _ => exists rel; destruct rel; split; ins; desf end.
-          all: match goal with TRANS: strict_partial_order ?rel |- ?rel _ _ => eby eapply TRANS end. }
-  (* We now know that a maximal element exists. We need to show that's the one we were looking for. *)
-  exists M; do 2 (split; ins).
-  red; ins.
-  apply NNPP; intro INCOMP; clarify_not.
-  remember (fun x y => (x = a /\ y = b) \/
-                       M x y \/ (M x a /\ y = b) \/ (x = a /\ M b y) \/ (M x a /\ M b y)) as M'.
-  (* M' x y <-> M^* x a /\ M^* b y
-     It is kept very explicit above, in order to have the two proofs below shorter. *)
-  assert (MM: M ⊆ M') by (unfolder; ins; desf; eauto).
-  assert (M'OK: R ⊆ M' /\ strict_partial_order M').
-  { split; [eby eapply inclusion_trans |].
-    split; red; ins; desf; eauto 8 using (proj1 PO), (proj2 PO).
-  }
-  specialize (MAX (exist _ M' M'OK) MM); ins.
-  apply INCOMP, MAX; desf; eauto.
-Qed.
 

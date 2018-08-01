@@ -7,5 +7,4 @@ HahnDom.v HahnMaxElt.v HahnMinElt.v HahnFuneq.v
 HahnWf.v HahnTotalList.v HahnTotalExt.v
 HahnSorted.v HahnSegment.v
 HahnMinPath.v HahnPath.v HahnAcyclic.v
-Zorn.v
 HahnAdjacent.v
