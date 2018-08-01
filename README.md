@@ -1,5 +1,7 @@
 # Hahn : A Coq library for lists and relations
 
+[![Build Status](https://travis-ci.com/vafeiadis/hahn.svg?branch=master)](https://travis-ci.com/vafeiadis/hahn)
+
 Hahn is a Coq library that contains a useful collection of lemmas and tactics
 about lists and binary relations.
 
