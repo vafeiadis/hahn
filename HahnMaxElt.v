@@ -325,9 +325,37 @@ Qed.
 
 End MoreProperties.
 
+Hint Unfold max_elt wmax_elt : unfolderDb.
+
 Require Import Morphisms.
 
 Instance max_elt_Proper A : Proper (_ --> _) _ := set_subset_max_elt (A:=A).
 Instance wmax_elt_Proper A : Proper (_ --> _) _ := set_subset_wmax_elt (A:=A).
 Instance max_elt_Propere A : Proper (_ ==> _) _ := set_equiv_max_elt (A:=A).
 Instance wmax_elt_Propere A : Proper (_ ==> _) _ := set_equiv_wmax_elt (A:=A).
+
+
+Add Parametric Morphism A : (@max_elt A) with signature
+  inclusion --> eq ==> Basics.impl as max_elt_mori.
+Proof.
+  unfold inclusion, max_elt, Basics.impl; eauto.
+Qed.
+
+Add Parametric Morphism A : (@wmax_elt A) with signature
+  inclusion --> eq ==> Basics.impl as wmax_elt_mori.
+Proof.
+  unfold inclusion, wmax_elt, Basics.impl; eauto.
+Qed.
+
+Add Parametric Morphism A : (@max_elt A) with signature
+  same_relation --> eq ==> iff as max_elt_more.
+Proof.
+  unfold same_relation, inclusion, max_elt; firstorder.
+Qed.
+
+Add Parametric Morphism A : (@wmax_elt A) with signature
+  same_relation --> eq ==> iff as wmax_elt_more.
+Proof.
+  unfold same_relation, inclusion, wmax_elt; firstorder.
+Qed.
+

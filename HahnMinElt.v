@@ -335,9 +335,36 @@ Qed.
 
 End MoreProperties.
 
+Hint Unfold min_elt wmin_elt : unfolderDb.
+
 Require Import Morphisms.
 
 Instance min_elt_Proper A : Proper (inclusion --> set_subset) _ := set_subset_min_elt (A:=A).
 Instance wmin_elt_Proper A : Proper (inclusion --> set_subset) _ := set_subset_wmin_elt (A:=A).
 Instance min_elt_Propere A : Proper (same_relation ==> set_equiv) _ := set_equiv_min_elt (A:=A).
 Instance wmin_elt_Propere A : Proper (same_relation ==> set_equiv) _ := set_equiv_wmin_elt (A:=A).
+
+Add Parametric Morphism A : (@min_elt A) with signature
+  inclusion --> eq ==> Basics.impl as min_elt_mori.
+Proof.
+  unfold inclusion, min_elt, Basics.impl; eauto.
+Qed.
+
+Add Parametric Morphism A : (@wmin_elt A) with signature
+  inclusion --> eq ==> Basics.impl as wmin_elt_mori.
+Proof.
+  unfold inclusion, wmin_elt, Basics.impl; eauto.
+Qed.
+
+Add Parametric Morphism A : (@min_elt A) with signature
+  same_relation --> eq ==> iff as min_elt_more.
+Proof.
+  unfold same_relation, inclusion, min_elt; firstorder.
+Qed.
+
+Add Parametric Morphism A : (@wmin_elt A) with signature
+  same_relation --> eq ==> iff as wmin_elt_more.
+Proof.
+  unfold same_relation, inclusion, wmin_elt; firstorder.
+Qed.
+
