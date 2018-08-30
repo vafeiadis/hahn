@@ -1,0 +1,14 @@
+opam-version: "1.2"
+name: "coq-hahn"
+maintainer: "Viktor Vafeiadis <viktor@mpi-sws.org>"
+authors: "Viktor Vafeiadis"
+homepage: "https://github.com/vafeiadis/hahn"
+bug-reports: "https://github.com/vafeiadis/hahn/issues"
+license: "MIT"
+dev-repo: "https://github.com/vafeiadis/hahn.git"
+build: [make "-j%{jobs}%"]
+install: [make "-f Makefile.coq install"]
+remove: ["rm" "-rf" "%{lib}%/coq/user-contrib/hahn"]
+depends: [
+  "coq" { (>= "8.8.1" & < "8.9~") | (= "dev") }
+]
