@@ -553,7 +553,7 @@ Tactic Notation "unfolder_prepare"  "in" hyp(H) :=
   repeat hahn_rewrite <- id_union in H.
 
 Tactic Notation "unfolder" := 
-  unfolder_prepare; autounfold with unfolderDb.
+  unfolder_prepare; repeat autounfold with unfolderDb.
 
 Tactic Notation "unfolder" "in" hyp(H) := 
   unfolder_prepare in H; autounfold with unfolderDb in H.
