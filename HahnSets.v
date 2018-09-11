@@ -75,7 +75,8 @@ Hint Unfold set_collect set_bunion set_disjoint : unfolderDb.
 
 Section SetProperties.
   Local Ltac u :=
-    autounfold with unfolderDb in *; ins; try solve [tauto | firstorder | split; ins; tauto].
+    repeat autounfold with unfolderDb in *;
+    ins; try solve [tauto | firstorder | split; ins; tauto].
 
   Variables A B C : Type.
   Implicit Type a : A.
@@ -523,7 +524,7 @@ Lemma set_finite_coinfinite_nat (s: nat -> Prop) :
 Proof.
   assert (LT: forall l x, In x l -> x <= fold_right Init.Nat.add 0 l).
     induction l; ins; desf; try apply IHl in H; omega.
-  autounfold with unfolderDb; red; ins; desf. 
+  repeat autounfold with unfolderDb; red; ins; desf. 
   tertium_non_datur (s (S (fold_right plus 0 findom + fold_right plus 0 findom0))) as [X|X];
    [apply H in X | apply H0 in X]; apply LT in X; omega.
 Qed.
@@ -531,7 +532,7 @@ Qed.
 Lemma set_coinfinite_fresh (s: nat -> Prop) (COINF: set_coinfinite s) :
   exists b, ~ s b /\ set_coinfinite (s ∪₁ eq b).
 Proof.
-  autounfold with unfolderDb in *.
+  repeat autounfold with unfolderDb in *.
   tertium_non_datur (forall b, s b).
     by destruct COINF; exists nil; ins; desf.
   exists n; splits; red; ins; desf.
@@ -587,7 +588,7 @@ Proof. autounfold with unfolderDb; ins; desf; eauto. Qed.
 
 Add Parametric Morphism A B : (@set_collect A B) with signature 
   eq ==> set_equiv ==> set_equiv as set_collect_more.
-Proof. autounfold with unfolderDb; splits; ins; desf; eauto. Qed.
+Proof. repeat autounfold with unfolderDb; splits; ins; desf; eauto. Qed.
 
 Add Parametric Morphism A : (@set_disjoint A) with signature 
   set_subset --> set_subset --> Basics.impl as set_disjoint_mori.
