@@ -37,7 +37,7 @@ by specialize (STOT2 y c AA) ; desf; [auto|econs | exfalso; eauto].
 apply LA_bc in R1; apply LA_ca in R2; desf; eapply IRR, T; eauto.
 Qed.
 
-Lemma adjacent_uniqe1 A (r: relation A) (ACYC: acyclic r):
+Lemma adjacent_unique1 A (r: relation A) (ACYC: acyclic r):
   forall a b c : A,  r a b ->  r a c -> adjacent r a b -> adjacent r a c -> b = c.
 Proof.
 ins; unfold adjacent in *; desc.
@@ -47,7 +47,7 @@ unfolder in *; desf.
 by exfalso; eapply ACYC; eapply t_trans; econs; eauto.
 Qed.
 
-Lemma adjacent_uniqe2 A (r: relation A) (ACYC: acyclic r):
+Lemma adjacent_unique2 A (r: relation A) (ACYC: acyclic r):
   forall a b c : A,  r b a ->  r c a -> adjacent r b a -> adjacent r c a -> b = c.
 Proof.
 ins; unfold adjacent in *; desc.
