@@ -21,7 +21,7 @@ Proof.
     rewrite t_rt_step in *; desf; eauto 10.
 Qed.
 
-Lemma acyc_simple_helper A (r1 r2: relation A): 
+Lemma acyclic_seq_from_union A (r1 r2: relation A): 
   acyclic (r1 ∪ r2) -> acyclic (r1⨾ r2).
 Proof.
   ins.
