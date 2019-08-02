@@ -485,6 +485,55 @@ Section PathUnion.
       rels.
   Qed.
 
+  Lemma path_union (r r': relation A) : (r ∪ r')⁺ ⊆ r⁺ ∪ (r＊ ⨾ r')⁺ ⨾ r＊.
+  Proof.
+    apply inclusion_t_ind_right.
+    unionL; [vauto|].
+      by rewrite rtE; rewrite <- !ct_step; basic_solver 12.
+      relsf; unionL.
+    - by unionR left; rewrite ct_unit.
+    - by rewrite !seqA; rewrite <- ct_end; basic_solver 12.
+    - rewrite (ct_step (r⁺ ⨾ r')).
+      rewrite <- inclusion_t_rt at 1; basic_solver 22.
+    - rewrite !seqA, inclusion_t_rt at 1.
+      rewrite <- (ct_end (r＊ ⨾ r')); basic_solver 12.
+  Qed.
+
+  Lemma path_union1 (r r': relation A) : (r ∪ r')⁺ ⊆ r'⁺ ∪ r'＊ ⨾ (r ∪ r ⨾ r'⁺)⁺.
+  Proof.
+    apply inclusion_t_ind_right.
+    unionL; [|vauto].
+      by rewrite rtE; rewrite <- !ct_step; basic_solver 12.
+      relsf; unionL; rewrite ?seqA.
+    - unionR right.
+      arewrite (r'⁺ ⊆ r'＊); hahn_frame.
+      rewrite <- !ct_step; basic_solver 12.
+    - by arewrite (r ⊆ (r ∪ r ⨾ r'⁺)＊) at 3; relsf.
+    - arewrite (r'⁺ ⊆ r'＊) at 1.
+      rewrite <- ct_end; basic_solver.
+    - unionR right.
+      rewrite ct_end, !seqA.
+      arewrite ((r ∪ r ⨾ r'⁺) ⨾ r' ⊆ (r ∪ r ⨾ r'⁺)).
+      relsf; unionL.
+      * rewrite <- !ct_step; basic_solver 12.
+      * rewrite !seqA.
+        arewrite (r'⁺ ⊆ r'＊) at 1.
+        rewrite <- ct_end; basic_solver.
+      * relsf.
+  Qed.
+
+  Lemma path_union2 (r r': relation A) : 
+    (r ∪ r')⁺ ⊆ r⁺ ∪ r'⁺ ⨾ r＊ ∪ r'＊ ⨾ (r⁺ ⨾ r'⁺)⁺ ⨾ r＊.
+  Proof.
+    rewrite path_union1; unionL.
+    basic_solver 12.
+    rewrite path_union.
+    relsf.
+    unionL.
+    basic_solver 12.
+    arewrite (r＊ ⨾ r ⊆ r⁺).
+    basic_solver 12.
+  Qed.
 End PathUnion.
 
 (** Union with a total relation *)
