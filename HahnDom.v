@@ -7,23 +7,23 @@ Set Implicit Arguments.
 
 Section Domains.
 
-Variable A : Type.
+Variable A B : Type.
 
 Section Definitions.
   Variable r : relation A.
   Variable d : A -> Prop.
+  Variables f g : A -> B.
 
   Definition doma := forall x y (REL: r x y), d x.
   Definition domb := forall x y (REL: r x y), d y.
-
+  Definition eq_dom := forall x (DX: d x), f x = g x. 
 End Definitions.
 
 Section Lemmas.
 
   Variables r r' : relation A.
-  Variable B : Type.
-  Variables f : A -> B.
-  Variables d d' e : A -> Prop.
+  Variables f g : A -> B.
+  Variables d d' : A -> Prop.
 
   Lemma eqv_doma : doma ⦗d⦘ d.
   Proof. unfold doma, eqv_rel; ins; desf. Qed.
@@ -231,23 +231,23 @@ Section Lemmas.
   Qed.
 
   Lemma step_dom 
-        (E: r ⊆ (⦗d⦘ ∪ ⦗e⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗e⦘))
+        (E: r ⊆ (⦗d⦘ ∪ ⦗d'⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗d'⦘))
         dd (DD: dd = ⦗d⦘ ⨾ r ⨾ ⦗d⦘)
-        de (DE: de = ⦗d⦘ ⨾ r ⨾ ⦗e⦘)
-        ed (ED: ed = ⦗e⦘ ⨾ r ⨾ ⦗d⦘)
-        ee (EE: ee = ⦗e⦘ ⨾ r ⨾ ⦗e⦘) :
+        de (DE: de = ⦗d⦘ ⨾ r ⨾ ⦗d'⦘)
+        ed (ED: ed = ⦗d'⦘ ⨾ r ⨾ ⦗d⦘)
+        ee (EE: ee = ⦗d'⦘ ⨾ r ⨾ ⦗d'⦘) :
     r ⊆ dd ∪ de ∪ ed ∪ ee.
   Proof.
     rewrite E; subst; basic_solver 8.
   Qed.
 
   Lemma path_dom
-        (E1: r ⊆ (⦗d⦘ ∪ ⦗e⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗e⦘))
-        (E2: ⦗d⦘ ⨾ ⦗e⦘ ⊆ ∅₂)
+        (E1: r ⊆ (⦗d⦘ ∪ ⦗d'⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗d'⦘))
+        (E2: ⦗d⦘ ⨾ ⦗d'⦘ ⊆ ∅₂)
         dd (DD: dd = ⦗d⦘ ⨾ r ⨾ ⦗d⦘)
-        de (DE: de = ⦗d⦘ ⨾ r ⨾ ⦗e⦘)
-        ed (ED: ed = ⦗e⦘ ⨾ r ⨾ ⦗d⦘)
-        ee (EE: ee = ⦗e⦘ ⨾ r ⨾ ⦗e⦘) : 
+        de (DE: de = ⦗d⦘ ⨾ r ⨾ ⦗d'⦘)
+        ed (ED: ed = ⦗d'⦘ ⨾ r ⨾ ⦗d⦘)
+        ee (EE: ee = ⦗d'⦘ ⨾ r ⨾ ⦗d'⦘) : 
     r⁺ ⊆ (dd⁺ ∪ (dd＊ ⨾ de ⨾ ee＊ ⨾ ed)⁺ ⨾ dd＊ ) ∪
        (ee⁺ ∪ (ee＊ ⨾ ed ⨾ dd＊ ⨾ de)⁺ ⨾ ee＊ ) ∪
        (ee＊ ⨾ ed ⨾ dd＊ ⨾ de)＊ ⨾ ee＊ ⨾ ed ⨾ dd＊ ∪
@@ -259,8 +259,8 @@ Section Lemmas.
       1,4: sin_rewrite !ct_end.
       all: try (repeat (apply inclusion_union_r; constructor); basic_solver 14). }
     rewrite step_dom at 1; try eassumption.
-    relsf.
-    assert (E2': ⦗e⦘ ⨾ ⦗d⦘ ⊆ (fun _ _ : A => False)).
+     relsf.
+    assert (E2': ⦗d'⦘ ⨾ ⦗d⦘ ⊆ (fun _ _ : A => False)).
     { by rewrite seq_eqvC in E2. }
 
     assert (X17: ed ⨾ ed ⊆ ∅₂).
@@ -325,12 +325,12 @@ Section Lemmas.
   Qed.
 
   Lemma path_dom_same
-        (E1: r ⊆ (⦗d⦘ ∪ ⦗e⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗e⦘))
-        (E2: ⦗d⦘ ⨾ ⦗e⦘ ⊆ ∅₂)
+        (E1: r ⊆ (⦗d⦘ ∪ ⦗d'⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗d'⦘))
+        (E2: ⦗d⦘ ⨾ ⦗d'⦘ ⊆ ∅₂)
         dd (DD: dd = ⦗d⦘ ⨾ r ⨾ ⦗d⦘)
-        de (DE: de = ⦗d⦘ ⨾ r ⨾ ⦗e⦘)
-        ed (ED: ed = ⦗e⦘ ⨾ r ⨾ ⦗d⦘)
-        ee (EE: ee = ⦗e⦘ ⨾ r ⨾ ⦗e⦘) : 
+        de (DE: de = ⦗d⦘ ⨾ r ⨾ ⦗d'⦘)
+        ed (ED: ed = ⦗d'⦘ ⨾ r ⨾ ⦗d⦘)
+        ee (EE: ee = ⦗d'⦘ ⨾ r ⨾ ⦗d'⦘) : 
     ⦗d⦘ ⨾ r⁺ ⨾ ⦗d⦘ ⊆ dd⁺ ∪ (dd＊ ⨾ de ⨾ ee＊ ⨾ ed)⁺ ⨾ dd＊.
   Proof.
     rewrite path_dom; try edone.
@@ -356,28 +356,50 @@ Section Lemmas.
     arewrite (⦗d⦘ ⨾ (dd ＊ ⨾ de ⨾ ee ＊ ⨾ ed) ＊ ⨾ dd ＊ ⊆ fun _ _ => True).
     rewrite rtE at 1; relsf.
     rewrite DE, ?seqA.
-    arewrite (⦗e⦘ ⨾ ⦗d⦘ ⊆ (fun _ _ : A => False)).
+    arewrite (⦗d'⦘ ⨾ ⦗d⦘ ⊆ (fun _ _ : A => False)).
     {  by rewrite seq_eqvC in E2. }
     relsf.
     rewrite ct_end at 1; rewrite ?seqA.
     rewrite EE, ?seqA.
-    arewrite (⦗e⦘ ⨾ ⦗d⦘ ⊆ (fun _ _ : A => False)).
+    arewrite (⦗d'⦘ ⨾ ⦗d⦘ ⊆ (fun _ _ : A => False)).
     {  by rewrite seq_eqvC in E2. }
     relsf.
   Qed.
 
   Lemma irr_dom
-        (E1: r ⊆ (⦗d⦘ ∪ ⦗e⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗e⦘))
-        (E2: ⦗d⦘ ⨾ ⦗e⦘ ⊆ ∅₂)
+        (E1: r ⊆ (⦗d⦘ ∪ ⦗d'⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗d'⦘))
+        (E2: ⦗d⦘ ⨾ ⦗d'⦘ ⊆ ∅₂)
         (IRRd: irreflexive (⦗d⦘ ⨾ r ⨾ ⦗d⦘)) 
-        (IRRe: irreflexive (⦗e⦘ ⨾ r ⨾ ⦗e⦘)) :
+        (IRRe: irreflexive (⦗d'⦘ ⨾ r ⨾ ⦗d'⦘)) :
     irreflexive r.
   Proof.
     rewrite step_dom; try edone.
     repeat rewrite irreflexive_union; splits; try done; 
       generalize E2; basic_solver 8.
   Qed.
+
+  Lemma eq_dom_union :
+    eq_dom (d ∪₁ d') f g <-> eq_dom d f g /\ eq_dom d' f g.
+  Proof. 
+    split.
+    { ins. unfold eq_dom in *. 
+      splits; ins; apply (H x); basic_solver. }
+    intros [Hs Hs'].
+    unfold eq_dom in *. ins. 
+    unfold set_union in DX. 
+    desf; basic_solver.
+  Qed.  
+
+  Lemma eq_dom_full_eq (EQD : eq_dom (fun _ => True) f g) :
+    f = g.
+  Proof. apply functional_extensionality. ins. by apply EQD. Qed.
 End Lemmas.
+
+Lemma doma_eqv (d : A -> Prop) (r : relation A): doma (⦗d⦘ ⨾ r) d.
+Proof. apply doma_helper. basic_solver. Qed.
+
+Lemma domb_eqv (d : A -> Prop) (r : relation A): domb (r ⨾ ⦗d⦘) d.
+Proof. apply domb_helper. basic_solver. Qed.
 
 Lemma acyc_dom (r: relation A) d e
       (E1: r ⊆ (⦗d⦘ ∪ ⦗e⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗e⦘))
@@ -421,7 +443,6 @@ Proof.
 Qed.
 
 End Domains.
-
 
 Add Parametric Morphism A : (@doma A) with signature
   inclusion --> set_subset ==> Basics.impl as doma_mori.
@@ -474,7 +495,7 @@ Proof.
 Qed.
 
 
-Hint Unfold doma domb : unfolderDb.
+Hint Unfold doma domb eq_dom : unfolderDb.
 
 Hint Resolve eqv_doma seq_eqv_doma restr_eq_rel_doma : hahn. 
 Hint Resolve seq_doma union_doma ct_doma seq_r_doma : hahn.
