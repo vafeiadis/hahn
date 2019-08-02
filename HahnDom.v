@@ -419,6 +419,27 @@ Section Lemmas.
     unfold dom_cond; unfolder; ins; desf.
    splits; eauto; eapply H; eauto.
   Qed.
+
+  Lemma dom_rel_ext :
+    dom_rel (r ⨾ r'^?) ≡₁ dom_rel r.
+  Proof. basic_solver 10. Qed.
+
+  Lemma dom_rel_eqv_dom_rel :
+    dom_rel (r ⨾ ⦗dom_rel r'⦘) ≡₁ dom_rel (r ⨾ r').
+  Proof. basic_solver 42. Qed.
+
+  Lemma dom_rel_eqv_codom_rel :
+    dom_rel (r ⨾ ⦗codom_rel r'⦘) ≡₁ dom_rel (r ⨾ r'⁻¹).
+  Proof. basic_solver 42. Qed.
+
+  Lemma dom_rel_fun_alt w : (fun a => r a w) ≡₁ dom_rel (r ⨾ ⦗ eq w ⦘).
+  Proof. basic_solver 10. Qed.
+
+  Lemma dom_rel_helper (IN:  dom_rel r ⊆₁ d) : r ≡ ⦗d⦘ ⨾ r.
+  Proof. unfolder in *; basic_solver. Qed.
+
+  Lemma dom_rel_helper_in (IN:  dom_rel r ⊆₁ d) : r ⊆ ⦗d⦘ ⨾ r.
+  Proof. unfolder in *; basic_solver. Qed.
 End Lemmas.
 
 Lemma doma_eqv (d : A -> Prop) (r : relation A): doma (⦗d⦘ ⨾ r) d.
