@@ -963,7 +963,9 @@ Lemma restr_eq_seq_eqv_r A (r : relation A) B (f : A -> B) dom :
   restr_eq_rel f (r⨾ ⦗dom⦘) ≡ restr_eq_rel f r⨾ ⦗dom⦘.
 Proof. u. Qed.
 
-
+Lemma restr_full {A} (r : relation A) :
+  restr_rel (fun _ : A => True) r ≡ r.
+Proof. u. Qed.
 
 (******************************************************************************)
 (** Lemmas about [transp] *)
