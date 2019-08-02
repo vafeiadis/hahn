@@ -45,6 +45,38 @@ Proof.
   by rewrite seqA, irreflexive_seqC, seqA.
 Qed.
 
+Lemma acyclic_union A (r r': relation A) (R: acyclic r) (FF: acyclic (r' ⨾ r＊)):
+  acyclic (r ∪ r').
+Proof.
+  unfold acyclic; ins; rewrite path_union.
+  apply irreflexive_union; split; auto.
+  rewrite irreflexive_seqC. 
+  rewrite ct_begin, !seqA; relsf.
+  rewrite <- seqA; rewrite <- ct_begin.
+    by rewrite acyclic_seqC in FF.
+Qed.
+
+Lemma acyclic_union1 A (r r': relation A) (R: acyclic r) 
+      (R': acyclic r')
+      (FF: acyclic (r⁺ ⨾ r'⁺)):
+  acyclic (r ∪ r').
+Proof.
+  unfold acyclic; ins; rewrite path_union.
+  apply irreflexive_union; split; auto.
+  rewrite irreflexive_seqC.
+  rewrite ct_begin, !seqA; relsf.
+  rewrite <- seqA, <- ct_begin.
+  rewrite rtE; relsf.
+  rewrite path_union.
+  apply irreflexive_union; split; auto.
+  rewrite irreflexive_seqC. 
+  rewrite ct_begin, !seqA; relsf.
+  rewrite <- !seqA, <- ct_begin.
+  apply acyclic_rotl.
+  rewrite <- seqA, <- ct_begin.
+    by apply acyclic_rotl.
+Qed.
+
 (******************************************************************************)
 (** Extension of a relation with a singleton *)
 (******************************************************************************)
