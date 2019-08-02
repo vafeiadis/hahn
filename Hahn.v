@@ -5,3 +5,4 @@ Require Export HahnPath HahnAcyclic.
 Require Export HahnDom HahnFuneq HahnWf.
 Require Export HahnSorted HahnSegment. 
 Require Export HahnTotalExt HahnTotalList.
+Require Export HahnAdjacent.
