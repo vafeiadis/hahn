@@ -17,6 +17,8 @@ Section Definitions.
   Definition doma := forall x y (REL: r x y), d x.
   Definition domb := forall x y (REL: r x y), d y.
   Definition eq_dom := forall x (DX: d x), f x = g x. 
+
+  Definition dom_cond d := (fun e => dom_rel (r ⨾ ⦗ eq e ⦘) ⊆₁ d).
 End Definitions.
 
 Section Lemmas.
@@ -393,6 +395,30 @@ Section Lemmas.
   Lemma eq_dom_full_eq (EQD : eq_dom (fun _ => True) f g) :
     f = g.
   Proof. apply functional_extensionality. ins. by apply EQD. Qed.
+
+  Lemma dom_cond_elim : r ⨾ ⦗dom_cond r d⦘ ⊆ ⦗d⦘ ⨾ r.
+  Proof.
+    unfold dom_cond; basic_solver 12.
+  Qed.
+
+  Lemma dom_cond_elim1 (IN: r ⊆ r') :
+    r ⨾ ⦗dom_cond r' d⦘ ⊆ ⦗d⦘ ⨾ r.
+  Proof. unfold dom_cond; basic_solver 21. Qed.
+
+  Lemma dom_cond_elim2 :
+    d' ∩₁ dom_cond r d ⊆₁ dom_cond (⦗ d' ⦘ ⨾ r) d.
+  Proof. unfold dom_cond. basic_solver 12. Qed.
+
+  Lemma dom_cond_union :
+    dom_cond (r ∪ r') d ≡₁ dom_cond r d ∩₁ dom_cond r' d.
+  Proof. unfold dom_cond; split; basic_solver 21. Qed.
+
+  Lemma dom_cond_in :
+    r ⨾ ⦗d'⦘ ⊆ ⦗d⦘ ⨾ r' -> d' ⊆₁ dom_cond r d.
+  Proof.
+    unfold dom_cond; unfolder; ins; desf.
+   splits; eauto; eapply H; eauto.
+  Qed.
 End Lemmas.
 
 Lemma doma_eqv (d : A -> Prop) (r : relation A): doma (⦗d⦘ ⨾ r) d.
@@ -494,8 +520,21 @@ Proof.
   firstorder. 
 Qed.
 
+Add Parametric Morphism A : (@dom_cond A) with signature
+  inclusion --> set_subset ==> set_subset as dom_cond_mori.
+Proof.
+  ins. unfold dom_cond.
+  red; ins.
+    by rewrite H, <- H0.
+Qed.
 
-Hint Unfold doma domb eq_dom : unfolderDb.
+Add Parametric Morphism A : (@dom_cond A) with signature
+  same_relation ==> set_equiv ==> set_equiv as dom_cond_more.
+Proof.
+  unfold dom_cond; unfolder; ins; splits; ins; desf; eauto 10.
+Qed.
+
+Hint Unfold doma domb eq_dom dom_cond : unfolderDb.
 
 Hint Resolve eqv_doma seq_eqv_doma restr_eq_rel_doma : hahn. 
 Hint Resolve seq_doma union_doma ct_doma seq_r_doma : hahn.
