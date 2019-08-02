@@ -211,6 +211,9 @@ Section SetProperties.
   Lemma set_subsetE s s' : s ⊆₁ s' <-> s \₁ s' ≡₁ ∅.
   Proof. u; intuition; apply NNPP; firstorder. Qed.
 
+  Lemma set_subset_eq (P : A -> Prop) a (H : P a): eq a ⊆₁ P.
+  Proof. by intros x H'; subst. Qed.
+
   Lemma set_subset_refl : reflexive _ (@set_subset A).
   Proof. u. Qed.
 

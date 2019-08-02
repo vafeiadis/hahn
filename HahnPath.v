@@ -674,3 +674,27 @@ Proof.
   - unionR right; eapply inclusion_bunion_r with (S x); ins; try omega; rels.
     by rewrite seq_pow_l, !seqA.
 Qed.
+
+Lemma ct_inclusion_from_rt_inclusion1 A (r r': relation A)
+      (d d' : A -> Prop) (ACYC : acyclic r) :
+  r＊ ⨾ ⦗d⦘ ⊆ ⦗d'⦘ ⨾ r'＊ -> r⁺ ⨾ ⦗d⦘ ⊆ ⦗d'⦘ ⨾ r'⁺.
+Proof.
+  rewrite !rtE; autounfold with unfolderDb; ins; desf.
+  specialize (H x y); desf.
+  assert (d' x /\ (x = y /\ True \/ r'⁺ x y)).
+  { edestruct H; eauto. desf; eauto. }
+  desf; eauto.
+  exfalso; eapply ACYC; edone.
+Qed.
+
+Lemma ct_inclusion_from_rt_inclusion2 A (r r': relation A)
+      (d d' : A -> Prop) (ACYC : acyclic r) :
+  ⦗d⦘ ⨾ r＊ ⊆ r'＊ ⨾ ⦗d'⦘ -> ⦗d⦘ ⨾ r⁺ ⊆ r'⁺ ⨾ ⦗d'⦘.
+Proof.
+  rewrite !rtE; autounfold with unfolderDb; ins; desf.
+  specialize (H z y); desf.
+  assert (d' y /\ (z = y /\ True \/ r'⁺ z y)).
+  { edestruct H; eauto. desf; eauto. }
+  desf; eauto.
+  exfalso; eapply ACYC; edone.
+Qed.

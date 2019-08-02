@@ -4,7 +4,6 @@
 
 Require Import NPeano Omega Permutation List Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnSets.
-Require Import HahnRewrite.
 
 Set Implicit Arguments.
 
@@ -667,12 +666,13 @@ Section PropertiesClos.
   Qed.
 
   Lemma cr_seq (r r' : relation A) : r^? ⨾ r' ≡ r' ∪ r ⨾ r'.
-  Proof. split; basic_solver 5. Qed.
+  Proof. split; autounfold with unfolderDb; ins; desf; eauto. Qed.
 
   Lemma cr_helper (r r' : relation A) d (H: r ⨾ ⦗d⦘ ⊆ ⦗d⦘ ⨾ r') : r^? ⨾ ⦗d⦘ ⊆ ⦗d⦘ ⨾ r'^? .
   Proof.
-    rewrite crE; relsf.
-    rewrite H; basic_solver 20. 
+    rewrite crE.
+    autounfold with unfolderDb in *; ins; desf; eauto.
+    edestruct H; eauto. desf. eauto.
   Qed.
 End PropertiesClos.
 
@@ -1347,30 +1347,24 @@ Proof.
   right; eexists; splits; try edone; intro; eauto.
 Qed.
 
-Lemma ind_helper A (r r': relation A) (D1 D2: A -> Prop) (ACYC: acyclic r) :
-  r＊ ⨾ ⦗D1⦘ ⊆ ⦗D2⦘ ⨾ r'＊ -> r⁺ ⨾ ⦗D1⦘ ⊆ ⦗D2⦘ ⨾ r'⁺.
-Proof.
-  rewrite !rtE; autounfold with unfolderDb; ins; desf.
-  specialize (H x y); desf.
-  assert (D2 x /\ (x = y /\ True \/ r'⁺ x y)).
-  { edestruct H; eauto. desf; eauto. }
-  desf; eauto.
-  exfalso; eapply ACYC; edone.
-Qed.
-
-Lemma rewrite_helper A (r: relation A) (s s': A -> Prop)
+Lemma add_dom_l A (r: relation A) (s s': A -> Prop)
       (IN: r ⨾ ⦗s⦘ ⊆ ⦗s'⦘ ⨾ r) :
   r ⨾ ⦗s⦘ ≡ ⦗s'⦘ ⨾ r ⨾ ⦗s⦘.
 Proof.
-  split; [| basic_solver].
-  arewrite (⦗s⦘ ⊆ ⦗s⦘ ⨾ ⦗s⦘) at 1.
-  basic_solver.
-  sin_rewrite IN.
-  basic_solver 12.
+  split.
+  all: autounfold with unfolderDb in *; ins; desf; eauto.
+  edestruct IN; eauto. desf.
+  eexists; splits; eauto.
 Qed.
 
-Lemma eq_predicate A (P : A -> Prop) a (H : P a): eq a ⊆₁ P.
-Proof. by intros x H'; subst. Qed.
+Lemma add_dom_r A (r: relation A) (s s': A -> Prop)
+      (IN: ⦗s'⦘ ⨾ r ⊆ r ⨾ ⦗s⦘) :
+  ⦗s'⦘ ⨾ r ≡ ⦗s'⦘ ⨾ r ⨾ ⦗s⦘.
+Proof.
+  split.
+  all: autounfold with unfolderDb in *; ins; desf; eauto.
+  edestruct IN; eauto.
+Qed.
 
 Tactic Notation "rotate" int_or_var(i) := do i (
  rewrite <- ?seqA; (apply irreflexive_seqC || apply acyclic_seqC); rewrite ?seqA).
