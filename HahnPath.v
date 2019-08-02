@@ -234,7 +234,6 @@ Section PathAbsorb.
   Proof.
     by rewrite seq_ct_absorb_r, minus_seq_r.
   Qed.
-
 End PathAbsorb.
 
 (******************************************************************************)
@@ -480,8 +479,7 @@ Section PathUnion.
           arewrite (r' ⊆ (r ∪ r')＊) at 2.
           rels; basic_solver 10.
     - arewrite (r ⊆ (r ∪ r')⁺) at 1.
-      arewrite (r ⊆ (r ∪ r')＊) at 3.
-      arewrite (r' ⊆ (r ∪ r')⁺) at 3.
+      arewrite (r ⊆ (r ∪ r')＊) at 3. arewrite (r' ⊆ (r ∪ r')⁺) at 3.
       rels.
   Qed.
 
@@ -535,6 +533,19 @@ Section PathUnion.
     basic_solver 12.
   Qed.
 End PathUnion.
+
+Lemma ct_minus_transitive {A} (r r': relation A) (TR : transitive r) :
+  r'⁺ \ r ⊆ (r' ∩ r)＊ ⨾  (r' \ r) ⨾  r'＊.
+Proof.
+  ins.
+  arewrite (r' ⊆ (r' ∩ r) ∪ (r' \ r)) at 1.
+  { by unfolder; ins; desf; tauto. }
+  rewrite path_ut_first, minus_union_l.
+  unionL.
+  {  by arewrite (r' ∩ r ⊆ r); relsf. }
+  arewrite ((r' ∩ r) ∪ (r' \ r) ⊆ r') at 1.
+  basic_solver 12.
+Qed.
 
 (** Union with a total relation *)
 (******************************************************************************)

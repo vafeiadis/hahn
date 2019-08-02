@@ -4,6 +4,7 @@
 
 Require Import NPeano Omega Permutation List Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnSets.
+Require Import HahnRewrite.
 
 Set Implicit Arguments.
 
@@ -431,6 +432,8 @@ Section PropertiesInter.
   Lemma inter_inclusion (r i : relation A) : r ∩ i ⊆ r.
   Proof. u. Qed.
 
+  Lemma id_inter (s s' : A -> Prop) : ⦗s ∩₁ s'⦘ ≡ ⦗s⦘ ⨾ ⦗s'⦘.
+  Proof. u. Qed.
 End PropertiesInter.
 
 Hint Rewrite inter_false_l inter_false_r interK : hahn.
@@ -663,6 +666,14 @@ Section PropertiesClos.
     firstorder.
   Qed.
 
+  Lemma cr_seq (r r' : relation A) : r^? ⨾ r' ≡ r' ∪ r ⨾ r'.
+  Proof. split; basic_solver 5. Qed.
+
+  Lemma cr_helper (r r' : relation A) d (H: r ⨾ ⦗d⦘ ⊆ ⦗d⦘ ⨾ r') : r^? ⨾ ⦗d⦘ ⊆ ⦗d⦘ ⨾ r'^? .
+  Proof.
+    rewrite crE; relsf.
+    rewrite H; basic_solver 20. 
+  Qed.
 End PropertiesClos.
 
 Hint Rewrite cr_of_ct cr_of_cr cr_of_rt
@@ -782,12 +793,12 @@ Section ExtraPropertiesClos.
     (r ⨾ r')⁺ ⨾ r ≡ r ⨾ (r' ⨾ r)⁺.
   Proof.
     split.
-     { apply ct_ind_left with (P := fun x => x ⨾ _); auto with hahn;
-       ins; rewrite seqA; eauto with hahn.
-       rewrite ct_begin, H, ?seqA; eauto with hahn. }
-     apply ct_ind_right with (P := fun x => _ ⨾ x); auto with hahn;
-     ins; rewrite <- seqA; eauto with hahn.
-     rewrite ct_end, H, <- ?seqA; eauto with hahn.
+    { apply ct_ind_left with (P := fun x => x ⨾ _); auto with hahn;
+        ins; rewrite seqA; eauto with hahn.
+      rewrite ct_begin, H, ?seqA; eauto with hahn. }
+    apply ct_ind_right with (P := fun x => _ ⨾ x); auto with hahn;
+      ins; rewrite <- seqA; eauto with hahn.
+    rewrite ct_end, H, <- ?seqA; eauto with hahn.
   Qed.
 
   Lemma rt_seq_swap r r' :
@@ -851,6 +862,22 @@ Lemma seq_eqv_lr A (r : relation A) dom1 dom2 :
 Proof.
   autounfold with unfolderDb; intuition; desf; eauto 10.
 Qed.
+
+Lemma seq_eqv_inter_ll A S (r r' : relation A) :
+  (⦗S⦘ ⨾ r) ∩ r' ≡ ⦗S⦘ ⨾ r ∩ r'.
+Proof. autounfold with unfolderDb; intuition; desf; eauto. Qed.
+
+Lemma seq_eqv_inter_lr A S (r r' : relation A) :
+  (r ⨾ ⦗S⦘) ∩ r' ≡ r ∩ r' ⨾ ⦗S⦘.
+Proof. autounfold with unfolderDb; intuition; desf; eauto. Qed.
+
+Lemma seq_eqv_minus_lr A (s : A -> Prop) (r r' : relation A) :
+  (r ⨾ ⦗s⦘) \ r' ≡ (r \ r') ⨾ ⦗s⦘.
+Proof. autounfold with unfolderDb; intuition; desf; eauto. Qed.
+
+Lemma seq_eqv_minus_ll A (s : A -> Prop) (r r' : relation A) :
+  (⦗s⦘ ⨾ r) \ r' ≡ ⦗s⦘ ⨾ (r \ r').
+Proof. autounfold with unfolderDb; intuition; desf; eauto. Qed.
 
 Hint Rewrite eqv_empty : hahn.
 
@@ -1310,3 +1337,41 @@ Lemma tot_ex X (mo : relation X) dom (TOT: is_total dom mo) a b
   (INa: dom a) (INb: dom b)
   (NMO: ~ mo a b) (NEQ: a <> b) : mo b a.
 Proof. eapply TOT in NEQ; desf; eauto. Qed.
+
+Lemma seq_minus_transitive A (r r1 r2 : relation A)
+      (TR : transitive r) :
+  r1 ⨾ r2 \ r ⊆ (r1 \ r) ⨾  r2 ∪ (r1 ∩ r) ⨾  (r2 \ r).
+Proof.
+  autounfold with unfolderDb; ins; desf.
+  destruct (classic (r x z)); [|eauto].
+  right; eexists; splits; try edone; intro; eauto.
+Qed.
+
+Lemma ind_helper A (r r': relation A) (D1 D2: A -> Prop) (ACYC: acyclic r) :
+  r＊ ⨾ ⦗D1⦘ ⊆ ⦗D2⦘ ⨾ r'＊ -> r⁺ ⨾ ⦗D1⦘ ⊆ ⦗D2⦘ ⨾ r'⁺.
+Proof.
+  rewrite !rtE; autounfold with unfolderDb; ins; desf.
+  specialize (H x y); desf.
+  assert (D2 x /\ (x = y /\ True \/ r'⁺ x y)).
+  { edestruct H; eauto. desf; eauto. }
+  desf; eauto.
+  exfalso; eapply ACYC; edone.
+Qed.
+
+Lemma rewrite_helper A (r: relation A) (s s': A -> Prop)
+      (IN: r ⨾ ⦗s⦘ ⊆ ⦗s'⦘ ⨾ r) :
+  r ⨾ ⦗s⦘ ≡ ⦗s'⦘ ⨾ r ⨾ ⦗s⦘.
+Proof.
+  split; [| basic_solver].
+  arewrite (⦗s⦘ ⊆ ⦗s⦘ ⨾ ⦗s⦘) at 1.
+  basic_solver.
+  sin_rewrite IN.
+  basic_solver 12.
+Qed.
+
+Lemma eq_predicate A (P : A -> Prop) a (H : P a): eq a ⊆₁ P.
+Proof. by intros x H'; subst. Qed.
+
+Tactic Notation "rotate" int_or_var(i) := do i (
+ rewrite <- ?seqA; (apply irreflexive_seqC || apply acyclic_seqC); rewrite ?seqA).
+Tactic Notation "rotate" := rotate 1.

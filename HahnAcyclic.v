@@ -21,6 +21,18 @@ Proof.
     rewrite t_rt_step in *; desf; eauto 10.
 Qed.
 
+Lemma acyc_simple_helper A (r1 r2: relation A): 
+  acyclic (r1 ∪ r2) -> acyclic (r1⨾ r2).
+Proof.
+  ins.
+  arewrite (r1 ⊆ r1 ∪ r2).
+  arewrite (r2 ⊆ r1 ∪ r2) at 2.
+  rewrite (ct_step (r1 ∪ r2)).
+  rewrite inclusion_t_rt at 1.
+  relsf.
+  red; rels.
+Qed.
+
 Definition acyclic_rotl := acyclic_seqC.
 
 Lemma acyclic_via_expand_minus :

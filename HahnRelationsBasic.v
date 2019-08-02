@@ -781,4 +781,3 @@ Proof.
   split; induction 1; desf;
   eauto using clos_trans, clos_trans_mon.
 Qed.
-
