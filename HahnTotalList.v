@@ -108,10 +108,11 @@ Lemma total_order_from_list_trans A (l : list A) (ND: NoDup l) x y z :
 Proof.
   unfold total_order_from_list; ins; desf.
   replace (l0 ++ x :: l4 ++ y :: l5)
-          with ((l0 ++ x :: l4) ++ y :: l5) in H0
+          with ((l0 ++ x :: l4) ++ y :: l5) in H
     by (rewrite <- app_assoc; ins).
-  apply NoDup_eq_simpl in H0; try rewrite <- app_assoc; ins; desf.
-  eexists l0, (_ ++ y :: _), _; rewrite <- app_assoc; ins.
+  apply NoDup_eq_simpl in H; auto. desf.
+  eexists l0, (l4 ++ y :: l2), l3.
+  do 2 (rewrite <- app_assoc; simpls).
 Qed.
 
 Lemma total_order_from_list_irreflexive A (l : list A) (ND: NoDup l) :
