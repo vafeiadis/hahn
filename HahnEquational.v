@@ -1108,8 +1108,26 @@ Section PropertiesCross.
   Lemma cross_false_l s : ∅ × s ≡ ∅₂.
   Proof. u. Qed.
 
+  Lemma cross_union_l s s' s'' : (s ∪₁ s') × s'' ≡ s × s'' ∪ s' × s''.
+  Proof. u. Qed.
+
+  Lemma cross_union_r s s' s'' : s × (s' ∪₁ s'') ≡ s × s' ∪ s × s''.
+  Proof. u. Qed.
+
+  Lemma cross_inter_l s s' s'' : (s ∩₁ s') × s'' ≡ ⦗s⦘ ⨾ s' × s''.
+  Proof. u. Qed.
+
+  Lemma cross_inter_r s s' s'' : s × (s' ∩₁ s'') ≡ s × s' ⨾ ⦗s''⦘.
+  Proof. u. Qed.
+
   Lemma ct_of_cross s s' : (s × s')⁺ ≡ s × s'.
   Proof. u; induction H; desf; eauto. Qed.
+
+  Lemma cross_minus_compl_l s s' s'' : s × s' \ (set_compl s) × s'' ≡ s × s'.
+  Proof. u. Qed.
+
+  Lemma cross_minus_compl_r s s' s'' : s × s' \ s'' × (set_compl s') ≡ s × s'.
+  Proof. u. Qed.
 
 End PropertiesCross.
 
