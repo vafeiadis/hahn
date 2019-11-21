@@ -99,9 +99,17 @@ Section Lemmas.
   Lemma codom_empty : codom_rel (A:=A) ∅₂ ≡₁ ∅.
   Proof. unfolder; split; ins; desf. Qed. 
 
+  Lemma dom_singl_rel (x y : A) : dom_rel (singl_rel x y) ≡₁ eq x.
+  Proof. basic_solver. Qed.
+
+  Lemma codom_singl_rel (x y : A) : codom_rel (singl_rel x y) ≡₁ eq y.
+  Proof. basic_solver. Qed.
+
+  Lemma dom_seq : dom_rel (r ⨾ r') ⊆₁ dom_rel r.
+  Proof. basic_solver. Qed.
+
   Lemma codom_seq : codom_rel (r ⨾ r') ⊆₁ codom_rel r'.
-  Proof. unfold codom_rel, seq, set_subset.
-         ins; desf; eauto. Qed.
+  Proof. basic_solver. Qed. 
 
   Lemma dom_union : dom_rel (r ∪ r') ≡₁ dom_rel r ∪₁ dom_rel r'.
   Proof. unfold dom_rel, union, set_union, set_equiv, set_subset.
@@ -134,6 +142,38 @@ Section Lemmas.
   Lemma codom_cross (N: ~ d ≡₁ ∅): codom_rel (d × d') ≡₁ d'.
   Proof. apply set_nonemptyE in N; unfold codom_rel, cross_rel, set_equiv, set_subset; 
          split; ins; desf; eauto. Qed.
+
+  Lemma dom_minus : dom_rel (r \ r') ⊆₁ dom_rel r.
+  Proof. basic_solver. Qed.
+
+  Lemma codom_minus : dom_rel (r \ r') ⊆₁ dom_rel r.
+  Proof. basic_solver. Qed.
+
+  Lemma dom_transp :
+    dom_rel r⁻¹ ≡₁ codom_rel r.
+  Proof. basic_solver. Qed.
+
+  Lemma codom_transp :
+    codom_rel r⁻¹ ≡₁ dom_rel r.
+  Proof. basic_solver. Qed.
+
+  Lemma dom_cr : dom_rel r^? ≡₁ set_full.
+  Proof. basic_solver. Qed.
+
+  Lemma codom_cr : codom_rel r^? ≡₁ set_full.
+  Proof. basic_solver. Qed.
+  
+  Lemma dom_ct : dom_rel r⁺ ≡₁ dom_rel r.
+  Proof. rewrite ct_begin. basic_solver 7. Qed.
+
+  Lemma codom_ct : codom_rel r⁺ ≡₁ codom_rel r.
+  Proof. rewrite ct_end. basic_solver 7. Qed.
+
+  Lemma dom_crt : dom_rel r＊ ≡₁ set_full.
+  Proof. basic_solver. Qed.
+
+  Lemma codom_crt : codom_rel r＊ ≡₁ set_full.
+  Proof. basic_solver. Qed.
 
   Lemma transp_doma : domb r d -> doma (transp r) d.
   Proof. unfold doma, domb, transp; eauto. Qed.
@@ -435,10 +475,19 @@ Section Lemmas.
   Lemma dom_rel_fun_alt w : (fun a => r a w) ≡₁ dom_rel (r ⨾ ⦗ eq w ⦘).
   Proof. basic_solver 10. Qed.
 
-  Lemma dom_rel_helper (IN:  dom_rel r ⊆₁ d) : r ≡ ⦗d⦘ ⨾ r.
+  Lemma dom_rel_helper (IN : dom_rel r ⊆₁ d) : r ≡ ⦗d⦘ ⨾ r.
   Proof. unfolder in *; basic_solver. Qed.
 
-  Lemma dom_rel_helper_in (IN:  dom_rel r ⊆₁ d) : r ⊆ ⦗d⦘ ⨾ r.
+  Lemma codom_rel_helper (IN : codom_rel r ⊆₁ d) : r ≡ r ⨾ ⦗d⦘.
+  Proof. unfolder in *. basic_solver. Qed.
+
+  Lemma dom_codom_rel_helper 
+        (IN  : dom_rel r ⊆₁ d) 
+        (IN' : codom_rel r ⊆₁ d'):
+    r ≡ ⦗d⦘ ⨾ r ⨾ ⦗d'⦘.
+  Proof. unfolder in *. basic_solver 7. Qed.
+
+  Lemma dom_rel_helper_in (IN : dom_rel r ⊆₁ d) : r ⊆ ⦗d⦘ ⨾ r.
   Proof. unfolder in *; basic_solver. Qed.
 End Lemmas.
 
@@ -515,30 +564,6 @@ Add Parametric Morphism A : (@domb A) with signature
 Proof.
   unfold same_relation; ins; rewrite set_equivE in *; 
     desc; split; eapply domb_mori; eauto.
-Qed.
-
-Add Parametric Morphism A : (@dom_rel A) with signature
-  inclusion ==> set_subset as dom_rel_mori.
-Proof.
-  firstorder.
-Qed.
-
-Add Parametric Morphism A : (@codom_rel A) with signature
-  inclusion ==> set_subset as codom_rel_mori.
-Proof.
-  firstorder.
-Qed.
-
-Add Parametric Morphism A : (@dom_rel A) with signature
-  same_relation ==> set_equiv as dom_rel_more.
-Proof.
-  firstorder.
-Qed.
-
-Add Parametric Morphism A : (@codom_rel A) with signature
-  same_relation ==> set_equiv as codom_rel_more.
-Proof.
-  firstorder. 
 Qed.
 
 Add Parametric Morphism A : (@dom_cond A) with signature
