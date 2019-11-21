@@ -247,7 +247,21 @@ Add Parametric Morphism A B : (@collect_rel A B) with signature
   eq ==> same_relation ==> same_relation as collect_rel_more.
 Proof. u; eauto 8. Qed.
 
+Add Parametric Morphism A : (@dom_rel A) with signature
+  inclusion ==> set_subset as dom_rel_mori.
+Proof. firstorder. Qed.
 
+Add Parametric Morphism A : (@codom_rel A) with signature
+  inclusion ==> set_subset as codom_rel_mori.
+Proof. firstorder. Qed.
+
+Add Parametric Morphism A : (@dom_rel A) with signature
+  same_relation ==> set_equiv as dom_rel_more.
+Proof. firstorder. Qed.
+
+Add Parametric Morphism A : (@codom_rel A) with signature
+  same_relation ==> set_equiv as codom_rel_more.
+Proof. firstorder. Qed.
 
 (******************************************************************************)
 (** Basic properties of sequential composition and relational union *)
