@@ -51,6 +51,10 @@ Section RelDefs.
 
   Definition clos_refl : relation A := fun x y => x = y \/ r x y.
 
+  Definition clos_sym : relation A := fun x y => r x y \/ r y x.
+
+  Definition clos_refl_sym : relation A := fun x y => x = y \/ r x y \/ r y x.
+
   Definition dom_rel := fun x => exists y, r x y.
   Definition codom_rel := fun y => exists x, r x y.
 
@@ -112,12 +116,16 @@ Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
 Notation "∅₂" := (fun _ _ => False).
 Notation "P × Q" := (cross_rel P Q) (at level 29, left associativity).
 
-Notation "a ^?" := (clos_refl a) (at level 1, format "a ^?").
-Notation "a ^^ n" := (pow_rel a n) (at level 1).
+Notation "a ⁻¹" := (transp a) (at level 1, format "a ⁻¹").
 
+Notation "a ^?" := (clos_refl a) (at level 1, format "a ^?").
 Notation "a ⁺" := (clos_trans a) (at level 1, format "a ⁺").
 Notation "a ＊" := (clos_refl_trans a) (at level 1, format "a ＊").
-Notation "a ⁻¹" := (transp a) (at level 1, format "a ⁻¹").
+Notation "a ^⋈" := (clos_sym a) (at level 1, format "a ^⋈").
+Notation "a ^⋈?" := (clos_refl_sym a) (at level 1, format "a ^⋈?").
+
+Notation "a ^^ n" := (pow_rel a n) (at level 1).
+
 Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
 
