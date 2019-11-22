@@ -1202,6 +1202,9 @@ Section PropertiesSymmetry.
   Implicit Type r : relation A.
   Implicit Type s : A -> Prop.
 
+  Lemma symmetricE r : symmetric r <-> r ≡ r⁻¹.
+  Proof. u. Qed.
+
   Lemma cr_sym r : symmetric r -> symmetric r^?.
   Proof. u. Qed.
 
