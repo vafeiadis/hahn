@@ -3,9 +3,11 @@
 (******************************************************************************)
 
 Require Import HahnBase.
-Require Import List Omega Relations Setoid Morphisms.
+Require Import Program.Basics List Omega Relations Setoid Morphisms.
 
 Set Implicit Arguments.
+
+Local Open Scope program_scope.
 
 (** Definitions of set operations *)
 (******************************************************************************)
@@ -16,6 +18,7 @@ Section SetDefs.
   Implicit Type f : A -> B.
   Implicit Type s : A -> Prop.
   Implicit Type ss : A -> B -> Prop.
+  Implicit Type d : B -> Prop.
 
   Definition set_empty       := fun x : A => False.
   Definition set_full        := fun x : A => True.
@@ -28,6 +31,7 @@ Section SetDefs.
   Definition set_finite s    := exists findom, forall x (IN: s x), In x findom.
   Definition set_coinfinite s:= ~ set_finite (set_compl s).
   Definition set_collect f s := fun x => exists y, s y /\ f y = x.
+  Definition set_map f d     := fun x => d (f x).
   Definition set_bunion s ss := fun x => exists y, s y /\ ss y x.
   Definition set_disjoint s s':= forall x (IN: s x) (IN': s' x), False.
 
@@ -44,6 +48,9 @@ Notation "P \₁ Q" := (set_minus P Q) (at level 46).
 Notation "∅"     := (@set_empty _).
 Notation "a ⊆₁ b" := (set_subset a b) (at level 60).
 Notation "a ≡₁ b" := (set_equiv a b)  (at level 60).
+Notation "f ↑₁ P" := (set_collect f P) (at level 30).
+Notation "f ↓₁ Q" := (set_map f Q) (at level 30).
+
 Notation "⋃₁ x ∈ s , a" := (set_bunion s (fun x => a))
   (at level 200, x ident, right associativity, 
    format "'[' ⋃₁ '/ ' x  ∈  s ,  '/ ' a ']'").
@@ -68,7 +75,7 @@ Notation "a ≡ b" := (set_equiv a b)  (at level 60) : function_scope. *)
 
 Hint Unfold set_empty set_full set_compl set_union set_inter : unfolderDb.
 Hint Unfold set_minus set_subset set_equiv set_coinfinite set_finite : unfolderDb.
-Hint Unfold set_collect set_bunion set_disjoint : unfolderDb.
+Hint Unfold set_collect set_map set_bunion set_disjoint : unfolderDb.
 
 (** Basic properties of set operations *)
 (******************************************************************************)
@@ -82,6 +89,7 @@ Section SetProperties.
   Implicit Type a : A.
   Implicit Type f : A -> B.
   Implicit Type s : A -> Prop.
+  Implicit Type d : B -> Prop.
   Implicit Type ss : A -> B -> Prop.
 
   (** Properties of set complement. *)
@@ -273,7 +281,7 @@ Section SetProperties.
     (⋃₁x ∈ s, ss x) ⊆₁ (⋃₁x ∈ s', ss' x).
   Proof. subst; u. Qed.
 
-  Lemma set_subset_collect f s s' (S: s ⊆₁ s') : set_collect f s ⊆₁ set_collect f s'.
+  Lemma set_subset_collect f s s' (S: s ⊆₁ s') : f ↑₁ s ⊆₁ f ↑₁ s'.
   Proof. u. Qed.
 
   (** Properties of set equivalence. *)
@@ -309,7 +317,7 @@ Section SetProperties.
   Lemma set_equiv_bunion_guard s s' (S: s ≡₁ s') ss ss' (EQ: ss = ss') : set_bunion s ss ≡₁ set_bunion s' ss'.
   Proof. subst; u. Qed.
 
-  Lemma set_equiv_collect f s s' (S: s ≡₁ s') : set_collect f s ⊆₁ set_collect f s'.
+  Lemma set_equiv_collect f s s' (S: s ≡₁ s') : f ↑₁ s ⊆₁ f ↑₁ s'.
   Proof. u. Qed.
 
   Lemma set_equiv_subset s s' (S1: s ≡₁ s') t t' (S2: t ≡₁ t') : s ⊆₁ t <-> s' ⊆₁ t'.
@@ -398,21 +406,72 @@ Section SetProperties.
 
   (** Collect *)
 
-  Lemma set_collectE f s : set_collect f s ≡₁ set_bunion s (fun x => eq (f x)).
+  Lemma set_collectE f s : f ↑₁ s ≡₁ set_bunion s (fun x => eq (f x)).
   Proof. u. Qed.
 
-  Lemma set_collect_empty f : set_collect f ∅ ≡₁ ∅.
+  Lemma set_collect_empty f : f ↑₁ ∅ ≡₁ ∅.
   Proof. u. Qed.
-  
-  Lemma set_collect_eq f a : set_collect f (eq a) ≡₁ eq (f a).
+
+   Lemma set_collect_eq f a : f ↑₁ (eq a) ≡₁ eq (f a).
   Proof. u; splits; ins; desf; eauto. Qed. 
 
   Lemma set_collect_union f s s' :
-    set_collect f (s ∪₁ s') ≡₁ set_collect f s ∪₁ set_collect f s'.
+    f ↑₁ (s ∪₁ s') ≡₁ f ↑₁ s ∪₁ f ↑₁ s'.
   Proof. u. Qed. 
 
-  Lemma set_collect_bunion f (s : B -> Prop) (ss : B -> A -> Prop) :
-    set_collect f (⋃₁x ∈ s, ss x) ≡₁ ⋃₁x ∈ s, set_collect f (ss x).
+  Lemma set_collect_inter f s s' :
+    f ↑₁ (s ∩₁ s') ⊆₁ f ↑₁ s ∩₁ f ↑₁ s'.
+  Proof. u. Qed.
+
+  Lemma set_collect_bunion f (s : C -> Prop) (ss : C -> A -> Prop) :
+    f ↑₁ (⋃₁x ∈ s, ss x) ≡₁ ⋃₁x ∈ s, f ↑₁ (ss x).
+  Proof. u. Qed.
+
+  Lemma set_collect_compose (f : A -> B) (g : B -> C) s :
+    (g ∘ f) ↑₁ s ≡₁ g ↑₁ (f ↑₁ s) .
+  Proof. 
+    autounfold with unfolderDb. 
+    ins; splits; ins; splits; desf; eauto.
+  Qed.
+
+  (** Map *)
+
+  Lemma set_mapE f d : f ↓₁ d ≡₁ set_bunion d (fun x y => x = f y).
+  Proof. split; u. desc. by subst y. Qed.
+
+  Lemma set_map_empty f : f ↓₁ ∅ ≡₁ ∅.
+  Proof. u. Qed.
+
+  Lemma set_map_full f : f ↓₁ set_full ≡₁ set_full.
+  Proof. u. Qed.
+
+  Lemma set_map_union f d d' :
+    f ↓₁ (d ∪₁ d') ≡₁ f ↓₁ d ∪₁ f ↓₁ d'.
+  Proof. u. Qed.
+
+  Lemma set_map_inter f d d' :
+    f ↓₁ (d ∩₁ d') ≡₁ f ↓₁ d ∩₁ f ↓₁ d'.
+  Proof. u. Qed.
+
+  Lemma set_map_bunion f (d : C -> Prop) (dd : C -> B -> Prop) :
+    f ↓₁ (⋃₁x ∈ d, dd x) ≡₁ ⋃₁x ∈ d, f ↓₁ (dd x).
+  Proof. u. Qed.
+
+  Lemma set_map_compose (f : A -> B) (g : B -> C) (d : C -> Prop) :
+    (g ∘ f) ↓₁ d ≡₁ f ↓₁ (g ↓₁ d) .
+  Proof. 
+    autounfold with unfolderDb. 
+    ins; splits; ins; splits; desf; eauto.
+  Qed.
+
+  (** Collect and Map *)
+
+  Lemma set_collect_map f d :
+    f ↑₁ (f ↓₁ d) ⊆₁ d.
+  Proof. u. desc. by subst x. Qed.
+
+  Lemma set_map_collect f s :
+    s ⊆₁ f ↓₁ (f ↑₁ s).
   Proof. u. Qed.
 
   (** Finite sets *)
