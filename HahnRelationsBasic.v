@@ -102,7 +102,7 @@ Definition cross_rel A (r r' : A -> Prop) := (fun a b => r a /\ r' b).
 Hint Unfold reflexive symmetric transitive inclusion same_relation : unfolderDb. 
 Hint Unfold union transp singl_rel inter_rel minus_rel bunion : unfolderDb.
 Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq map_rel : unfolderDb.
-Hint Unfold clos_refl dom_rel codom_rel cross_rel collect_rel : unfolderDb.
+Hint Unfold clos_refl clos_sym clos_refl_sym dom_rel codom_rel cross_rel collect_rel : unfolderDb.
 Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb. 
 Hint Unfold antisymmetric strict_partial_order strict_total_order : unfolderDb.
 
