@@ -1050,10 +1050,6 @@ Section PropertiesMapRel.
     f ↓ ∅₂ ≡ ∅₂.
   Proof. u. Qed.
 
-  Lemma map_rel_false f :
-    f ↓ ∅₂ ≡ ∅₂.
-  Proof. u. Qed.
-
   Lemma map_rel_cross f d d' :
     f ↓ (d × d') ≡ (f ↓₁ d) × (f ↓₁ d').
   Proof. u. Qed.
