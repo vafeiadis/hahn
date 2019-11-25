@@ -406,6 +406,14 @@ Section SetProperties.
 
   (** Collect *)
 
+  Lemma set_collect_compose (f : A -> B) (g : B -> C) s :
+    (g ∘ f) ↑₁ s ≡₁ g ↑₁ (f ↑₁ s) .
+  Proof.
+    unfold compose.
+    repeat autounfold with unfolderDb.
+    ins; splits; ins; splits; desf; eauto.
+  Qed.
+
   Lemma set_collectE f s : f ↑₁ s ≡₁ set_bunion s (fun x => eq (f x)).
   Proof. u. Qed.
 
@@ -427,14 +435,14 @@ Section SetProperties.
     f ↑₁ (⋃₁x ∈ s, ss x) ≡₁ ⋃₁x ∈ s, f ↑₁ (ss x).
   Proof. u. Qed.
 
-  Lemma set_collect_compose (f : A -> B) (g : B -> C) s :
-    (g ∘ f) ↑₁ s ≡₁ g ↑₁ (f ↑₁ s) .
+  (** Map *)
+
+  Lemma set_map_compose (f : A -> B) (g : B -> C) (d : C -> Prop) :
+    (g ∘ f) ↓₁ d ≡₁ f ↓₁ (g ↓₁ d) .
   Proof. 
     autounfold with unfolderDb. 
     ins; splits; ins; splits; desf; eauto.
   Qed.
-
-  (** Map *)
 
   Lemma set_mapE f d : f ↓₁ d ≡₁ set_bunion d (fun x y => x = f y).
   Proof. split; u. desc. by subst y. Qed.
@@ -456,13 +464,6 @@ Section SetProperties.
   Lemma set_map_bunion f (d : C -> Prop) (dd : C -> B -> Prop) :
     f ↓₁ (⋃₁x ∈ d, dd x) ≡₁ ⋃₁x ∈ d, f ↓₁ (dd x).
   Proof. u. Qed.
-
-  Lemma set_map_compose (f : A -> B) (g : B -> C) (d : C -> Prop) :
-    (g ∘ f) ↓₁ d ≡₁ f ↓₁ (g ↓₁ d) .
-  Proof. 
-    autounfold with unfolderDb. 
-    ins; splits; ins; splits; desf; eauto.
-  Qed.
 
   (** Collect and Map *)
 
