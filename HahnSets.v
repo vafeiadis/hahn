@@ -653,6 +653,14 @@ Add Parametric Morphism A B : (@set_collect A B) with signature
   eq ==> set_equiv ==> set_equiv as set_collect_more.
 Proof. repeat autounfold with unfolderDb; splits; ins; desf; eauto. Qed.
 
+Add Parametric Morphism A B : (@set_map A B) with signature
+  eq ==> set_subset ==> set_subset as set_map_mori.
+Proof. repeat autounfold with unfolderDb; splits; ins; desf; eauto. Qed. 
+
+Add Parametric Morphism A B : (@set_map A B) with signature
+  eq ==> set_equiv ==> set_equiv as set_map_more.
+Proof. repeat autounfold with unfolderDb; splits; ins; desf; eauto. Qed. 
+
 Add Parametric Morphism A : (@set_disjoint A) with signature 
   set_subset --> set_subset --> Basics.impl as set_disjoint_mori.
 Proof. red; autounfold with unfolderDb; ins; desf; eauto. Qed.
