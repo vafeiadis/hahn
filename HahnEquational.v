@@ -2,10 +2,12 @@
 (** * Equational properties of relations *)
 (******************************************************************************)
 
-Require Import NPeano Omega Permutation List Setoid.
+Require Import Program.Basics NPeano Omega Permutation List Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnSets.
 
 Set Implicit Arguments.
+
+Local Open Scope program_scope.
 
 (******************************************************************************)
 (** Set up setoid rewriting *)
@@ -1119,20 +1121,92 @@ Hint Rewrite cross_false_l cross_false_r : hahn.
 (** Properties of [collect_rel] *)
 (******************************************************************************)
 
-Lemma collect_rel_empty A B (f : A -> B) : collect_rel f ∅₂ ≡ ∅₂.
-Proof. u. Qed.
+Section PropertiesCollectRel.
 
-Lemma collect_rel_cross A B (f : A -> B) s s' :
-  collect_rel f (s × s') ≡ set_collect f s × set_collect f s'.
-Proof. u; eauto 8. Qed.
+  Variable A B C : Type.
+  Implicit Type f : A -> B.
+  Implicit Type s : A -> Prop.
 
-Lemma collect_rel_union A B (f : A -> B) s s' :
-  collect_rel f (s ∪ s') ≡ collect_rel f s ∪ collect_rel f s'.
-Proof. u; eauto 8. Qed.
+  Lemma collect_rel_compose (f : A -> B) (g : B -> C) r :
+    g ↑ (f ↑ r) ≡ (g ∘ f) ↑ r.
+  Proof.
+    unfold compose.
+    repeat autounfold with unfolderDb.
+    ins; splits; ins; splits; desf; eauto 10.
+  Qed.
 
-Lemma collect_rel_bunion A B (f : A -> B) C (s : C -> Prop) rr :
-  collect_rel f (⋃x ∈ s, rr x) ≡ ⋃x ∈ s, collect_rel f (rr x).
-Proof. u; eauto 8. Qed.
+  Lemma collect_rel_empty f : f ↑ ∅₂ ≡ ∅₂.
+  Proof. u. Qed.
+
+  Lemma collect_rel_singl f x y : f ↑ singl_rel x y ≡ singl_rel (f x) (f y).
+  Proof. u; eauto 8. Qed.
+
+  Lemma collect_rel_cross f s s' :
+    f ↑ (s × s') ≡ (f ↑₁ s) × (f ↑₁ s').
+  Proof. u; eauto 8. Qed.
+
+  Lemma collect_rel_union f r r' :
+    f ↑ (r ∪ r') ≡ f ↑ r ∪ f ↑ r'.
+  Proof. u; eauto 8. Qed.
+
+  Lemma collect_rel_inter f r r' :
+    f ↑ (r ∩ r') ⊆ (f ↑ r) ∩ (f ↑ r').
+  Proof. u; eauto 8. Qed.
+
+  Lemma collect_rel_bunion f (s : C -> Prop) rr :
+    f ↑ (⋃x ∈ s, rr x) ≡ ⋃x ∈ s, f ↑ (rr x).
+  Proof. u; eauto 8. Qed.
+
+  Lemma collect_rel_minus f r r' :
+    f ↑ r \ f ↑ r' ⊆ f ↑ (r \ r').
+  Proof. u; eauto 20. Qed.
+
+  Lemma collect_rel_transp f r :
+    f ↑ r⁻¹ ≡ (f ↑ r)⁻¹.
+  Proof. u; eauto 8. Qed.
+
+  Lemma collect_rel_eqv f s :
+    f ↑ ⦗ s ⦘ ≡ ⦗ f ↑₁ s ⦘.
+  Proof. u; eauto 8. Qed.
+
+  Lemma collect_rel_seq f r r' :
+    f ↑ (r ⨾ r') ⊆ (f ↑ r) ⨾ (f ↑ r').
+  Proof. u; eauto 20. Qed.
+
+  Lemma collect_rel_cr f r :
+    f ↑ r^? ⊆  (f ↑ r)^?.
+  Proof. u; eauto 8. Qed.
+
+  Lemma collect_rel_ct f r :
+    f ↑ r⁺ ⊆ (f ↑ r)⁺.
+  Proof. 
+    u. induction H.
+    { apply ct_step. eauto. }
+    apply ct_ct. eexists. eauto. 
+  Qed.
+
+  Lemma collect_rel_crt f r :
+    f ↑ r＊ ⊆ (f ↑ r)＊.
+  Proof.
+      by rewrite 
+         <- !cr_of_ct,
+         <- collect_rel_ct,
+         <- collect_rel_cr.
+  Qed.
+
+  Lemma collect_rel_irr f r (Irr : irreflexive (f ↑ r)):
+    irreflexive r.
+  Proof. u. eapply Irr. eauto. Qed.
+
+  Lemma collect_rel_acyclic f r (ACYC : acyclic (f ↑ r)):
+    acyclic r.
+  Proof.
+    unfold acyclic in *.
+    eapply collect_rel_irr.
+    eby erewrite collect_rel_ct.
+  Qed.
+
+End PropertiesCollectRel.
 
 Hint Rewrite collect_rel_empty collect_rel_cross : hahn.
 Hint Rewrite collect_rel_union collect_rel_bunion : hahn.

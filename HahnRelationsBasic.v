@@ -112,6 +112,9 @@ Notation "⦗ a ⦘" := (eqv_rel a) (format "⦗ a ⦘").
 Notation "∅₂" := (fun _ _ => False).
 Notation "P × Q" := (cross_rel P Q) (at level 29, left associativity).
 
+Notation "f ↑ P" := (collect_rel f P) (at level 30).
+Notation "f ↓ Q" := (map_rel f Q) (at level 30).
+
 Notation "a ^?" := (clos_refl a) (at level 1, format "a ^?").
 Notation "a ^^ n" := (pow_rel a n) (at level 1).
 
