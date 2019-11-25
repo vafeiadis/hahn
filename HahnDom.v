@@ -135,6 +135,22 @@ Section Lemmas.
   Proof. apply set_nonemptyE in N; unfold codom_rel, cross_rel, set_equiv, set_subset; 
          split; ins; desf; eauto. Qed.
 
+  Lemma set_collect_dom :
+    f ↑₁ dom_rel r ≡₁ dom_rel (f ↑ r).
+  Proof. unfolder; split; ins; desf; eauto 10. Qed.
+
+  Lemma set_collect_codom :
+    f ↑₁ codom_rel r ≡₁ codom_rel (f ↑ r).
+  Proof. unfolder; split; ins; desf; eauto 10. Qed.
+
+  Lemma set_map_dom (rr : relation B) :
+    dom_rel (f ↓ rr) ⊆₁ f ↓₁ dom_rel rr.
+  Proof. unfolder; ins; desf; eauto 20. Qed.
+
+  Lemma set_map_codom (rr : relation B) :
+    codom_rel (f ↓ rr) ⊆₁ f ↓₁ codom_rel rr.
+  Proof. unfolder; ins; desf; eauto 10. Qed.
+
   Lemma transp_doma : domb r d -> doma (transp r) d.
   Proof. unfold doma, domb, transp; eauto. Qed.
 
