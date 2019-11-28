@@ -258,84 +258,84 @@ Section PropertiesSeqUnion.
   Variables B A : Type.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
-  Ltac u := autounfold with unfolderDb in *; 
+  Local Ltac uu := autounfold with unfolderDb in *; 
             try solve [intuition; ins; desf; eauto; firstorder].
 
   Lemma seqA r1 r2 r3 : (r1 ⨾ r2) ⨾ r3 ≡ r1 ⨾ (r2 ⨾ r3).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_false_l r : ∅₂ ⨾ r ≡ ∅₂.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_false_r r : r ⨾ ∅₂ ≡ ∅₂.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_id_l r :  ⦗fun _ => True⦘ ⨾ r ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_id_r r : r ⨾ ⦗fun _ => True⦘ ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma unionA r1 r2 r3 : (r1 ∪ r2) ∪ r3 ≡ r1 ∪ (r2 ∪ r3).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma unionC r1 r2 : r1 ∪ r2 ≡ r2 ∪ r1.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma unionAC r r' r'' : r ∪ (r' ∪ r'') ≡ r' ∪ (r ∪ r'').
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma unionK r : r ∪ r ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma union_false_r r : r ∪ ∅₂ ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma union_false_l r : ∅₂ ∪ r ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_union_l r1 r2 r : (r1 ∪ r2) ⨾ r ≡ (r1 ⨾ r) ∪ (r2 ⨾ r).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_union_r r r1 r2 : r ⨾ (r1 ∪ r2) ≡ (r ⨾ r1) ∪ (r ⨾ r2).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_bunion_l P rr r : bunion P rr ⨾ r ≡ (⋃n ∈ P, rr n ⨾ r). 
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_bunion_r r P rr : r ⨾ bunion P rr ≡ (⋃n ∈ P, r ⨾ rr n). 
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma minus_union_l r1 r2 r : (r1 ∪ r2) \ r ≡ (r1 \ r) ∪ (r2 \ r).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqvK (dom : A -> Prop) : ⦗dom⦘ ⨾ ⦗dom⦘ ≡ ⦗dom⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqvK_l (dom1 dom2 : A -> Prop) (IMP: forall x, dom2 x -> dom1 x) :
     ⦗dom1⦘ ⨾ ⦗dom2⦘ ≡ ⦗dom2⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqvK_r (dom1 dom2 : A -> Prop) (IMP: forall x, dom1 x -> dom2 x) :
     ⦗dom1⦘ ⨾ ⦗dom2⦘ ≡ ⦗dom1⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqvC (doma domb : A -> Prop) :
     ⦗doma⦘ ⨾ ⦗domb⦘ ≡ ⦗domb⦘ ⨾ ⦗doma⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqv (doma domb : A -> Prop) :
     ⦗doma⦘ ⨾ ⦗domb⦘ ≡ ⦗fun x => doma x /\ domb x⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma union_absorb_l r r' (SUB: r ⊆ r') : r ∪ r' ≡ r'.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma union_absorb_r r r' (SUB: r ⊆ r') : r' ∪ r ≡ r'.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma id_union (s s': A -> Prop) : ⦗s ∪₁ s'⦘ ≡ ⦗s⦘ ∪ ⦗s'⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
 End PropertiesSeqUnion.
 
@@ -353,34 +353,34 @@ Section PropertiesBigUnion.
   Variables B A : Type.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
-  Ltac u := autounfold with unfolderDb in *; 
+  Local Ltac uu := autounfold with unfolderDb in *; 
             try solve [intuition; ins; desf; eauto; firstorder].
 
   Lemma bunion_empty rr : bunion ∅ rr ≡ ∅₂.
-  Proof. u. Qed.
+  Proof. uu. Qed.
   
   Lemma bunion_eq a rr : bunion (eq a) rr ≡ rr a.
   Proof. u; splits; ins; desf; eauto. Qed. 
 
   Lemma bunion_union_l s s' rr :
     bunion (s ∪₁ s') rr ≡ bunion s rr ∪ bunion s' rr.
-  Proof. u. Qed. 
+  Proof. uu. Qed. 
 
   Lemma bunion_union_r s rr rr' :
     bunion s (fun x => rr x ∪ rr' x) ≡ bunion s rr ∪ bunion s rr'.
-  Proof. u. Qed. 
+  Proof. uu. Qed. 
 
   Lemma bunion_inter_compat_l s r rr :
     bunion s (fun x => r ∩ rr x) ≡ r ∩ bunion s rr.
-  Proof. u; split; ins; desf; eauto 8. Qed. 
+  Proof. uu; split; ins; desf; eauto 8. Qed. 
 
   Lemma bunion_inter_compat_r s r rr :
     bunion s (fun x => rr x ∩ r) ≡ bunion s rr ∩ r.
-  Proof. u; split; ins; desf; eauto 8. Qed. 
+  Proof. uu; split; ins; desf; eauto 8. Qed. 
 
   Lemma bunion_minus_compat_r s r rr :
     bunion s (fun x => rr x \ r) ≡ bunion s rr \ r.
-  Proof. u; split; ins; desf; eauto 8. Qed. 
+  Proof. uu; split; ins; desf; eauto 8. Qed. 
 
 End PropertiesBigUnion.
 

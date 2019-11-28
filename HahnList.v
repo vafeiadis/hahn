@@ -215,7 +215,7 @@ Fixpoint undup A (l: list A) :=
 Lemma nodup_one A (x: A) : NoDup (x :: nil).
 Proof. vauto. Qed.
 
-Hint Resolve NoDup_nil nodup_one.
+Hint Resolve NoDup_nil nodup_one : core hahn.
 
 Lemma nodup_map:
   forall (A B: Type) (f: A -> B) (l: list A),
@@ -302,7 +302,7 @@ Proof.
   econstructor; eauto; rewrite in_filterP_iff; tauto.
 Qed.
 
-Hint Resolve nodup_filter nodup_filterP.
+Hint Resolve nodup_filter nodup_filterP : core hahn.
 
 Lemma Permutation_nodup A ( l l' : list A) :
   Permutation l l' -> NoDup l -> NoDup l'.
@@ -343,7 +343,7 @@ Proof. induction l; split; ins; desf; ins; desf; eauto. Qed.
 Lemma nodup_undup A (l : list A) : NoDup (undup l).
 Proof. induction l; ins; desf; constructor; rewrite ?in_undup_iff in *; eauto. Qed.
 
-Hint Resolve nodup_undup.
+Hint Resolve nodup_undup : core hahn.
 
 Lemma undup_nodup A (l : list A) : NoDup l -> undup l = l.
 Proof. induction 1; ins; desf; congruence. Qed.

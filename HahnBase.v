@@ -44,7 +44,7 @@ Proof. reflexivity. Qed.
 Lemma hahn__not_false_is_true : ~ false.
 Proof. discriminate. Qed.
 
-Hint Resolve hahn__true_is_true hahn__not_false_is_true.
+Hint Resolve hahn__true_is_true hahn__not_false_is_true : core.
 
 (* ************************************************************************** *)
 (** ** Very basic automation *)
@@ -199,8 +199,8 @@ Proof. intros [] []; auto. Qed.
 Lemma hahn__eqb_split : forall b1 b2 : bool, (b1 -> b2) -> (b2 -> b1) -> b1 = b2.
 Proof. intros [] [] H H'; unfold is_true in *; auto using sym_eq. Qed.
 
-Lemma hahn__beq_rewrite : forall (T : eqType) (x1 x2 : T), eq_op x1 x2 -> x1 = x2.
-Proof. by intros until 0; case eqP. Qed.
+Lemma hahn__beq_rewrite (T : eqType) (x1 x2 : T) : eq_op x1 x2 -> x1 = x2.
+Proof. by case eqP. Qed.
 
 
 (** Set up for basic simplification: database of reflection lemmas *)
@@ -278,7 +278,7 @@ Notation "⟪ t ⟫" := (NW (fun _ => t)) (at level 79, no associativity, format
 Ltac unnw := unfold NW in *.
 Ltac rednw := red; unnw.
 
-Hint Unfold NW.
+Hint Unfold NW : core.
 
 Ltac splits :=
   intros; unfold NW;
