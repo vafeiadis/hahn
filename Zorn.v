@@ -198,7 +198,7 @@ Module Private.
     Program Definition restrict x (X: set): set := λ y, y ∈ X ∧ y ≺ x.
     Next Obligation. Proof. solve_proper. Qed.
     
-    Hint Constructors closed_subset.
+    Hint Constructors closed_subset : core.
     
     Lemma initial_prefix X Y (Xwo: well_ordered X) (sub: Y ≺ X):
       ∃ x, x ∈ X ∧ ¬x ∈ Y ∧ Y ≌ restrict x X.
@@ -972,10 +972,3 @@ Section Theorems.
     }
   Qed.*)
 End Theorems.
-
-
-
-
-
-
-
