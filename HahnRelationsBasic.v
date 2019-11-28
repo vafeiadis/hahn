@@ -51,6 +51,10 @@ Section RelDefs.
 
   Definition clos_refl : relation A := fun x y => x = y \/ r x y.
 
+  Definition clos_sym : relation A := fun x y => r x y \/ r y x.
+
+  Definition clos_refl_sym : relation A := fun x y => x = y \/ r x y \/ r y x.
+
   Definition dom_rel := fun x => exists y, r x y.
   Definition codom_rel := fun y => exists x, r x y.
 
@@ -98,7 +102,7 @@ Definition cross_rel A (r r' : A -> Prop) := (fun a b => r a /\ r' b).
 Hint Unfold reflexive symmetric transitive inclusion same_relation : unfolderDb. 
 Hint Unfold union transp singl_rel inter_rel minus_rel bunion : unfolderDb.
 Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq map_rel : unfolderDb.
-Hint Unfold clos_refl dom_rel codom_rel cross_rel collect_rel : unfolderDb.
+Hint Unfold clos_refl clos_sym clos_refl_sym dom_rel codom_rel cross_rel collect_rel : unfolderDb.
 Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb. 
 Hint Unfold antisymmetric strict_partial_order strict_total_order : unfolderDb.
 
@@ -115,12 +119,16 @@ Notation "P × Q" := (cross_rel P Q) (at level 29, left associativity).
 Notation "f ↑ P" := (collect_rel f P) (at level 30).
 Notation "f ↓ Q" := (map_rel f Q) (at level 30).
 
-Notation "a ^?" := (clos_refl a) (at level 1, format "a ^?").
-Notation "a ^^ n" := (pow_rel a n) (at level 1).
+Notation "a ⁻¹" := (transp a) (at level 1, format "a ⁻¹").
 
+Notation "a ^?" := (clos_refl a) (at level 1, format "a ^?").
 Notation "a ⁺" := (clos_trans a) (at level 1, format "a ⁺").
 Notation "a ＊" := (clos_refl_trans a) (at level 1, format "a ＊").
-Notation "a ⁻¹" := (transp a) (at level 1, format "a ⁻¹").
+Notation "a ^⋈" := (clos_sym a) (at level 1, format "a ^⋈").
+Notation "a ^⋈?" := (clos_refl_sym a) (at level 1, format "a ^⋈?").
+
+Notation "a ^^ n" := (pow_rel a n) (at level 1).
+
 Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
 
@@ -164,7 +172,7 @@ Proof. vauto. Qed.
 Lemma r_step A (r: relation A) x y : r x y -> r^? x y.
 Proof. vauto. Qed.
 
-Hint Immediate r_refl r_step.
+Hint Immediate r_refl r_step : core hahn.
 
 Section BasicProperties.
 
@@ -743,7 +751,7 @@ End BasicProperties.
 
 (** Declare several of the above lemmas as hints for [(e)auto]. *)
 
-Hint Resolve same_relation_refl2.
+Hint Resolve same_relation_refl2 : core hahn.
 
 Hint Resolve
      reflexive_seq reflexive_rt reflexive_cr

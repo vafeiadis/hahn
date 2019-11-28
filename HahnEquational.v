@@ -48,6 +48,10 @@ Add Parametric Morphism A : (@irreflexive A) with signature
   inclusion --> Basics.impl as irreflexive_mori.
 Proof. u. Qed.
 
+Add Parametric Morphism A : (@clos_refl A) with signature
+  inclusion ==> inclusion as clos_refl_mori.
+Proof. u. Qed.
+
 Add Parametric Morphism A : (@clos_trans A) with signature
   inclusion ==> inclusion as clos_trans_mori.
 Proof. u; eauto using clos_trans_mon. Qed.
@@ -56,9 +60,13 @@ Add Parametric Morphism A : (@clos_refl_trans A) with signature
   inclusion ==> inclusion as clos_refl_trans_mori.
 Proof. u; eauto using clos_refl_trans_mon. Qed.
 
-Add Parametric Morphism A : (@clos_refl A) with signature
-  inclusion ==> inclusion as clos_refl_mori.
-Proof. u. Qed.
+Add Parametric Morphism A : (@clos_sym A) with signature
+  inclusion ==> inclusion as clos_sym_mori.
+Proof. unfold clos_sym. u. Qed.
+
+Add Parametric Morphism A : (@clos_refl_sym A) with signature
+  inclusion ==> inclusion as clos_refl_sym_mori.
+Proof. unfold clos_refl_sym. u. Qed.
 
 Add Parametric Morphism A : (@restr_rel A) with signature
   set_subset ==> inclusion ==> inclusion as restr_rel_mori.
@@ -181,6 +189,10 @@ Add Parametric Morphism A B : (@map_rel A B) with signature
     eq ==> same_relation ==> same_relation as map_rel_more.
 Proof. u. Qed.
 
+Add Parametric Morphism A : (@clos_refl A) with signature
+  same_relation ==> same_relation as clos_relf_more.
+Proof. u. Qed.
+
 Add Parametric Morphism A : (@clos_trans A) with signature
   same_relation ==> same_relation as clos_trans_more.
 Proof. u; eauto using clos_trans_mon. Qed.
@@ -189,9 +201,13 @@ Add Parametric Morphism A : (@clos_refl_trans A) with signature
   same_relation ==> same_relation as clos_refl_trans_more.
 Proof. u; eauto using clos_refl_trans_mon. Qed.
 
-Add Parametric Morphism A : (@clos_refl A) with signature
-  same_relation ==> same_relation as clos_relf_more.
-Proof. u. Qed.
+Add Parametric Morphism A : (@clos_sym A) with signature
+  same_relation  ==> same_relation as clos_sym_more.
+Proof. unfold clos_sym. u. Qed.
+
+Add Parametric Morphism A : (@clos_refl_sym A) with signature
+  same_relation  ==> same_relation as clos_refl_sym_more.
+Proof. unfold clos_refl_sym. u. Qed.
 
 Add Parametric Morphism A : (@irreflexive A) with signature
   same_relation ==> iff as irreflexive_more.
@@ -202,6 +218,10 @@ Add Parametric Morphism A : (@acyclic A) with signature
 Proof.
   unfold acyclic; ins; rewrite H; reflexivity.
 Qed.
+
+Add Parametric Morphism A : (@symmetric A) with signature
+  same_relation ==> iff as symmetric_more.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@transitive A) with signature
   same_relation ==> iff as transitive_more.
@@ -249,7 +269,21 @@ Add Parametric Morphism A B : (@collect_rel A B) with signature
   eq ==> same_relation ==> same_relation as collect_rel_more.
 Proof. u; eauto 8. Qed.
 
+Add Parametric Morphism A : (@dom_rel A) with signature
+  inclusion ==> set_subset as dom_rel_mori.
+Proof. firstorder. Qed.
 
+Add Parametric Morphism A : (@codom_rel A) with signature
+  inclusion ==> set_subset as codom_rel_mori.
+Proof. firstorder. Qed.
+
+Add Parametric Morphism A : (@dom_rel A) with signature
+  same_relation ==> set_equiv as dom_rel_more.
+Proof. firstorder. Qed.
+
+Add Parametric Morphism A : (@codom_rel A) with signature
+  same_relation ==> set_equiv as codom_rel_more.
+Proof. firstorder. Qed.
 
 (******************************************************************************)
 (** Basic properties of sequential composition and relational union *)
@@ -260,84 +294,84 @@ Section PropertiesSeqUnion.
   Variables B A : Type.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
-  Ltac u := autounfold with unfolderDb in *; 
+  Local Ltac uu := autounfold with unfolderDb in *; 
             try solve [intuition; ins; desf; eauto; firstorder].
 
   Lemma seqA r1 r2 r3 : (r1 ⨾ r2) ⨾ r3 ≡ r1 ⨾ (r2 ⨾ r3).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_false_l r : ∅₂ ⨾ r ≡ ∅₂.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_false_r r : r ⨾ ∅₂ ≡ ∅₂.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_id_l r :  ⦗fun _ => True⦘ ⨾ r ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_id_r r : r ⨾ ⦗fun _ => True⦘ ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma unionA r1 r2 r3 : (r1 ∪ r2) ∪ r3 ≡ r1 ∪ (r2 ∪ r3).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma unionC r1 r2 : r1 ∪ r2 ≡ r2 ∪ r1.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma unionAC r r' r'' : r ∪ (r' ∪ r'') ≡ r' ∪ (r ∪ r'').
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma unionK r : r ∪ r ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma union_false_r r : r ∪ ∅₂ ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma union_false_l r : ∅₂ ∪ r ≡ r.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_union_l r1 r2 r : (r1 ∪ r2) ⨾ r ≡ (r1 ⨾ r) ∪ (r2 ⨾ r).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_union_r r r1 r2 : r ⨾ (r1 ∪ r2) ≡ (r ⨾ r1) ∪ (r ⨾ r2).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_bunion_l P rr r : bunion P rr ⨾ r ≡ (⋃n ∈ P, rr n ⨾ r). 
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_bunion_r r P rr : r ⨾ bunion P rr ≡ (⋃n ∈ P, r ⨾ rr n). 
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma minus_union_l r1 r2 r : (r1 ∪ r2) \ r ≡ (r1 \ r) ∪ (r2 \ r).
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqvK (dom : A -> Prop) : ⦗dom⦘ ⨾ ⦗dom⦘ ≡ ⦗dom⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqvK_l (dom1 dom2 : A -> Prop) (IMP: forall x, dom2 x -> dom1 x) :
     ⦗dom1⦘ ⨾ ⦗dom2⦘ ≡ ⦗dom2⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqvK_r (dom1 dom2 : A -> Prop) (IMP: forall x, dom1 x -> dom2 x) :
     ⦗dom1⦘ ⨾ ⦗dom2⦘ ≡ ⦗dom1⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqvC (doma domb : A -> Prop) :
     ⦗doma⦘ ⨾ ⦗domb⦘ ≡ ⦗domb⦘ ⨾ ⦗doma⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma seq_eqv (doma domb : A -> Prop) :
     ⦗doma⦘ ⨾ ⦗domb⦘ ≡ ⦗fun x => doma x /\ domb x⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma union_absorb_l r r' (SUB: r ⊆ r') : r ∪ r' ≡ r'.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma union_absorb_r r r' (SUB: r ⊆ r') : r' ∪ r ≡ r'.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
   Lemma id_union (s s': A -> Prop) : ⦗s ∪₁ s'⦘ ≡ ⦗s⦘ ∪ ⦗s'⦘.
-  Proof. u. Qed.
+  Proof. uu. Qed.
 
 End PropertiesSeqUnion.
 
@@ -355,34 +389,34 @@ Section PropertiesBigUnion.
   Variables B A : Type.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
-  Ltac u := autounfold with unfolderDb in *; 
+  Local Ltac uu := autounfold with unfolderDb in *; 
             try solve [intuition; ins; desf; eauto; firstorder].
 
   Lemma bunion_empty rr : bunion ∅ rr ≡ ∅₂.
-  Proof. u. Qed.
+  Proof. uu. Qed.
   
   Lemma bunion_eq a rr : bunion (eq a) rr ≡ rr a.
   Proof. u; splits; ins; desf; eauto. Qed. 
 
   Lemma bunion_union_l s s' rr :
     bunion (s ∪₁ s') rr ≡ bunion s rr ∪ bunion s' rr.
-  Proof. u. Qed. 
+  Proof. uu. Qed. 
 
   Lemma bunion_union_r s rr rr' :
     bunion s (fun x => rr x ∪ rr' x) ≡ bunion s rr ∪ bunion s rr'.
-  Proof. u. Qed. 
+  Proof. uu. Qed. 
 
   Lemma bunion_inter_compat_l s r rr :
     bunion s (fun x => r ∩ rr x) ≡ r ∩ bunion s rr.
-  Proof. u; split; ins; desf; eauto 8. Qed. 
+  Proof. uu; split; ins; desf; eauto 8. Qed. 
 
   Lemma bunion_inter_compat_r s r rr :
     bunion s (fun x => rr x ∩ r) ≡ bunion s rr ∩ r.
-  Proof. u; split; ins; desf; eauto 8. Qed. 
+  Proof. uu; split; ins; desf; eauto 8. Qed. 
 
   Lemma bunion_minus_compat_r s r rr :
     bunion s (fun x => rr x \ r) ≡ bunion s rr \ r.
-  Proof. u; split; ins; desf; eauto 8. Qed. 
+  Proof. uu; split; ins; desf; eauto 8. Qed. 
 
 End PropertiesBigUnion.
 
@@ -465,7 +499,7 @@ End PropertiesMinus.
 Hint Rewrite minus_false_l minus_false_r minusK : hahn.
 
 (******************************************************************************)
-(** Basic properties of reflexive and transitive closures *)
+(** Basic properties of reflexive/symmetric/transitive closures *)
 (******************************************************************************)
 
 Section PropertiesClos.
@@ -473,13 +507,13 @@ Section PropertiesClos.
   Variable A : Type.
   Implicit Types r : relation A.
 
+  Lemma crE r : r ^? ≡ ⦗fun _ => True⦘ ∪ r.
+  Proof. u. Qed.
+
   Lemma rtE r : r ＊ ≡ ⦗fun _ => True⦘ ∪ r⁺.
   Proof.
     u; rewrite clos_refl_transE in *; tauto.
   Qed.
-
-  Lemma crE r : r ^? ≡ ⦗fun _ => True⦘ ∪ r.
-  Proof. u. Qed.
 
   Lemma rtEE r : r＊ ≡ ⋃n, r ^^ n.
   Proof.
@@ -492,6 +526,15 @@ Section PropertiesClos.
     induction x; ins; [|rewrite IHx];
       unfold eqv_rel, seq; red; ins; desf; vauto.
   Qed.
+
+  Lemma csE r : r^⋈ ≡ r ∪ r⁻¹.
+  Proof. u. Qed.
+
+  Lemma crsE r : r^⋈? ≡ ⦗fun _ => True⦘ ∪ r ∪ r⁻¹.
+  Proof. unfold clos_refl_sym. u. Qed.
+
+  Lemma crsEE r : r^⋈? ≡ ⦗fun _ => True⦘ ∪ r^⋈.
+  Proof. rewrite crsE, csE. u. Qed.
 
   Lemma ct_begin r : r⁺ ≡ r ⨾ r ＊.
   Proof.
@@ -636,6 +679,33 @@ Section PropertiesClos.
   Proof.
     by rewrite unionC, cr_union_l, unionC.
   Qed.
+
+  Lemma cs_union r r' : (r ∪ r')^⋈  ≡ r^⋈ ∪ r'^⋈.
+  Proof. rewrite !csE. u. Qed.
+
+  Lemma crs_union r r' : (r ∪ r')^⋈? ≡ r^⋈? ∪ r'^⋈?.
+  Proof. rewrite !crsE. u. Qed.
+
+  Lemma cs_inter r r' : (r ∩ r')^⋈ ⊆ r^⋈ ∩ r'^⋈.
+  Proof. rewrite !csE. u. Qed.
+
+  Lemma crs_inter r r' : (r ∩ r')^⋈? ⊆ r^⋈? ∩ r'^⋈?.
+  Proof. rewrite !crsE. u. Qed.
+
+  Lemma cs_cross (s s' : A -> Prop) : (s × s')^⋈ ≡ s × s' ∪ s' × s.
+  Proof. rewrite !csE. u. Qed.
+
+  Lemma crs_cross (s s' : A -> Prop) : (s × s')^⋈? ≡ ⦗fun _ => True⦘ ∪ s × s' ∪ s' × s.
+  Proof. rewrite !crsE. u. Qed.
+
+  Lemma cs_restr (s : A -> Prop) r : (restr_rel s r)^⋈ ≡ restr_rel s r^⋈.
+  Proof. rewrite !csE. u. Qed.
+
+  Lemma crs_restr (s : A -> Prop) r : (restr_rel s r)^⋈? ≡ ⦗fun _ => True⦘ ∪ restr_rel s r^⋈.
+  Proof. rewrite !csE, !crsE. u. Qed.
+
+  Lemma restr_of_crs (s : A -> Prop) r : restr_rel s r^⋈? ≡ ⦗s⦘ ∪ restr_rel s r^⋈.
+  Proof. rewrite !csE, !crsE. u. Qed.
 
   Lemma seq_rtE_r r r' : r ⨾ r' ＊ ≡ r ∪ (r ⨾ r') ⨾ r' ＊.
   Proof.
@@ -1171,8 +1241,26 @@ Section PropertiesCross.
   Lemma cross_false_l s : ∅ × s ≡ ∅₂.
   Proof. u. Qed.
 
+  Lemma cross_union_l s s' s'' : (s ∪₁ s') × s'' ≡ s × s'' ∪ s' × s''.
+  Proof. u. Qed.
+
+  Lemma cross_union_r s s' s'' : s × (s' ∪₁ s'') ≡ s × s' ∪ s × s''.
+  Proof. u. Qed.
+
+  Lemma cross_inter_l s s' s'' : (s ∩₁ s') × s'' ≡ ⦗s⦘ ⨾ s' × s''.
+  Proof. u. Qed.
+
+  Lemma cross_inter_r s s' s'' : s × (s' ∩₁ s'') ≡ s × s' ⨾ ⦗s''⦘.
+  Proof. u. Qed.
+
   Lemma ct_of_cross s s' : (s × s')⁺ ≡ s × s'.
   Proof. u; induction H; desf; eauto. Qed.
+
+  Lemma cross_minus_compl_l s s' s'' : s × s' \ (set_compl s) × s'' ≡ s × s'.
+  Proof. u. Qed.
+
+  Lemma cross_minus_compl_r s s' s'' : s × s' \ s'' × (set_compl s') ≡ s × s'.
+  Proof. u. Qed.
 
 End PropertiesCross.
 
@@ -1271,6 +1359,51 @@ End PropertiesCollectRel.
 
 Hint Rewrite collect_rel_empty collect_rel_cross : hahn.
 Hint Rewrite collect_rel_union collect_rel_bunion : hahn.
+
+(******************************************************************************)
+(** ** Properties of symmetry *)
+(******************************************************************************)
+
+Section PropertiesSymmetry.
+
+  Variable A : Type.
+  Implicit Type r : relation A.
+  Implicit Type s : A -> Prop.
+
+  Lemma symmetricE r : symmetric r <-> r ⊆ r⁻¹.
+  Proof. u. Qed.
+
+  Lemma symmetricEE r : symmetric r <-> r ≡ r⁻¹.
+  Proof. u. Qed.
+
+  Lemma cr_sym r : symmetric r -> symmetric r^?.
+  Proof. u. Qed.
+
+  Lemma cs_sym r : symmetric r^⋈.
+  Proof. rewrite csE. u. Qed.
+
+  Lemma crs_sym r : symmetric r^⋈?.
+  Proof. rewrite crsE. u. Qed.
+
+  Lemma eqv_sym s : symmetric ⦗s⦘.
+  Proof. u. Qed.
+
+  Lemma union_sym r r' : symmetric r -> symmetric r' -> symmetric (r ∪ r').
+  Proof. u. Qed.
+
+  Lemma inter_sym r r' : symmetric r -> symmetric r' -> symmetric (r ∩ r').
+  Proof. u. Qed.
+
+  Lemma minus_sym r r' : symmetric r -> symmetric r' -> symmetric (r \ r').
+  Proof. u. Qed.
+
+  Lemma transp_sym r : symmetric r -> symmetric r⁻¹.
+  Proof. u. Qed.
+
+  Lemma restr_sym s r : symmetric r -> symmetric (restr_rel s r).
+  Proof. u. Qed.
+
+End PropertiesSymmetry.
 
 (******************************************************************************)
 (** Misc properties *)

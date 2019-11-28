@@ -677,8 +677,8 @@ Proof. reflexivity. Qed.
 Lemma set_equiv_refl2 A (x: A -> Prop) :  x ≡₁ x. 
 Proof. reflexivity. Qed.
 
-Hint Immediate set_subset_refl2.
-Hint Resolve set_equiv_refl2.
+Hint Immediate set_subset_refl2 : core hahn.
+Hint Resolve set_equiv_refl2 : core hahn.
 
 Hint Rewrite set_compl_empty set_compl_full set_compl_compl : hahn.
 Hint Rewrite set_compl_union set_compl_inter set_compl_minus : hahn.
