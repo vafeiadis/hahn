@@ -169,7 +169,7 @@ Proof. vauto. Qed.
 Lemma r_step A (r: relation A) x y : r x y -> r^? x y.
 Proof. vauto. Qed.
 
-Hint Immediate r_refl r_step.
+Hint Immediate r_refl r_step : core hahn.
 
 Section BasicProperties.
 
@@ -748,7 +748,7 @@ End BasicProperties.
 
 (** Declare several of the above lemmas as hints for [(e)auto]. *)
 
-Hint Resolve same_relation_refl2.
+Hint Resolve same_relation_refl2 : core hahn.
 
 Hint Resolve
      reflexive_seq reflexive_rt reflexive_cr
