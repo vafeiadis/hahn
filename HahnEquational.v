@@ -46,6 +46,10 @@ Add Parametric Morphism A : (@irreflexive A) with signature
   inclusion --> Basics.impl as irreflexive_mori.
 Proof. u. Qed.
 
+Add Parametric Morphism A : (@clos_refl A) with signature
+  inclusion ==> inclusion as clos_refl_mori.
+Proof. u. Qed.
+
 Add Parametric Morphism A : (@clos_trans A) with signature
   inclusion ==> inclusion as clos_trans_mori.
 Proof. u; eauto using clos_trans_mon. Qed.
@@ -54,9 +58,13 @@ Add Parametric Morphism A : (@clos_refl_trans A) with signature
   inclusion ==> inclusion as clos_refl_trans_mori.
 Proof. u; eauto using clos_refl_trans_mon. Qed.
 
-Add Parametric Morphism A : (@clos_refl A) with signature
-  inclusion ==> inclusion as clos_refl_mori.
-Proof. u. Qed.
+Add Parametric Morphism A : (@clos_sym A) with signature
+  inclusion ==> inclusion as clos_sym_mori.
+Proof. unfold clos_sym. u. Qed.
+
+Add Parametric Morphism A : (@clos_refl_sym A) with signature
+  inclusion ==> inclusion as clos_refl_sym_mori.
+Proof. unfold clos_refl_sym. u. Qed.
 
 Add Parametric Morphism A : (@restr_rel A) with signature
   set_subset ==> inclusion ==> inclusion as restr_rel_mori.
@@ -179,6 +187,10 @@ Add Parametric Morphism A B : (@map_rel A B) with signature
     eq ==> same_relation ==> same_relation as map_rel_more.
 Proof. u. Qed.
 
+Add Parametric Morphism A : (@clos_refl A) with signature
+  same_relation ==> same_relation as clos_relf_more.
+Proof. u. Qed.
+
 Add Parametric Morphism A : (@clos_trans A) with signature
   same_relation ==> same_relation as clos_trans_more.
 Proof. u; eauto using clos_trans_mon. Qed.
@@ -187,9 +199,13 @@ Add Parametric Morphism A : (@clos_refl_trans A) with signature
   same_relation ==> same_relation as clos_refl_trans_more.
 Proof. u; eauto using clos_refl_trans_mon. Qed.
 
-Add Parametric Morphism A : (@clos_refl A) with signature
-  same_relation ==> same_relation as clos_relf_more.
-Proof. u. Qed.
+Add Parametric Morphism A : (@clos_sym A) with signature
+  same_relation  ==> same_relation as clos_sym_more.
+Proof. unfold clos_sym. u. Qed.
+
+Add Parametric Morphism A : (@clos_refl_sym A) with signature
+  same_relation  ==> same_relation as clos_refl_sym_more.
+Proof. unfold clos_refl_sym. u. Qed.
 
 Add Parametric Morphism A : (@irreflexive A) with signature
   same_relation ==> iff as irreflexive_more.
@@ -200,6 +216,10 @@ Add Parametric Morphism A : (@acyclic A) with signature
 Proof.
   unfold acyclic; ins; rewrite H; reflexivity.
 Qed.
+
+Add Parametric Morphism A : (@symmetric A) with signature
+  same_relation ==> iff as symmetric_more.
+Proof. u. Qed.
 
 Add Parametric Morphism A : (@transitive A) with signature
   same_relation ==> iff as transitive_more.
@@ -477,7 +497,7 @@ End PropertiesMinus.
 Hint Rewrite minus_false_l minus_false_r minusK : hahn.
 
 (******************************************************************************)
-(** Basic properties of reflexive and transitive closures *)
+(** Basic properties of reflexive/symmetric/transitive closures *)
 (******************************************************************************)
 
 Section PropertiesClos.
@@ -485,13 +505,13 @@ Section PropertiesClos.
   Variable A : Type.
   Implicit Types r : relation A.
 
+  Lemma crE r : r ^? ≡ ⦗fun _ => True⦘ ∪ r.
+  Proof. u. Qed.
+
   Lemma rtE r : r ＊ ≡ ⦗fun _ => True⦘ ∪ r⁺.
   Proof.
     u; rewrite clos_refl_transE in *; tauto.
   Qed.
-
-  Lemma crE r : r ^? ≡ ⦗fun _ => True⦘ ∪ r.
-  Proof. u. Qed.
 
   Lemma rtEE r : r＊ ≡ ⋃n, r ^^ n.
   Proof.
@@ -504,6 +524,15 @@ Section PropertiesClos.
     induction x; ins; [|rewrite IHx];
       unfold eqv_rel, seq; red; ins; desf; vauto.
   Qed.
+
+  Lemma csE r : r^⋈ ≡ r ∪ r⁻¹.
+  Proof. u. Qed.
+
+  Lemma crsE r : r^⋈? ≡ ⦗fun _ => True⦘ ∪ r ∪ r⁻¹.
+  Proof. unfold clos_refl_sym. u. Qed.
+
+  Lemma crsEE r : r^⋈? ≡ ⦗fun _ => True⦘ ∪ r^⋈.
+  Proof. rewrite crsE, csE. u. Qed.
 
   Lemma ct_begin r : r⁺ ≡ r ⨾ r ＊.
   Proof.
@@ -648,6 +677,33 @@ Section PropertiesClos.
   Proof.
     by rewrite unionC, cr_union_l, unionC.
   Qed.
+
+  Lemma cs_union r r' : (r ∪ r')^⋈  ≡ r^⋈ ∪ r'^⋈.
+  Proof. rewrite !csE. u. Qed.
+
+  Lemma crs_union r r' : (r ∪ r')^⋈? ≡ r^⋈? ∪ r'^⋈?.
+  Proof. rewrite !crsE. u. Qed.
+
+  Lemma cs_inter r r' : (r ∩ r')^⋈ ⊆ r^⋈ ∩ r'^⋈.
+  Proof. rewrite !csE. u. Qed.
+
+  Lemma crs_inter r r' : (r ∩ r')^⋈? ⊆ r^⋈? ∩ r'^⋈?.
+  Proof. rewrite !crsE. u. Qed.
+
+  Lemma cs_cross (s s' : A -> Prop) : (s × s')^⋈ ≡ s × s' ∪ s' × s.
+  Proof. rewrite !csE. u. Qed.
+
+  Lemma crs_cross (s s' : A -> Prop) : (s × s')^⋈? ≡ ⦗fun _ => True⦘ ∪ s × s' ∪ s' × s.
+  Proof. rewrite !crsE. u. Qed.
+
+  Lemma cs_restr (s : A -> Prop) r : (restr_rel s r)^⋈ ≡ restr_rel s r^⋈.
+  Proof. rewrite !csE. u. Qed.
+
+  Lemma crs_restr (s : A -> Prop) r : (restr_rel s r)^⋈? ≡ ⦗fun _ => True⦘ ∪ restr_rel s r^⋈.
+  Proof. rewrite !csE, !crsE. u. Qed.
+
+  Lemma restr_of_crs (s : A -> Prop) r : restr_rel s r^⋈? ≡ ⦗s⦘ ∪ restr_rel s r^⋈.
+  Proof. rewrite !csE, !crsE. u. Qed.
 
   Lemma seq_rtE_r r r' : r ⨾ r' ＊ ≡ r ∪ (r ⨾ r') ⨾ r' ＊.
   Proof.
@@ -1168,6 +1224,51 @@ Proof. u; eauto 8. Qed.
 
 Hint Rewrite collect_rel_empty collect_rel_cross : hahn.
 Hint Rewrite collect_rel_union collect_rel_bunion : hahn.
+
+(******************************************************************************)
+(** ** Properties of symmetry *)
+(******************************************************************************)
+
+Section PropertiesSymmetry.
+
+  Variable A : Type.
+  Implicit Type r : relation A.
+  Implicit Type s : A -> Prop.
+
+  Lemma symmetricE r : symmetric r <-> r ⊆ r⁻¹.
+  Proof. u. Qed.
+
+  Lemma symmetricEE r : symmetric r <-> r ≡ r⁻¹.
+  Proof. u. Qed.
+
+  Lemma cr_sym r : symmetric r -> symmetric r^?.
+  Proof. u. Qed.
+
+  Lemma cs_sym r : symmetric r^⋈.
+  Proof. rewrite csE. u. Qed.
+
+  Lemma crs_sym r : symmetric r^⋈?.
+  Proof. rewrite crsE. u. Qed.
+
+  Lemma eqv_sym s : symmetric ⦗s⦘.
+  Proof. u. Qed.
+
+  Lemma union_sym r r' : symmetric r -> symmetric r' -> symmetric (r ∪ r').
+  Proof. u. Qed.
+
+  Lemma inter_sym r r' : symmetric r -> symmetric r' -> symmetric (r ∩ r').
+  Proof. u. Qed.
+
+  Lemma minus_sym r r' : symmetric r -> symmetric r' -> symmetric (r \ r').
+  Proof. u. Qed.
+
+  Lemma transp_sym r : symmetric r -> symmetric r⁻¹.
+  Proof. u. Qed.
+
+  Lemma restr_sym s r : symmetric r -> symmetric (restr_rel s r).
+  Proof. u. Qed.
+
+End PropertiesSymmetry.
 
 (******************************************************************************)
 (** Misc properties *)
