@@ -433,6 +433,15 @@ Section PropertiesInter.
 
   Lemma id_inter (s s' : A -> Prop) : ⦗s ∩₁ s'⦘ ≡ ⦗s⦘ ⨾ ⦗s'⦘.
   Proof. u. Qed.
+
+  Lemma inter_restr_absorb_l (s : A -> Prop) r r' :
+    restr_rel s r ∩ restr_rel s r' ≡ r ∩ restr_rel s r'.
+  Proof. u. Qed.
+
+  Lemma inter_restr_absorb_r (s : A -> Prop) r r' :
+    restr_rel s r ∩ restr_rel s r' ≡ restr_rel s r ∩ r'.
+  Proof. u. Qed.
+
 End PropertiesInter.
 
 Hint Rewrite inter_false_l inter_false_r interK : hahn.
@@ -902,7 +911,7 @@ Lemma restr_relE A (d : A -> Prop) r :
   restr_rel d r ≡ <| d |> ;; r ;; <| d |>. 
 Proof. rewrite seq_eqv_lr; u. Qed. 
 
-Lemma restr_relE_alt A (d : A -> Prop) r : restr_rel d r ≡ r ∩ d × d.
+Lemma restr_relEE A (d : A -> Prop) r : restr_rel d r ≡ r ∩ d × d.
 Proof. u. Qed.
 
 Lemma restr_union A (f : A -> Prop) r r' :
@@ -956,14 +965,6 @@ Proof. u; eauto 10. Qed.
 
 Lemma restr_set_inter A (s s' : A -> Prop) r :
   restr_rel (s ∩₁ s') r ≡ restr_rel s r ∩ restr_rel s' r.
-Proof. u. Qed.
-
-Lemma restr_inter_absorb_l A (s : A -> Prop) r r' :
-  restr_rel s r ∩ restr_rel s r' ≡ r ∩ restr_rel s r'.
-Proof. u. Qed.
-
-Lemma restr_inter_absorb_r A (s : A -> Prop) r r' :
-  restr_rel s r ∩ restr_rel s r' ≡ restr_rel s r ∩ r'.
 Proof. u. Qed.
 
 Lemma restr_eq_union A r r' B (f : A -> B) :
