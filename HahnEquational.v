@@ -469,6 +469,15 @@ Section PropertiesInter.
 
   Lemma id_inter (s s' : A -> Prop) : ⦗s ∩₁ s'⦘ ≡ ⦗s⦘ ⨾ ⦗s'⦘.
   Proof. u. Qed.
+
+  Lemma inter_restr_absorb_l (s : A -> Prop) r r' :
+    restr_rel s r ∩ restr_rel s r' ≡ r ∩ restr_rel s r'.
+  Proof. u. Qed.
+
+  Lemma inter_restr_absorb_r (s : A -> Prop) r r' :
+    restr_rel s r ∩ restr_rel s r' ≡ restr_rel s r ∩ r'.
+  Proof. u. Qed.
+
 End PropertiesInter.
 
 Hint Rewrite inter_false_l inter_false_r interK : hahn.
@@ -974,12 +983,19 @@ Lemma restr_relE A (d : A -> Prop) r :
   restr_rel d r ≡ <| d |> ;; r ;; <| d |>. 
 Proof. rewrite seq_eqv_lr; u. Qed. 
 
+Lemma restr_relEE A (d : A -> Prop) r : restr_rel d r ≡ r ∩ d × d.
+Proof. u. Qed.
+
 Lemma restr_union A (f : A -> Prop) r r' :
   restr_rel f (r ∪ r') ≡ restr_rel f r ∪ restr_rel f r'.
 Proof. u. Qed.
 
 Lemma restr_inter A (f : A -> Prop) r r' :
   restr_rel f (r ∩ r') ≡ restr_rel f r ∩ restr_rel f r'.
+Proof. u. Qed.
+
+Lemma restr_seq A (f : A -> Prop) r r' :
+  restr_rel f r ⨾ restr_rel f r' ⊆ restr_rel f (r ⨾ r').
 Proof. u. Qed.
 
 Lemma restr_minus A (f : A -> Prop) r r' :
@@ -990,16 +1006,16 @@ Lemma restr_minus_alt A (f : A -> Prop) r r' :
   restr_rel f (r \ r') ≡ restr_rel f r \ r'.
 Proof. u. Qed.
 
+Lemma restr_transp A (f : A -> Prop) r :
+  restr_rel f r⁻¹ ≡ (restr_rel f r)⁻¹.
+Proof. u. Qed.
+
+Lemma restr_eqv A (s s' : A -> Prop) :
+  restr_rel s ⦗s'⦘ ≡ ⦗s ∩₁ s'⦘.
+Proof. u. Qed.
+
 Lemma restr_bunion A B (f : B -> Prop) (s: A -> Prop) rr :
   restr_rel f (⋃x ∈ s, rr x) ≡ ⋃x ∈ s, restr_rel f (rr x).
-Proof. u. Qed.
-
-Lemma union_restr A (f : A -> Prop) r r' :
-  restr_rel f r ∪ restr_rel f r' ≡ restr_rel f (r ∪ r').
-Proof. u. Qed.
-
-Lemma bunion_restr A B (f : B -> Prop) (s: A -> Prop) rr :
-  (⋃x ∈ s, restr_rel f (rr x)) ≡ restr_rel f (⋃x ∈ s, rr x).
 Proof. u. Qed.
 
 Lemma restr_ct A (d: A -> Prop) r :
@@ -1007,12 +1023,21 @@ Lemma restr_ct A (d: A -> Prop) r :
 Proof. u; induction H; desf; eauto using clos_trans. Qed.
 
 Lemma restr_seq_eqv_l A (f : A -> Prop) d r :
-  restr_rel f (⦗d⦘⨾ r) ≡ ⦗d⦘⨾ restr_rel f r.
+  restr_rel f (⦗d⦘ ⨾ r) ≡ ⦗d⦘ ⨾ restr_rel f r.
 Proof. u; eauto 6. Qed.
 
 Lemma restr_seq_eqv_r A (f : A -> Prop) r d :
-  restr_rel f (r⨾ ⦗d⦘) ≡ restr_rel f r⨾ ⦗d⦘.
+  restr_rel f (r ⨾ ⦗d⦘) ≡ restr_rel f r ⨾ ⦗d⦘.
 Proof. u; eauto 6. Qed.
+
+Lemma restr_set_union A (s s' : A -> Prop) r :
+  restr_rel (s ∪₁ s') r ≡
+    restr_rel s r ∪ restr_rel s' r ∪ ⦗s⦘ ⨾ r ⨾ ⦗s'⦘ ∪ ⦗s'⦘ ⨾ r ⨾ ⦗s⦘.
+Proof. u; eauto 10. Qed.
+
+Lemma restr_set_inter A (s s' : A -> Prop) r :
+  restr_rel (s ∩₁ s') r ≡ restr_rel s r ∩ restr_rel s' r.
+Proof. u. Qed.
 
 Lemma restr_eq_union A r r' B (f : A -> B) :
   restr_eq_rel f (r ∪ r') ≡ restr_eq_rel f r ∪ restr_eq_rel f r'.
