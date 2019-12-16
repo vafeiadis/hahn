@@ -301,12 +301,12 @@ Ltac desc :=
   repeat match goal with
     | H: is_true (eq_op _ _) |- _ => generalize (hahn__beq_rewrite H); clear H; intro H
     | H : exists x, NW (fun y => _) |- _ =>
-      first [try (destruct H as [? H] ; fail 1) | (* Check it's not a Section Hypothesis *)
+      progress first [try (destruct H as [? H] ; fail 1) | (* Check it's not a Section Hypothesis *)
       let x' := fresh x in let y' := fresh y in destruct H as [x' y']; red in y']
     | H : exists x, ?p |- _ =>
       let x' := fresh x in destruct H as [x' H]
     | H : ?p /\ ?q |- _ =>
-      first [try (destruct H as [H ?] ; fail 1) | (* Check it's not a Section Hypothesis *)
+      progress first [try (destruct H as [H ?] ; fail 1) | (* Check it's not a Section Hypothesis *)
       let x' := match p with | NW (fun z => _) => fresh z | _ => H end in
       let y' := match q with | NW (fun z => _) => fresh z | _ => fresh H end in
       destruct H as [x' y'];
@@ -328,12 +328,12 @@ Ltac des :=
   repeat match goal with
     | H: is_true (eq_op _ _) |- _ => generalize (hahn__beq_rewrite H); clear H; intro H
     | H : exists x, NW (fun y => _) |- _ =>
-      first [try (destruct H as [? H] ; fail 1) | (* Check it's not a Section Hypothesis *)
+      progress first [try (destruct H as [? H] ; fail 1) | (* Check it's not a Section Hypothesis *)
       let x' := fresh x in let y' := fresh y in destruct H as [x' y']; red in y']
     | H : exists x, ?p |- _ =>
       let x' := fresh x in destruct H as [x' H]
     | H : ?p /\ ?q |- _ =>
-      first [try (destruct H as [H ?] ; fail 1) | (* Check it's not a Section Hypothesis *)
+      progress first [try (destruct H as [H ?] ; fail 1) | (* Check it's not a Section Hypothesis *)
       let x' := match p with | NW (fun z => _) => fresh z | _ => H end in
       let y' := match q with | NW (fun z => _) => fresh z | _ => fresh H end in
       destruct H as [x' y'];
@@ -345,14 +345,14 @@ Ltac des :=
         let H' := fresh H in case (hahn__norb_split H); clear H; intros H H'
     | H : ?x = ?x |- _ => clear H
     | H : ?p <-> ?q |- _ =>
-      first [try (destruct H as [H ?] ; fail 1) | (* Check it's not a Section Hypothesis *)
+      progress first [try (destruct H as [H ?] ; fail 1) | (* Check it's not a Section Hypothesis *)
       let x' := match p with | NW (fun z => _) => fresh z | _ => H end in
       let y' := match q with | NW (fun z => _) => fresh z | _ => fresh H end in
       destruct H as [x' y'];
       match p with | NW _ => unfold NW at 1 in x'; red in y' | _ => idtac end;
       match q with | NW _ => unfold NW at 1 in y'; red in x' | _ => idtac end]
     | H : ?p \/ ?q |- _ =>
-      first [try (destruct H as [H|H] ; fail 1) | (* Check it's not a Section Hypothesis *)
+      progress first [try (destruct H as [H|H] ; fail 1) | (* Check it's not a Section Hypothesis *)
       let x' := match p with | NW (fun z => _) => fresh z | _ => H end in
       let y' := match q with | NW (fun z => _) => fresh z | _ => H end in
       destruct H as [x' | y'];
