@@ -16,8 +16,8 @@ Set Implicit Arguments.
 (******************************************************************************)
 
 Definition appA := app_ass.
-Definition length_nil A : length (@nil A) = 0 := eq_refl. 
-Definition length_cons A (a: A) l : length (a :: l) = S (length l) := eq_refl. 
+Definition length_nil A : length (@nil A) = 0 := eq_refl.
+Definition length_cons A (a: A) l : length (a :: l) = S (length l) := eq_refl.
 Definition length_app := app_length.
 Definition length_rev := rev_length.
 Definition length_map := map_length.
@@ -51,17 +51,6 @@ Proof.
   apply IHl in IN; desf; eexists (_ :: _); repeat eexists; ins; intro; desf.
 Qed.
 
-Lemma map_eq_app_inv A B (f : A -> B) l l1 l2 :
-  map f l = l1 ++ l2 ->
-  exists l1' l2', l = l1' ++ l2' /\ map f l1' = l1 /\ map f l2' = l2.
-Proof.
-  revert l1; induction l; ins.
-    by destruct l1, l2; ins; eexists nil, nil.
-  destruct l1; ins; desf.
-    by eexists nil,_; ins.
-  eapply IHl in H; desf; eexists (_ :: _), _; split; ins.
-Qed.
-
 Lemma app_nth A n l l' (d : A) :
   nth n (l ++ l') d =
   if le_lt_dec (length l) n then nth (n - length l) l' d else nth n l d.
@@ -69,7 +58,190 @@ Proof.
   desf; eauto using app_nth1, app_nth2.
 Qed.
 
-Definition nth_app := app_nth. 
+Definition nth_app := app_nth.
+
+Lemma app_comm_cons' A (a : A) l l' :
+  l ++ a :: l' = (l ++ a :: nil) ++ l'.
+Proof.
+  by rewrite <- app_assoc.
+Qed.
+
+Lemma destruct_end A (l : list A) :
+  l = nil \/ exists l' a, l = l' ++ a :: nil.
+Proof.
+  induction l; ins; desf; eauto.
+  - right; exists nil; ins; eauto.
+  - right; eexists (_ :: _); ins; eauto.
+Qed.
+
+Lemma rev_induction A (P : list A -> Prop) :
+  P nil -> (forall a l, P l -> P (l ++ a :: nil)) -> forall l, P l.
+Proof.
+  ins; rewrite <- rev_involutive.
+  induction (rev l); ins; eauto.
+Qed.
+
+
+(* Destructing equalities between lists *)
+(******************************************************************************)
+
+Lemma snoc_eq_snoc A (a a' : A) l l' :
+  l ++ a :: nil = l' ++ a' :: nil <-> l = l' /\ a = a'.
+Proof.
+  by split; ins; desf; apply app_inj_tail.
+Qed.
+
+Lemma app_eq_nil A (l1 l2 : list A) :
+  l1 ++ l2 = nil <-> l1 = nil /\ l2 = nil.
+Proof.
+  destruct l1; split; ins; desf.
+Qed.
+
+Lemma app_eq_cons A (l1 l2 : list A) a l :
+  l1 ++ l2 = a :: l <->
+  (l1 = nil /\ l2 = a :: l) \/ (exists l1', l1 = a :: l1' /\ l1' ++ l2 = l).
+Proof.
+  split; ins; desf.
+  destruct l1; ins; desf; eauto.
+Qed.
+
+Lemma app_eq_singleton A (l1 l2 : list A) a :
+  l1 ++ l2 = a :: nil <->
+  (l1 = nil /\ l2 = a :: nil) \/ (l1 = a :: nil /\ l2 = nil).
+Proof.
+  rewrite app_eq_cons; split; ins; desf; eauto.
+  rewrite app_eq_nil in *; desf; eauto.
+Qed.
+
+Lemma app_eq_snoc A (l1 l2 : list A) a l :
+  l1 ++ l2 = l ++ a :: nil <->
+  (l1 = l ++ a :: nil /\ l2 = nil) \/ (exists l2', l2 = l2' ++ a :: nil /\ l1 ++ l2' = l).
+Proof.
+  split; ins; desf; rewrite ?app_nil_r, ?app_assoc; ins; eauto.
+  destruct (destruct_end l2); desf; rewrite ?app_nil_r in *; desf; eauto.
+  rewrite app_assoc, snoc_eq_snoc in *; desf; eauto.
+Qed.
+
+Lemma app_eq_prefix A (l : list A) l' :
+  l ++ l' = l -> l' = nil.
+Proof.
+  induction l; ins; desf; eauto.
+Qed.
+
+Lemma app_eq_suffix A (l : list A) l' :
+  l ++ l' = l' -> l = nil.
+Proof.
+  induction l' using rev_induction; rewrite ?app_nil_r; ins.
+  rewrite app_assoc, snoc_eq_snoc in *; desf; eauto.
+Qed.
+
+Lemma app_cons_eq_nil A (l1 l2 : list A) a :
+  l1 ++ a :: l2 = nil <-> False.
+Proof.
+  destruct l1; ins; desf.
+Qed.
+
+Lemma app_cons_eq_cons A (l1 l2 : list A) a a' l :
+  l1 ++ a :: l2 = a' :: l <->
+  (l1 = nil /\ a = a' /\ l2 = l) \/ (exists l1', l1 = a' :: l1' /\ l1' ++ a :: l2 = l).
+Proof.
+  rewrite app_eq_cons; split; ins; desf; eauto.
+Qed.
+
+Lemma app_cons_eq_singleton A (l1 l2 : list A) a a' :
+  l1 ++ a :: l2 = a' :: nil <-> l1 = nil /\ a = a' /\ l2 = nil.
+Proof.
+  rewrite app_eq_singleton; split; ins; desf; eauto.
+Qed.
+
+Lemma app_cons_eq_snoc A (l1 l2 : list A) a a' l :
+  l1 ++ a :: l2 = l ++ a' :: nil <->
+  (l1 = l /\ a = a' /\ l2 = nil) \/ (exists l2', l2 = l2' ++ a' :: nil /\ l1 ++ a :: l2' = l).
+Proof.
+  split; ins; desf; [|by rewrite <- app_assoc].
+  rewrite app_eq_snoc in H; ins; desf.
+  symmetry in H; rewrite app_cons_eq_cons in H; desf; eauto using app_nil_end.
+Qed.
+
+Lemma snoc_eq_nil A (l : list A) a :
+  l ++ a :: nil = nil <-> False.
+Proof.
+  apply app_cons_eq_nil.
+Qed.
+
+Lemma snoc_eq_cons A (l : list A) a a' l' :
+  l ++ a :: nil = a' :: l' <->
+  (l = nil /\ a = a' /\ l' = nil) \/ (exists l1', l = a' :: l1' /\ l1' ++ a :: nil = l').
+Proof.
+  rewrite app_cons_eq_cons; split; ins; desf; eauto.
+Qed.
+
+Lemma snoc_eq_singleton A (l : list A) a a' :
+  l ++ a :: nil = a' :: nil <-> l = nil /\ a = a'.
+Proof.
+  rewrite app_cons_eq_singleton; split; ins; desf; eauto.
+Qed.
+
+Lemma snoc_eq_app A (l1 l2 : list A) a l :
+  l ++ a :: nil = l1 ++ l2 <->
+  (l ++ a :: nil = l1 /\ l2 = nil) \/ (exists l2', l2' ++ a :: nil = l2 /\ l = l1 ++ l2').
+Proof.
+  split; ins; desf; rewrite ?app_nil_r, ?app_assoc; ins; eauto.
+  destruct (destruct_end l2); desf; rewrite ?app_nil_r in *; desf; eauto.
+  rewrite app_assoc, snoc_eq_snoc in *; desf; eauto.
+Qed.
+
+
+(** List map *)
+(******************************************************************************)
+
+Lemma map_eq_nil A B (f : A -> B) l :
+  map f l = nil <-> l = nil.
+Proof.
+  destruct l; ins; desf; eauto.
+Qed.
+
+Lemma map_eq_cons A B (f : A -> B) l y ys :
+  map f l = y :: ys <->
+  exists x l', l = x :: l' /\ y = f x /\ map f l' = ys.
+Proof.
+  split; ins; desf.
+  destruct l; ins; desf; eauto.
+Qed.
+
+Lemma map_eq_singleton A B (f : A -> B) l y :
+  map f l = y :: nil <->
+  exists x, l = x :: nil /\ y = f x.
+Proof.
+  split; ins; desf.
+  destruct l as [|?[|??]]; ins; desf; eauto.
+Qed.
+
+Lemma map_eq_app A B (f : A -> B) l l1' l2' :
+  map f l = l1' ++ l2' <->
+  exists l1 l2, l = l1 ++ l2 /\ map f l1 = l1' /\ map f l2 = l2'.
+Proof.
+  split; ins; desf; auto using map_app.
+  revert dependent l1'; induction l; destruct l1'; ins; desf.
+  - exists nil, nil; ins.
+  - eexists nil, (_ :: _); ins.
+  - apply IHl in H; desf; eexists (_ :: _), _; ins.
+Qed.
+
+Lemma map_eq_snoc A B (f : A -> B) l y ys :
+  map f l = ys ++ y :: nil <->
+  exists x l', l = l' ++ x :: nil /\ y = f x /\ map f l' = ys.
+Proof.
+  rewrite map_eq_app; split; ins; desf; eauto.
+  rewrite map_eq_singleton in *; desf; eauto.
+Qed.
+
+Lemma map_eq_app_inv A B (f : A -> B) l l1 l2 :
+  map f l = l1 ++ l2 ->
+  exists l1' l2', l = l1' ++ l2' /\ map f l1' = l1 /\ map f l2' = l2.
+Proof.
+  apply map_eq_app.
+Qed.
 
 Lemma list_app_eq_app A (l l' l0 l0' : list A) :
   l ++ l' = l0 ++ l0' ->
@@ -115,8 +287,8 @@ Qed.
 Fixpoint filterP A (f: A -> Prop) l :=
   match l with
     | nil => nil
-    | x :: l => if excluded_middle_informative (f x) then 
-                  x :: filterP f l 
+    | x :: l => if excluded_middle_informative (f x) then
+                  x :: filterP f l
                 else filterP f l
   end.
 
@@ -136,7 +308,7 @@ Qed.
 Lemma filterP_set_equiv A (f f' : A -> Prop) (EQ: f ≡₁ f') (l : list A) :
   filterP f l = filterP f' l.
 Proof.
-  induction l; ins; desf; f_equal; firstorder. 
+  induction l; ins; desf; f_equal; firstorder.
 Qed.
 
 Lemma Permutation_filterP A (l l' : list A) (P: Permutation l l') f :
@@ -148,14 +320,14 @@ Qed.
 Lemma Permutation_filterP2 A f f' (EQ: f ≡₁ f') l l' (P: Permutation (A:=A) l l') :
   Permutation (filterP f l) (filterP f' l').
 Proof.
-  replace (filterP f' l') with (filterP f l'); 
-    auto using Permutation_filterP, filterP_set_equiv. 
+  replace (filterP f' l') with (filterP f l');
+    auto using Permutation_filterP, filterP_set_equiv.
 Qed.
 
 Instance filterP_Proper A : Proper (_ ==> _ ==> _) _ := Permutation_filterP2 (A:=A).
 
 
-Lemma filterP_eq_nil A f (l: list A): 
+Lemma filterP_eq_nil A f (l: list A):
   filterP f l = nil <-> forall x (IN: In x l) (COND: f x), False.
 Proof.
   split; ins.
@@ -163,18 +335,18 @@ Proof.
     rewrite <- H; apply in_filterP_iff; eauto.
   * induction l; ins; desf; eauto; exfalso; eauto.
 Qed.
-    
-Lemma filterP_eq_cons A f (l l': list A) x: 
-  filterP f l = x :: l' -> 
-  f x /\ 
-  exists p p', 
-    l = p ++ x :: p' /\ 
+
+Lemma filterP_eq_cons A f (l l': list A) x:
+  filterP f l = x :: l' ->
+  f x /\
+  exists p p',
+    l = p ++ x :: p' /\
     (forall x (IN: In x p) (COND: f x), False) /\
     l' = filterP f p'.
 Proof.
-  induction l; ins; desf. 
+  induction l; ins; desf.
     by splits; ins; eexists nil; eexists; splits; ins; desf; eauto.
-  eapply IHl in H; desc; splits; ins; desf. 
+  eapply IHl in H; desc; splits; ins; desf.
   eexists (_ :: _); eexists; splits; ins; desf; eauto.
 Qed.
 
@@ -212,10 +384,20 @@ Proof.
   symmetry; apply in_rev.
 Qed.
 
+Lemma rev_cons A (a : A) (l: list A) : rev (a :: l) = rev l ++ a :: nil.
+Proof.
+  done.
+Qed.
+
 Lemma rev_app A (l1 l2 : list A) :
   rev (l1 ++ l2) = rev l2 ++ rev l1.
 Proof.
   apply rev_app_distr.
+Qed.
+
+Lemma rev_snoc A (a : A) (l: list A) : rev (l ++ a :: nil) = a :: rev l.
+Proof.
+  apply rev_app.
 Qed.
 
 Lemma rev_rev A (l : list A) : rev (rev l) = l.
@@ -243,6 +425,34 @@ Proof.
   induction l; ins; rewrite map_app, IHl; ins.
 Qed.
 
+Lemma rev_eq A (l l' : list A) : rev l = rev l' <-> l = l'.
+Proof.
+  split; ins; desf.
+  apply (f_equal (@rev A)) in H; rewrite !rev_rev in H; ins.
+Qed.
+
+Lemma rev_eq_nil A (l : list A) : rev l = nil <-> l = nil.
+Proof.
+  by rewrite <- rev_eq, rev_rev.
+Qed.
+
+Lemma rev_eq_cons A (a : A) (l l' : list A) :
+  rev l = a :: l' <-> l = rev l' ++ a :: nil.
+Proof.
+  by rewrite <- rev_eq, rev_rev.
+Qed.
+
+Lemma rev_eq_app A (l l1 l2 : list A) :
+  rev l = l1 ++ l2 <-> l = rev l2 ++ rev l1.
+Proof.
+  by rewrite <- rev_eq, rev_rev, rev_app.
+Qed.
+
+Lemma rev_eq_snoc A (a : A) (l l' : list A) :
+  rev l = l' ++ a :: nil <-> l = a :: rev l'.
+Proof.
+  apply rev_eq_app.
+Qed.
 
 (** List disjointness *)
 (******************************************************************************)
@@ -506,6 +716,21 @@ Proof.
   rewrite H0, concat_cons, nodup_app in H; desf.
 Qed.
 
+Lemma in_concat_fst A a (l : list A) B (l' : list B) ll :
+   In (l, l') ll ->
+   In a l ->
+   In a (concat (map fst ll)).
+Proof.
+  ins; rewrite <- flat_map_concat_map, in_flat_map; eauto.
+Qed.
+
+Lemma in_concat_snd A (l : list A) B a (l' : list B) ll :
+   In (l, l') ll ->
+   In a l' ->
+   In a (concat (map snd ll)).
+Proof.
+  ins; rewrite <- flat_map_concat_map, in_flat_map; eauto.
+Qed.
 
 (** [map_filter] *)
 (******************************************************************************)
@@ -549,15 +774,14 @@ Section map_filter.
 
 End map_filter.
 
-
 (** Lemmas about Forall *)
 (******************************************************************************)
 
 Lemma Forall_cons A (P : A -> Prop) a l :
   Forall P (a :: l) <-> P a /\ Forall P l.
 Proof.
-  split; intro H; desf; vauto; inversion H; desf. 
-Qed. 
+  split; intro H; desf; vauto; inversion H; desf.
+Qed.
 
 Lemma Forall_app A (P : A -> Prop) l1 l2 :
   Forall P (l1 ++ l2) <-> Forall P l1 /\ Forall P l2.
@@ -566,18 +790,30 @@ Proof.
   by rewrite !Forall_cons, IHl1, and_assoc.
 Qed.
 
-Lemma Forall_filter A (P: A -> Prop) f l : 
+Lemma Forall_filter A (P: A -> Prop) f l :
   Forall P l -> Forall P (filter f l).
 Proof.
   rewrite !Forall_forall; ins.
   rewrite in_filter_iff in H0; desf; eauto.
 Qed.
 
-Lemma Forall_filterP A (P: A -> Prop) f l : 
+Lemma Forall_filterP A (P: A -> Prop) f l :
   Forall P l -> Forall P (filterP f l).
 Proof.
   rewrite !Forall_forall; ins.
   rewrite in_filterP_iff in H0; desf; eauto.
+Qed.
+
+Lemma Forall_in A (P : A -> Prop) l x :
+  Forall P l -> In x l -> P x.
+Proof.
+  ins; eapply Forall_forall; eauto.
+Qed.
+
+Lemma Forall_app_cons A (P : A -> Prop) l e l' :
+  Forall P (l ++ e :: l') -> Forall P (l ++ l').
+Proof.
+  rewrite !Forall_app, Forall_cons; ins; desf.
 Qed.
 
 Definition ForallE := Forall_forall.
@@ -711,7 +947,7 @@ Proof.
 Qed.
 
 Definition length_mk_list := mk_list_length.
-Definition nth_mk_list := mk_list_nth. 
+Definition nth_mk_list := mk_list_nth.
 
 Hint Rewrite length_mk_list : calc_length.
 
