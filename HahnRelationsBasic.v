@@ -80,7 +80,7 @@ Section RelDefs.
     forall x y (REL: r x y) (POST: P y), P x.
 
   Definition functional := forall x y z, r x y -> r x z -> y=z.
-  
+
   Definition strict_partial_order := irreflexive /\ transitive r.
 
   Definition strict_total_order := strict_partial_order /\ is_total.
@@ -99,11 +99,11 @@ Definition acyclic A (r: relation A) := irreflexive (clos_trans r).
 
 Definition cross_rel A (r r' : A -> Prop) := (fun a b => r a /\ r' b).
 
-Hint Unfold reflexive symmetric transitive inclusion same_relation : unfolderDb. 
+Hint Unfold reflexive symmetric transitive inclusion same_relation : unfolderDb.
 Hint Unfold union transp singl_rel inter_rel minus_rel bunion : unfolderDb.
 Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq map_rel : unfolderDb.
 Hint Unfold clos_refl clos_sym clos_refl_sym dom_rel codom_rel cross_rel collect_rel : unfolderDb.
-Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb. 
+Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb.
 Hint Unfold antisymmetric strict_partial_order strict_total_order : unfolderDb.
 
 (** We introduce the following notation. *)
@@ -133,7 +133,7 @@ Notation "a ⊆ b" := (inclusion a b)  (at level 60).
 Notation "a ≡ b" := (same_relation a b)  (at level 60).
 
 Notation "⋃ x ∈ s , a" := (bunion s (fun x => a))
-  (at level 200, x ident, right associativity, 
+  (at level 200, x ident, right associativity,
    format "'[' ⋃ '/ ' x  ∈  s ,  '/ ' a ']'").
 Notation "'⋃' x , a" := (bunion (fun _ => True) (fun x => a))
   (at level 200, x ident, right associativity,
@@ -305,7 +305,7 @@ Qed.
 Lemma strict_partial_order_antisymmetric :
   strict_partial_order r -> antisymmetric r.
 Proof.
-  unfold strict_partial_order; ins; desc. 
+  unfold strict_partial_order; ins; desc.
   auto using trans_irr_antisymmetric.
 Qed.
 
@@ -321,6 +321,13 @@ Lemma irreflexive_union :
   irreflexive (r ∪ r') <-> irreflexive r /\ irreflexive r'.
 Proof.
   unfold irreflexive, union; repeat split;
+  try red; ins; desf; eauto.
+Qed.
+
+Lemma irreflexive_bunion (s : B -> Prop) (rr : B -> relation A) :
+  irreflexive (bunion s rr) <-> forall x, s x -> irreflexive (rr x).
+Proof.
+  unfold irreflexive, bunion; repeat split;
   try red; ins; desf; eauto.
 Qed.
 
@@ -489,7 +496,7 @@ Proof.
   clear; firstorder.
 Qed.
 
-Lemma inclusion_bunion_r (x: B) (P : B -> Prop) (rr : B -> relation A) : 
+Lemma inclusion_bunion_r (x: B) (P : B -> Prop) (rr : B -> relation A) :
   P x -> r ⊆ rr x -> r ⊆ bunion P rr.
 Proof.
   clear; firstorder.
@@ -738,10 +745,10 @@ Proof. clear; firstorder. Qed.
 Lemma functionalE : functional r -> exists f, forall x y, r x y <-> f x = Some y.
 Proof.
   clear; unfold functional; ins.
-  forward apply unique_choice 
+  forward apply unique_choice
     with (R := fun x y => y = None /\ ~ (exists m, r x m) \/
                           exists m, y = Some m /\ r x m) as X; ins; desf.
-    by tertium_non_datur (exists m, r x m); desc; [exists (Some m)| exists None]; 
+    by tertium_non_datur (exists m, r x m); desc; [exists (Some m)| exists None];
        split; ins; desf; try f_equal; eauto; try solve [exfalso; eauto].
   exists f; ins; specialize (X x); split; ins; desf; try solve [exfalso; eauto].
   rewrite X; f_equal; eauto.

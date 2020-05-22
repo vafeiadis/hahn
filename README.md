@@ -8,6 +8,7 @@ about lists and binary relations.
 - Hahn.v : exports all other files except HahnExtraNotation.v
 - HahnAcyclic.v : proving acyclicity of relations
 - HahnBase.v : basic tactics used throughout the development
+- HahnCountable.v : countable sets
 - HahnDom.v : (co)domain of a relation
 - HahnEquational.v : relational equivalences
 - HahnExtraNotation.v : notation for decidable equality.
@@ -16,9 +17,11 @@ about lists and binary relations.
 - HahnList.v : lemmas about lists
 - HahnMaxElt.v : maximal elements of a relation
 - HahnMinElt.v : minimum elements of a relation
+- HahnNatExtra.v : a few properties of natural numbers
 - HahnWf.v : well-founded and finitely supported relations
 - HahnMinPath.v : minimal paths/cycles over relations
 - HahnPath.v : paths over relations
+- HahnPrefix.v : prefix-finite relations
 - HahnRelationsBasic.v : binary relations
 - HahnRewrite.v : support for rewriting equivalent relations
 - HahnSets.v : lemmas about sets (i.e., unary relations)

@@ -1216,40 +1216,74 @@ End PropertiesMapRel.
 (** Properties of [pow_rel] *)
 (******************************************************************************)
 
-Lemma pow_t A n (r: relation A) : transitive r -> r ⨾ r^^n ⊆ r.
+Lemma powE A (r : relation A) n a b :
+  (r ^^ n) a b <->
+  exists f,
+    f 0 = a /\ f n = b /\
+    forall i, i < n -> r (f i) (f (S i)).
 Proof.
-  ins; induction n; simpl.
-    by rewrite seq_id_r.
-    by rewrite <- seqA, IHn; unfold inclusion, seq; ins; desf; eauto.
+  split.
+    generalize b; induction n; ins; unfold seq, eqv_rel in *; desf.
+      exists (fun x => b0); splits; ins; omega.
+    specialize (IHn _ H); desf.
+    exists (fun x => if eq_op x (S n) then b0 else f x); ins; desf; desf.
+    splits; ins; desf; ins; desf; try omega; eauto.
+    apply IHn1; omega.
+  ins; desf; induction n; ins; exists (f n); split; eauto.
+Qed.
+
+Lemma pow_0 A (r : relation A) : r^^0 ≡ ⦗fun _ : A => True⦘.
+Proof. done. Qed.
+
+Lemma pow_1 A (r : relation A) : r^^1 ≡ r.
+Proof. by simpl; rewrite seq_id_l. Qed.
+
+Lemma pow_S_end A (r : relation A) n : r^^(S n) ≡ r^^n ⨾ r.
+Proof. done. Qed.
+
+Lemma pow_S_begin A (r : relation A) n : r^^(S n) ≡ r ⨾ r^^n.
+Proof.
+  induction n; ins; rewrite ?seq_id_l, ?seq_id_r; ins.
+  by rewrite IHn at 1; rewrite seqA.
+Qed.
+
+Lemma pow_add A (r : relation A) m n : r^^(m + n) ≡ r^^m ⨾ r^^n.
+Proof.
+  induction m; ins; rewrite ?seq_id_l, ?seq_id_r; ins.
+  by rewrite IHm, !seqA, <- pow_S_begin.
 Qed.
 
 Lemma pow_seq A n (r: relation A): r^^n ⨾ r ≡ r^^(S n).
-Proof. by simpl. Qed.
+Proof. done. Qed.
 
 Lemma pow_nm A (n m : nat) (r : relation A) : r^^n ⨾ r^^m ≡ r^^(n + m).
-Proof.
-  induction m; simpl.
-    by rewrite <- plus_n_O; rewrite seq_id_r.
-    by rewrite <- seqA, IHm, pow_seq, plus_n_Sm.
-Qed.
-
-Lemma pow_unit A (r : relation A) : r^^1 ≡ r.
-Proof. by simpl; rewrite seq_id_l. Qed.
-
-Lemma pow_inclusion (n : nat ) A (r r' : relation A): r ≡ r' -> r^^n ≡ r'^^n.
-Proof. by ins; rewrite H. Qed.
+Proof. symmetry; apply pow_add. Qed.
 
 Lemma pow_rt (n : nat) A (r: relation A) : r^^n ⊆ r＊.
 Proof.
-  induction n; simpl; eauto with hahn.
-  rewrite IHn.
-  assert (r ⊆ r＊) by eauto with hahn.
-  rewrite H at 2.
-  by rewrite rt_rt.
+  induction n; simpl; auto with hahn.
+  rewrite IHn, <- ct_end; auto with hahn.
 Qed.
 
-(* Hint Resolve pow_t pow_rt : hahn.
-Hint Rewrite pow_seq pow_nm pow_unit pow_inclusion : hahn. *)
+Lemma pow_ct (n : nat) A (r: relation A) (NZ : n <> 0) : r^^n ⊆ r⁺.
+Proof.
+  by destruct n; ins; rewrite pow_rt, ct_end.
+Qed.
+
+Lemma pow_of_transitive (n : nat) A (r: relation A) :
+  n <> 0 -> transitive r -> r^^n ⊆ r.
+Proof.
+  by ins; rewrite pow_ct, ct_of_trans.
+Qed.
+
+Lemma pow_of_transitive_cr (n : nat) A (r: relation A) :
+  transitive r -> r^^n ⊆ r^?.
+Proof.
+  by ins; rewrite pow_rt, rt_of_trans.
+Qed.
+
+Hint Rewrite pow_1 pow_0 : hahn.
+Hint Resolve pow_rt : hahn.
 
 (******************************************************************************)
 (** Properties of cross product *)
