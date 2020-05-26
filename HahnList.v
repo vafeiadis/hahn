@@ -71,6 +71,16 @@ Qed.
 
 Definition nth_app := app_nth. 
 
+Lemma list_app_eq_app A (l l' l0 l0' : list A) :
+  l ++ l' = l0 ++ l0' ->
+  (exists lr, l ++ lr = l0 /\ l' = lr ++ l0') \/
+  (exists lr, l = l0 ++ lr /\ lr ++ l' = l0').
+Proof.
+  revert l0; induction l; ins; eauto.
+  destruct l0; ins; desf; eauto.
+  apply IHl in H; desf; eauto.
+Qed.
+
 (** List filtering *)
 (******************************************************************************)
 
@@ -193,11 +203,77 @@ Proof.
 Qed.
 
 
+(** List reverse *)
+(******************************************************************************)
+
+Lemma in_rev_iff A x (l : list A) :
+  In x (rev l) <-> In x l.
+Proof.
+  symmetry; apply in_rev.
+Qed.
+
+Lemma rev_app A (l1 l2 : list A) :
+  rev (l1 ++ l2) = rev l2 ++ rev l1.
+Proof.
+  apply rev_app_distr.
+Qed.
+
+Lemma rev_rev A (l : list A) : rev (rev l) = l.
+Proof.
+  induction l; ins; rewrite rev_app, IHl; ins.
+Qed.
+
+Lemma rev_filter A f (l : list A) :
+  rev (filter f l) = filter f (rev l).
+Proof.
+  induction l; ins; desf; ins; rewrite filter_app, IHl; ins; desf; ins.
+  auto using app_nil_end.
+Qed.
+
+Lemma rev_filterP A f (l : list A) :
+  rev (filterP f l) = filterP f (rev l).
+Proof.
+  induction l; ins; desf; ins; rewrite filterP_app, IHl; ins; desf; ins.
+  auto using app_nil_end.
+Qed.
+
+Lemma rev_map A B (f : A -> B) (l : list A) :
+  rev (map f l) = map f (rev l).
+Proof.
+  induction l; ins; rewrite map_app, IHl; ins.
+Qed.
+
+
 (** List disjointness *)
 (******************************************************************************)
 
 Definition disjoint A (l1 l2 : list A) :=
   forall a (IN1: In a l1) (IN2: In a l2), False.
+
+Lemma disjoint_nil_l A (l : list A) : disjoint nil l.
+Proof. done. Qed.
+
+Lemma disjoint_nil_r A (l : list A) : disjoint l nil.
+Proof. done. Qed.
+
+Lemma disjoint_one_l A (a : A) (l : list A) : disjoint (a :: nil) l <-> ~ In a l.
+Proof. unfold disjoint; intuition; ins; desf; eauto. Qed.
+
+Lemma disjoint_one_r A (a : A) (l : list A) : disjoint l (a :: nil) <-> ~ In a l.
+Proof. unfold disjoint; intuition; ins; desf; eauto. Qed.
+
+
+Lemma disjoint_rev_l A (l1 l2 : list A) :
+  disjoint (rev l1) l2 <-> disjoint l1 l2.
+Proof.
+  unfold disjoint; intuition; eapply H; eauto; try rewrite <- in_rev in *; eauto.
+Qed.
+
+Lemma disjoint_rev_r A (l1 l2 : list A) :
+  disjoint l1 (rev l2) <-> disjoint l1 l2.
+Proof.
+  unfold disjoint; intuition; eapply H; eauto; try rewrite <- in_rev in *; eauto.
+Qed.
 
 
 (** Remove duplicate list elements (classical) *)
@@ -289,6 +365,13 @@ Lemma nodup_append_left:
 Proof.
   generalize nodup_app; firstorder.
 Qed.
+
+Lemma nodup_rev A (l : list A) : NoDup (rev l) <-> NoDup l.
+Proof.
+  induction l; ins.
+  rewrite nodup_app, !nodup_cons, IHl, disjoint_rev_l, disjoint_one_r; intuition.
+Qed.
+
 
 Lemma nodup_filter A (l: list A) (ND: NoDup l) f : NoDup (filter f l).
 Proof.
@@ -720,12 +803,11 @@ Qed.
 Ltac in_simp :=
   try match goal with |- ~ _ => intro end;
   repeat first [
+    rewrite in_rev_iff in * |
+    rewrite in_undup_iff in * |
     rewrite in_flatten_iff in *; desc; clarify |
     rewrite in_map_iff in *; desc; clarify |
     rewrite in_seq0_iff in *; desc; clarify |
     rewrite in_mk_list_iff in *; desc; clarify |
     rewrite in_filter_iff in *; desc; clarify |
     rewrite in_filterP_iff in *; desc; clarify ].
-
-
-

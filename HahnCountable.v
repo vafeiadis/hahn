@@ -2,9 +2,10 @@
 (** * Countable sets *)
 (******************************************************************************)
 
-Require Import NPeano Omega Setoid ClassicalChoice.
+Require Import NPeano Omega Setoid IndefiniteDescription ClassicalChoice.
 Require Import HahnBase HahnList HahnEquational HahnRewrite.
-Require Import HahnSets HahnNatExtra.
+Require Import HahnRelationsBasic HahnSets HahnNatExtra.
+Require Import HahnListBefore HahnWf HahnSorted HahnTotalExt.
 
 Set Implicit Arguments.
 
@@ -43,33 +44,6 @@ Proof.
   eexists; split; eauto; ins; specialize_full X0; eauto.
   rewrite seq_nth in *; ins; omega.
 Qed.
-
-
-Fixpoint find_nthP A (cond : A -> Prop) (n : nat) (l : list A) :=
-  match l with
-  | nil => 0
-  | h :: t =>
-    if excluded_middle_informative (cond h) then
-      match n with
-      | 0 => 0
-      | S n => S (find_nthP cond n t)
-      end else S (find_nthP cond n t)
-  end.
-
-(*
-Lemma find_nthP_spec A (cond : A -> Prop) (l l' : list A) n
-      (ND: NoDup l') (LEN: n <= length l')
-      (INCL: forall n, In n l' -> In n l)
-      (COND: forall n, In n l' -> cond n) d :
-  cond (nth (find_nthP cond n l) l d) /\
-  length (undup (filterP s (mk_list n f)))
-  forall j, j < findP cond l -> ~ cond (nth j l d).
-Proof.
-  subst; revert dependent l'.
-  induction l; ins; desf; splits; ins; desf; try omega; intuition.
-  eauto using lt_S_n.
-Qed.
-*)
 
 Definition fcompose A B C (f : B -> C) (g: A -> B) x :=
   f (g x).
@@ -112,6 +86,9 @@ Proof.
   eapply lt_trans, ONE; apply IHj; omega.
 Qed.
 
+Definition lt_size A i (s : A -> Prop) :=
+  exists dom, NoDup dom /\ (forall x, In x dom -> s x) /\ i < length dom.
+
 Section countable.
 
   Variable A : Type.
@@ -127,7 +104,6 @@ Section countable.
 
   Definition countable (s : A -> Prop) :=
      ~ inhabited A \/ exists nu, enumerates nu s.
-
 
   Lemma finite_countable s (F: set_finite s) : countable s.
   Proof.
@@ -296,3 +272,287 @@ Add Parametric Morphism A : (@countable A) with signature
 Proof.
   by unfold set_equiv; split; desf; [rewrite H0|rewrite H].
 Qed.
+
+
+Section prefixes.
+
+  Variable A : Type.
+  Variable r : relation A.
+  Variable PO : strict_partial_order r.
+  Variable F : fsupp r.
+
+  Definition prefixes (a : A) : list A :=
+    isort (proj1_sig (constructive_indefinite_description
+                        _ (partial_order_included_in_total_order PO)))
+          (undup (filterP (fun x => r x a)
+                          (proj1_sig (constructive_indefinite_description
+                                        _ (F a))))).
+
+  Lemma in_prefixes a b : In a (prefixes b) <-> r a b.
+  Proof.
+    unfold prefixes; rewrite in_isort_iff, in_undup_iff; in_simp; intuition.
+    destruct (constructive_indefinite_description _ (F b)); ins; eauto.
+  Qed.
+
+  Lemma sorted_prefixes a :
+    exists t, ⟪ INCL: r ⊆ t ⟫
+       /\ ⟪ TOT : strict_total_order (fun _ => True) t ⟫
+       /\ ⟪ SORT: StronglySorted t (prefixes a) ⟫.
+  Proof.
+    unfold prefixes.
+    destruct (constructive_indefinite_description
+                _ (partial_order_included_in_total_order PO)) as [t [INCL TOT]]; ins.
+    exists t; splits; auto using StronglySorted_isort.
+  Qed.
+
+  Lemma nodup_prefixes a : NoDup (prefixes a).
+  Proof.
+    assert (X := sorted_prefixes a); ins; desf.
+    eapply NoDup_StronglySorted; try apply TOT; auto.
+  Qed.
+
+  Lemma prefixes_r n a b :
+    list_before (prefixes n) a b -> r b a -> False.
+  Proof.
+    assert (X := sorted_prefixes n);
+      unfold list_before; ins; desf.
+    rewrite H1 in *.
+    apply StronglySorted_app_r, StronglySorted_inv, proj2 in SORT.
+    rewrite Forall_app, Forall_cons in SORT; desc.
+    apply INCL in H0; eapply TOT; eapply TOT; eauto.
+  Qed.
+
+End prefixes.
+
+Section enum_ext.
+
+  Variable A : Type.
+  Variable s : A -> Prop.
+  Variable f : nat -> A.
+  Variable r : relation A.
+  Variable PO : strict_partial_order r.
+  Variable F : fsupp r.
+
+  Fixpoint prefix_of_nat n :=
+    let prev := match n with
+                  0 => nil
+                | S n => prefix_of_nat n
+                end in
+    prev ++ filterP (fun x => ~ In x prev /\ s x) (prefixes PO F (f n) ++ f n :: nil).
+
+  Lemma prefix_of_nat_prefix i j (LEQ : i <= j) :
+    exists l, prefix_of_nat j = prefix_of_nat i ++ l.
+  Proof.
+    apply le_plus_minus in LEQ; rewrite LEQ; generalize (j - i) as n.
+    clear; intro n; rewrite Nat.add_comm; induction n; ins; desf; eauto using app_nil_end.
+    by rewrite IHn; eexists; rewrite <- app_assoc.
+  Qed.
+
+  Lemma in_prefix_of_nat_iff a n :
+    In a (prefix_of_nat n) <-> exists i, i <= n /\ r^? a (f i) /\ s a.
+  Proof.
+    unfold clos_refl; induction n; ins; in_simp;
+      repeat (rewrite ?in_app_iff, ?in_prefixes; ins; in_simp).
+      intuition; desf; eauto; try (destruct i; ins; desf; eauto; omega).
+    rewrite IHn; clear IHn; intuition; desf; try solve [exists i; splits; auto]; eauto.
+    all: destruct (eqP i (S n)); [desf|assert (i <= n) by omega]; eauto 8.
+    all: classical_right; splits; ins; eauto.
+  Qed.
+
+  Lemma in_prefix_of_nat i j (LEQ: i <= j) (S : s (f i)) : In (f i) (prefix_of_nat j).
+  Proof.
+    apply prefix_of_nat_prefix in LEQ; desf.
+    rewrite LEQ; apply in_or_app; left.
+    destruct i; ins; rewrite filterP_app; ins; desf;
+      rewrite ?in_app_iff in *; ins; desf; tauto.
+  Qed.
+
+
+  Lemma in_prefix_of_nat_in x n : In x (prefix_of_nat n) -> s x.
+  Proof.
+    induction n; ins; rewrite ?in_app_iff in *; in_simp.
+    rewrite in_app_iff in *; desf; eauto.
+  Qed.
+
+  Lemma nodup_prefix_of_nat n : NoDup (prefix_of_nat n).
+  Proof.
+    destruct PO;
+    induction n; ins.
+    all: repeat first [apply conj | apply nodup_filterP | rewrite nodup_app |
+                       rewrite nodup_cons | apply nodup_prefixes ]; ins.
+    all: red; ins; in_simp; desf; rewrite in_prefixes in *; eauto.
+  Qed.
+
+  Lemma length_prefix_of_nat n (INJ : forall i j, i < j <= n -> f i <> f j)
+    (SET : forall i, i <= n -> s (f i)) :
+    n < length (prefix_of_nat n).
+  Proof.
+    assert (exists l, Permutation (prefix_of_nat n) (map f (List.seq 0 (S n)) ++ l)).
+    2: desc; rewrite H, length_app, length_map, length_seq; omega.
+    generalize (prefix_of_nat n), (fun i => @in_prefix_of_nat i n).
+    induction n; ins.
+      by forward apply (H 0); ins; eauto; apply in_split_perm.
+      forward apply (H (S n)); ins; eauto.
+    forward apply IHn as X; intros; eauto.
+      apply INJ; omega.
+    desf.
+    rewrite X, in_app_iff, in_map_iff in H0; desf.
+    rewrite in_seq0_iff in *; eapply INJ in H0; try omega.
+    apply in_split_perm in H0; desf.
+    by exists l'; rewrite X, H0, <- (Nat.add_1_r (S n)), seq_app, map_app, <- app_assoc.
+  Qed.
+
+  Lemma list_app_eq_simpl (l l0 l' l0' : list A) :
+    l ++ l' = l0 ++ l0' ->
+    length l <= length l0 -> exists lr, l0 = l ++ lr /\ l' = lr ++ l0'.
+  Proof.
+    revert l0; induction l; ins; eauto.
+    destruct l0; ins; desf; try omega.
+    eapply IHl in H; desf; eauto; omega.
+  Qed.
+
+  Lemma list_app_eq_simpl2 (a : A) (l l0 l' l0' : list A) :
+    l ++ a :: l' = l0 ++ l0' ->
+    length l < length l0 -> exists lr, l0 = l ++ a :: lr /\ l' = lr ++ l0'.
+  Proof.
+    change (l ++ a :: l') with (l ++ (a :: nil) ++ l'); intros.
+    rewrite app_assoc in H; apply list_app_eq_simpl in H; desf.
+      by exists lr; rewrite <- app_assoc.
+    rewrite length_app; ins; omega.
+  Qed.
+
+  Lemma prefix_nat_r n a b
+        (P: list_before (prefix_of_nat n) a b)
+        (R: r b a) : False.
+  Proof.
+    destruct PO as [IRR T].
+    induction n; ins; rewrite filterP_app in *; ins; desf;
+      rewrite ?app_nil_r; desf.
+    all: repeat (rewrite list_before_app in *; desf;
+                 try (eby eapply list_before_nil);
+                 try (eby eapply list_before_singl); ins; desf); in_simp;
+      try rewrite in_prefixes in *; eauto.
+    all: try (rewrite ?in_app_iff in *; ins; desf; in_simp).
+    all: try rewrite in_prefixes in *; eauto.
+    all: try rewrite in_prefix_of_nat_iff in *; unfold clos_refl in *; desf; eauto 10.
+    all: try (match goal with H: _ |- _ => eapply list_before_filterP_inv in H;
+                                           [|by apply nodup_prefixes]
+              end); eauto using prefixes_r.
+  Qed.
+
+  Lemma wlog_lt (Q : nat -> nat -> Prop) :
+    (forall x, Q x x) -> (forall x y, x < y -> Q x y) -> (forall x y, y < x -> (forall x y, x < y -> Q x y) -> Q x y) -> forall x y, Q x y.
+  Proof. ins; destruct (lt_eq_lt_dec x y) as [[]|]; desf; eauto. Qed.
+
+  Lemma enum_ext (E: enumerates f s) :
+    exists f, enumerates f s  /\
+              forall i j (Li : lt_size i s) (Lj: lt_size j s)
+                     (R: r (f i) (f j)), i < j.
+  Proof.
+    exists (fun n => nth n (prefix_of_nat n) (f 0)); split.
+    { red in E; des; [left|right]; splits; try exists n; splits.
+      { ins; destruct (nth_in_or_default i (prefix_of_nat i) (f 0)) as [X|X];
+        [apply in_prefix_of_nat_in in X| rewrite X]; eauto. }
+      { ins.
+        revert EQ.
+        apply wlog_lt with (x := i) (y := j); ins; [|by symmetry; eauto].
+        assert (L: y < length (prefix_of_nat y)).
+        { apply length_prefix_of_nat; eauto.
+          red; intros; eapply INJ in H1; desf; omega. }
+        assert (Lx: x < length (prefix_of_nat x)).
+        { apply length_prefix_of_nat; eauto.
+          red; intros; eapply INJ in H1; desf; omega. }
+        forward apply prefix_of_nat_prefix with (i := x) (j := y) as X; desc; try omega.
+        forward apply nodup_prefix_of_nat with (n:=y) as Y; try done.
+        rewrite NoDup_nth with (d := f 0) in Y; apply Y; eauto; try omega.
+        rewrite X at 1; rewrite nth_app; desf; omega. }
+      { ins; apply SUR in IN; desf.
+        forward apply in_prefix_of_nat with (i := i) (j := i) as X; ins.
+        apply in_split in X; desf.
+        exists (length l1).
+        destruct (le_lt_dec i (length l1)) as [Y|Y].
+          apply prefix_of_nat_prefix in Y; desc.
+          rewrite Y, X, appA, nth_app; desf; try omega.
+          rewrite Nat.sub_diag; done.
+        forward apply (@prefix_of_nat_prefix (length l1) i) as Z; desc; try omega.
+        forward apply length_prefix_of_nat with (n := length l1); eauto.
+          red; intros; apply INJ in H0; desf; omega.
+        rewrite Z in X; symmetry in X; ins.
+        apply list_app_eq_simpl2 in X; desc; try omega.
+        rewrite X, nth_app, Nat.sub_diag; ins; desf; omega. }
+      { ins; destruct (nth_in_or_default i (prefix_of_nat i) (f 0)) as [X|X];
+          [apply in_prefix_of_nat_in in X| rewrite X]; eauto.
+        apply RNG; omega.
+      }
+      { ins.
+        revert LTi LTj EQ.
+        apply wlog_lt with (x := i) (y := j); ins; [|by symmetry; eauto].
+        assert (L: y < length (prefix_of_nat y)).
+        { apply length_prefix_of_nat; [|intros; apply RNG; omega].
+          red; intros; eapply INJ in H1; desf; omega. }
+        assert (Lx: x < length (prefix_of_nat x)).
+        { apply length_prefix_of_nat; [|intros; apply RNG; omega].
+          red; intros; eapply INJ in H1; desf; omega. }
+        forward apply prefix_of_nat_prefix with (i := x) (j := y) as X; desc; try omega.
+        forward apply nodup_prefix_of_nat with (n:=y) as Y; try done.
+        rewrite NoDup_nth with (d := f 0) in Y; apply Y; eauto; try omega.
+        rewrite X at 1; rewrite nth_app; desf; omega. }
+      { ins; apply SUR in IN; desf.
+        forward apply in_prefix_of_nat with (i := i) (j := i) as X; ins; eauto.
+        apply in_split in X; desf.
+        exists (length l1).
+        destruct (le_lt_dec i (length l1)) as [Y|Y].
+          apply prefix_of_nat_prefix in Y; desc.
+          rewrite Y, X, appA, nth_app; desf; try omega.
+          rewrite Nat.sub_diag; splits; ins.
+          assert (length (prefix_of_nat i) <= n).
+          { generalize (nodup_prefix_of_nat i),
+              (fun x => in_prefix_of_nat_in x i).
+            generalize (prefix_of_nat i); clear -SUR; ins.
+            assert (X: forall x, In x l -> In x (map f (List.seq 0 n))).
+              by intros; apply H0, SUR in H1; desf; apply in_map, in_seq0_iff.
+            clear SUR H0.
+            eapply NoDup_incl_length in X; ins.
+            by rewrite length_map, length_seq in *. }
+          rewrite X, length_app in *; ins; omega.
+        forward apply (@prefix_of_nat_prefix (length l1) i) as Z; desc; try omega.
+        forward apply length_prefix_of_nat with (n := length l1).
+          red; intros; apply INJ in H0; desf; omega.
+          intros; apply RNG; omega.
+        rewrite Z in X; symmetry in X; ins.
+        apply list_app_eq_simpl2 in X; desc; try omega.
+        rewrite X, nth_app, Nat.sub_diag; splits; ins; desf; omega. }
+    }
+    intros.
+    destruct (lt_eq_lt_dec j i) as [[]|]; ins; desf; exfalso; [|eby eapply PO].
+    forward eapply prefix_of_nat_prefix with (i:=j) (j:=i) as X; try omega; desc.
+    red in E; desf.
+      forward eapply length_prefix_of_nat with (n := i) as LEN; try red; ins; desc; eauto.
+        eapply INJ in H0; desf; omega.
+      forward eapply length_prefix_of_nat with (n := j) as LENj; try red; ins; desc; eauto.
+        eapply INJ in H0; desf; omega.
+      forward apply list_before_nth with (l := prefix_of_nat i) (i := j) (j := i) (d := f 0);
+        splits; ins; eauto using nodup_prefix_of_nat.
+      rewrite X in H at 2; rewrite app_nth1 in H; eauto using prefix_nat_r.
+
+    assert (Lin : i < n). {
+      clear - SUR Li. red in Li; desc.
+      eapply lt_le_trans; eauto.
+      replace n with (length (map f (List.seq 0 n)))
+                     by now (rewrite length_map, length_seq).
+      apply NoDup_incl_length; try red; ins.
+      by apply Li0, SUR in H; desf; apply in_map, in_seq0_iff.
+    }
+    forward eapply length_prefix_of_nat with (n := i) as LEN; try red; ins; desc; eauto.
+      eapply INJ in H0; desf; omega.
+      eapply RNG; omega.
+    forward eapply length_prefix_of_nat with (n := j) as LENj; try red; ins; desc; eauto.
+      eapply INJ in H0; desf; omega.
+      eapply RNG; omega.
+    forward apply list_before_nth with (l := prefix_of_nat i) (i := j) (j := i) (d := f 0);
+        splits; ins; eauto using nodup_prefix_of_nat.
+    rewrite X in H at 2; rewrite app_nth1 in H; eauto using prefix_nat_r.
+  Qed.
+
+End enum_ext.
+

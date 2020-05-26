@@ -15,13 +15,13 @@ about lists and binary relations.
 - HahnFun.v : functional update
 - HahnFuneq.v : functional preservation properties of relations
 - HahnList.v : lemmas about lists
+- HahnListBefore.v : list-induced ordering
 - HahnMaxElt.v : maximal elements of a relation
 - HahnMinElt.v : minimum elements of a relation
 - HahnNatExtra.v : a few properties of natural numbers
 - HahnWf.v : well-founded and finitely supported relations
 - HahnMinPath.v : minimal paths/cycles over relations
 - HahnPath.v : paths over relations
-- HahnPrefix.v : prefix-finite relations
 - HahnRelationsBasic.v : binary relations
 - HahnRewrite.v : support for rewriting equivalent relations
 - HahnSets.v : lemmas about sets (i.e., unary relations)
