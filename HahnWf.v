@@ -3,7 +3,8 @@
 (******************************************************************************)
 
 Require Import Setoid Morphisms Wf_nat Omega.
-Require Import HahnBase HahnList HahnSets HahnRelationsBasic HahnEquational HahnRewrite.
+Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
+Require Import HahnEquational HahnRewrite HahnDom.
 
 Set Implicit Arguments.
 
@@ -13,24 +14,24 @@ Set Implicit Arguments.
 Definition fsupp A (r: relation A) :=
   forall y, exists findom, forall x (REL: r x y), In x findom.
 
-(** A relation is n-total iff any set of n+1 elements must contain two related
-    elements. This generalization of totality useful for bounding the length
-    of cycles. *)
+(** A relation [r] is n-total on a set [s] iff any set of n+1 elements from [s]
+    must contain two related elements. This generalization of totality useful
+    for bounding the length of cycles. *)
 
-Definition n_total A (r : relation A) (n : nat) :=
-  forall l (LLEN: n < length l) (ND: NoDup l),
+Definition n_total A (s : A -> Prop) (r : relation A) (n : nat) :=
+  forall l (LLEN: n < length l) (ND: NoDup l) (INCL: forall x, In x l -> s x),
   exists a b, a <> b /\ In a l /\ In b l /\ r a b.
 
 (** A relation has only finite antichains iff there is no infinite set of pairwise
     unrelated elements. *)
 
-Definition has_finite_antichains A (r : relation A) :=
-  exists n, n_total r n.
+Definition has_finite_antichains A (s : A -> Prop) (r : relation A) :=
+  exists n, n_total s r n.
 
 Hint Unfold fsupp ltof n_total has_finite_antichains : unfolderDb.
 
-Lemma has_finite_antichainsI A (r : relation A) n :
-  n_total r n -> has_finite_antichains r.
+Lemma has_finite_antichainsI A s (r : relation A) n :
+  n_total s r n -> has_finite_antichains s r.
 Proof. vauto. Qed.
 
 Hint Immediate has_finite_antichainsI : hahn.
@@ -48,35 +49,35 @@ Proof.
 Qed.
 
 Add Parametric Morphism A : (@n_total A) with signature
-  inclusion ==> le ==> Basics.impl as n_total_mori.
+  set_subset --> inclusion ++> le ++> Basics.impl as n_total_mori.
 Proof.
   unfolder; ins.
-  apply H1 in ND; try omega; desf; repeat eexists; eauto.
+  apply H2 in ND; try omega; desf; repeat eexists; eauto.
 Qed.
 
 Add Parametric Morphism A : (@n_total A) with signature
-  same_relation ==> eq ==> iff as n_total_more.
+  set_equiv ==> same_relation ==> eq ==> iff as n_total_more.
 Proof.
-  by split; [rewrite (proj1 H)|rewrite (proj2 H)].
+  by split; [rewrite (proj2 H), (proj1 H0)|rewrite (proj1 H), (proj2 H0)].
 Qed.
 
 Add Parametric Morphism A : (@has_finite_antichains A) with signature
-  inclusion ==> Basics.impl as has_finite_antichains_mori.
+  set_subset --> inclusion ++> Basics.impl as has_finite_antichains_mori.
 Proof.
   unfold Basics.impl, has_finite_antichains; ins; desc.
-  by exists n; rewrite <- H.
+  by exists n; rewrite H, <- H0.
 Qed.
 
 Add Parametric Morphism A : (@has_finite_antichains A) with signature
-  same_relation ==> iff as has_finite_antichains_more.
+  set_equiv ==> same_relation ==> iff as has_finite_antichains_more.
 Proof.
-  by split; [rewrite (proj1 H)|rewrite (proj2 H)].
+  by split; [rewrite (proj2 H), (proj1 H0)|rewrite (proj1 H), (proj2 H0)].
 Qed.
 
 (** Bounded paths because of n-totality. *)
 
-Lemma pow_bounded_n_total A (r : relation A) n
-      (TOT: n_total r n)
+Lemma pow_bounded_n_total A s (r : relation A) n
+      (TOT: n_total s r n) (DOMA: doma r s) 
       (IRR: irreflexive (⋃i <= 2 * n, r ^^ (S i)))  :
   r ^^ (S (2 * n)) ⊆ (⋃i < 2 * n, r ^^ (S i)).
 Proof.
@@ -112,7 +113,8 @@ Proof.
     eexists x, y; splits; ins; omega.
     eexists y, x; splits; ins; omega.
   }
-  intros; desf; rewrite in_map_iff in *; desc; rewrite in_seq0_iff in *; desf.
+  all: intros; desf; rewrite in_map_iff in *; desc; rewrite in_seq0_iff in *; desf.
+  eapply DOMA, R1; omega.
   assert (K: r ^^ (S (2 * x0 + (2 * n + 1 - 2 * x))) (f 0) (f (S (2 * n)))).
   {
     assert (K: r ^^ (2 * x0) (f 0) (f (2 * x0))).
@@ -134,8 +136,8 @@ Proof.
       try (f_equal; omega); apply R1; omega.
 Qed.
 
-Lemma ct_bounded_n_total A (r : relation A) (ACYC: acyclic r)
-      n (TOT: n_total r n) :
+Lemma ct_bounded_n_total A s (r : relation A) (ACYC: acyclic r)
+      (DOMA: doma r s) n (TOT: n_total s r n) :
   r⁺ ≡ ⋃ i < 2 * n, pow_rel r (S i).
 Proof.
   split.
@@ -144,19 +146,19 @@ Proof.
   apply inclusion_t_ind_right.
   { exists 0; split; [|by apply pow_1].
     destruct n; try omega.
-    forward eapply (TOT (x :: nil)); ins; desf. }
+    forward eapply (TOT (x :: nil)); ins; desf; eauto. }
   relsf.
   apply inclusion_bunion_l; intros.
   rewrite <- Nat.le_succ_l in H.
   rewrite pow_seq.
   destruct (eqP (S x) (2 * n)) as [->|].
-    apply pow_bounded_n_total; eauto.
+    eapply pow_bounded_n_total; eauto.
     by apply irreflexive_bunion; intros; rewrite pow_ct.
   by apply inclusion_bunion_r with (S x); try omega.
 Qed.
 
-Lemma rt_bounded_n_total A (r : relation A) (ACYC: acyclic r)
-      n (TOT: n_total r n) :
+Lemma rt_bounded_n_total A s (r : relation A) (ACYC: acyclic r)
+      (DOMA: doma r s) n (TOT: n_total s r n) :
   r＊ ≡ ⋃ i <= 2 * n, pow_rel r i.
 Proof.
   split; auto using inclusion_bunion_l, pow_rt.
@@ -376,7 +378,8 @@ Section finite_support.
     ins; induction n; ins; eauto using fsupp_eqv, fsupp_union, fsupp_seq.
   Qed.
 
-  Lemma fsupp_ct r (ACYC: acyclic r) (TOT: has_finite_antichains r) :
+  Lemma fsupp_ct r (ACYC: acyclic r) s (DOMA: doma r s)
+        (TOT: has_finite_antichains s r) :
     fsupp r -> fsupp r⁺.
   Proof.
     destruct TOT; intros; rewrite ct_bounded_n_total;
@@ -388,7 +391,7 @@ Section finite_support.
     rewrite rtE; eauto using fsupp_union, fsupp_eqv.
   Qed.
 
-  Lemma fsupp_rt r (ACYC: acyclic r) (TOT: has_finite_antichains r) :
+  Lemma fsupp_rt r (ACYC: acyclic r) s (DOMA: doma r s) (TOT: has_finite_antichains s r) :
     fsupp r -> fsupp r＊.
   Proof.
     eauto using fsupp_ct_rt, fsupp_ct.
