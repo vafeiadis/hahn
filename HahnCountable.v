@@ -40,7 +40,7 @@ Proof.
   forward eapply findP_spec with (cond := cond) (l := List.seq 0 (S n)) (d := 0)
     as X; desc; eauto.
   rewrite seq_nth in *; ins.
-    
+
   eexists; split; eauto; ins; specialize_full X0; eauto.
   rewrite seq_nth in *; ins; omega.
 Qed.
@@ -89,21 +89,88 @@ Qed.
 Definition lt_size A i (s : A -> Prop) :=
   exists dom, NoDup dom /\ (forall x, In x dom -> s x) /\ i < length dom.
 
+Lemma lt_size_inhabited A (s : A -> Prop) i (LT : lt_size i s) : inhabited A.
+Proof.
+  destruct LT as [[]]; ins; desf; omega.
+Qed.
+
+Lemma lt_size_infinite A (s : A -> Prop) (INF : ~ set_finite s) i : lt_size i s.
+Proof.
+  assert (C: forall l, exists x, s x /\ ~ In x l).
+  { ins; apply NNPP; intro X.
+    apply INF; exists l; ins; apply NNPP; eauto. }
+  apply choice in C; desc.
+  set (go := fix go n := match n with
+                       | 0 => f nil :: nil
+                       | S n => f (go n) :: go n
+                      end).
+  exists (go i); splits; induction i; ins; desf; eauto;
+    try apply C; try omega.
+  apply nodup_cons; split; ins; apply C.
+Qed.
+
+
 Section countable.
 
   Variable A : Type.
 
   Definition enumerates (f : nat -> A) (s : A -> Prop) :=
-     << RNG: forall i, s (f i) >> /\                                 
+     << RNG: forall i, s (f i) >> /\
      << INJ: forall i j (EQ: f i = f j), i = j >> /\
      << SUR: forall a (IN: s a), exists i, f i = a >>
    \/ exists n,
-         << RNG: forall i (LTi: i < n), s (f i) >> /\                                 
+         << RNG: forall i (LTi: i < n), s (f i) >> /\
          << INJ: forall i (LTi: i < n) j (LTj: j < n) (EQ: f i = f j), i = j >> /\
          << SUR: forall a (IN: s a), exists i, i < n /\ f i = a >>.
 
   Definition countable (s : A -> Prop) :=
      ~ inhabited A \/ exists nu, enumerates nu s.
+
+  Lemma enumeratesE f s :
+    enumerates f s <->
+    << RNG: forall i (LTi: lt_size i s), s (f i) >> /\
+    << INJ: forall i (LTi: lt_size i s) j (LTj: lt_size j s) (EQ: f i = f j),
+        i = j >> /\
+    << SUR: forall a (IN: s a), exists i, lt_size i s /\ f i = a >>.
+  Proof.
+    unfold enumerates; split; ins; desf.
+    { splits; ins; eauto.
+      eapply SUR in IN; desc; exists i; split; ins.
+      exists (map f (List.seq 0 (S i))); splits; ins;
+        try rewrite length_map, length_seq; ins; desf.
+        apply nodup_map; eauto using nodup_seq.
+        rewrite in_map_iff in *; desf. }
+    { assert (LTI: forall i, lt_size i s -> i < n).
+      { ins; red in H; desc.
+        replace n with (length (map f (List.seq 0 n))).
+        2: by rewrite length_map, length_seq.
+        eapply Nat.lt_le_trans; eauto.
+        ins; apply NoDup_incl_length; ins.
+        red; ins; apply H0, SUR in H2; desf.
+          by apply in_map, in_seq0_iff. }
+      splits; ins; eauto.
+      apply SUR in IN; desf; exists i; split; ins.
+      exists (map f (List.seq 0 n)); splits; ins;
+        try rewrite length_map, length_seq; ins; desf.
+      apply nodup_map; eauto using nodup_seq.
+      red; ins; rewrite in_seq0_iff in *; eauto.
+      ins; rewrite in_map_iff in *; desf; rewrite in_seq0_iff in *; eauto.
+    }
+    destruct (classic (set_finite s)) as [[dom X]|INF].
+    { right; exists (length (undup (filterP s dom))).
+      assert (LTI: forall i, lt_size i s -> i < length (undup (filterP s dom))).
+      { ins; red in H; desc.
+        eapply Nat.lt_le_trans; eauto.
+        apply NoDup_incl_length; ins.
+        red; ins; apply H0 in H2; desf.
+        apply in_undup_iff, in_filterP_iff; eauto. }
+      assert (LTI': forall i, i < length (undup (filterP s dom)) -> lt_size i s).
+      { exists (undup (filterP s dom)); splits; ins.
+        apply in_undup_iff, in_filterP_iff in H0; desf. }
+      splits; ins; eauto; apply SUR in IN; desf; eauto. }
+    {  left; splits; ins; eauto using lt_size_infinite.
+       eapply SUR in IN; desf; eauto. }
+  Qed.
 
   Lemma finite_countable s (F: set_finite s) : countable s.
   Proof.
@@ -125,7 +192,7 @@ Section countable.
     assert (N: forall i, exists k, i < k /\ s (f k) /\ ~ In (f k) (mk_list (S i) f) /\
                                    forall j, j < k -> s (f j) ->
                                              In (f j) (mk_list (S i) f)).
-    { 
+    {
       assert (M: forall i, exists a, s a /\ forall j, j <= i -> f j <> a).
       { ins; apply NNPP; intro X; apply H.
         exists (mk_list (S i) f); intros; apply in_mk_list_iff.
@@ -165,7 +232,7 @@ Section countable.
           [exists (S k) |exists k; omega].
         split; ins; unfold fcompose; rewrite EQ; ins; apply N.
     }
-    
+
     tertium_non_datur (s (f 0)).
     {
 
@@ -556,3 +623,13 @@ Section enum_ext.
 
 End enum_ext.
 
+Lemma countable_ext A (s : A -> Prop) (C: countable s)
+      (r : relation A) (PO : strict_partial_order r) (F : fsupp r) :
+  ~ inhabited A \/
+  exists f,
+    enumerates f s  /\
+    forall i j (Li : lt_size i s) (Lj: lt_size j s)
+           (R: r (f i) (f j)), i < j.
+Proof.
+  destruct C; desf; eauto using enum_ext.
+Qed.
