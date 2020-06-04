@@ -5,7 +5,7 @@ HahnRelationsBasic.v HahnEquational.v  HahnRewrite.v
 HahnExtraNotation.v HahnListBefore.v
 HahnDom.v HahnMaxElt.v HahnMinElt.v HahnFuneq.v
 HahnWf.v HahnTotalList.v HahnTotalExt.v
-HahnSorted.v HahnSegment.v
+HahnSorted.v HahnSegment.v HahnTrace.v
 HahnMinPath.v HahnPath.v HahnAcyclic.v
 HahnCountable.v
 Zorn.v

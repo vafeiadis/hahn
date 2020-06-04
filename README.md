@@ -29,6 +29,7 @@ about lists and binary relations.
 - HahnSorted.v : lemmas about sortedness of lists 
 - HahnTotalExt.v : extension of a partial order to a total order.
 - HahnTotalList.v : building finite relations for program order.
+- HahnTrace.v : possibly infinite sequences.
 - Zorn.v : A mechanization of Zorn's lemma (thanks to Johannes Kloos)
 
 ## Build
