@@ -466,7 +466,7 @@ Section enum_ext.
     rewrite X, in_app_iff, in_map_iff in H0; desf.
     rewrite in_seq0_iff in *; eapply INJ in H0; try omega.
     apply in_split_perm in H0; desf.
-    by exists l'; rewrite X, H0, <- (Nat.add_1_r (S n)), seq_app, map_app, <- app_assoc.
+    by exists l'; rewrite X, H0, <- (Nat.add_1_r (S n)), seq_add, map_app, <- app_assoc.
   Qed.
 
   Lemma list_app_eq_simpl (l l0 l' l0' : list A) :

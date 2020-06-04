@@ -660,6 +660,13 @@ Proof.
   ins; rewrite seq_split_gen with (a := a); repeat f_equal; omega.
 Qed.
 
+Lemma seq_add len1 len2 start :
+  seq start (len1 + len2) = seq start len1 ++ seq (start + len1) len2.
+Proof.
+  rewrite seq_split with (x := len1); try omega.
+  f_equal; f_equal; omega.
+Qed.
+
 Global Opaque seq.
 
 (** [mk_list] *)
