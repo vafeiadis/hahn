@@ -23,9 +23,6 @@ Create HintDb hahn discriminated.      (* General stuff, used by done *)
 Create HintDb hahn_refl discriminated. (* Decidable equalities *)
 Create HintDb hahn_full discriminated. (* Expensive lemmas *)
 
-
-
-
 (** Shorthand for applying functional extensionality. *)
 
 Ltac exten := apply functional_extensionality.
@@ -205,7 +202,13 @@ Proof. by case eqP. Qed.
 
 (** Set up for basic simplification: database of reflection lemmas *)
 
-Hint Resolve hahn__internal_eqP neqP : hahn_refl.
+Hint Resolve hahn__internal_eqP neqP eqnP : hahn_refl.
+Hint Resolve Z.eqb_spec Z.leb_spec0 Z.ltb_spec0 : hahn_refl.
+Hint Resolve N.eqb_spec N.leb_spec0 N.ltb_spec0 : hahn_refl.
+Hint Resolve Pos.eqb_spec Pos.leb_spec0 Pos.ltb_spec0 : hahn_refl.
+Hint Resolve Nat.eqb_spec Nat.leb_spec0 Nat.ltb_spec0 : hahn_refl.
+Hint Resolve Ascii.eqb_spec String.eqb_spec : hahn_refl.
+Hint Resolve Bool.eqb_spec : hahn_refl.
 
 Ltac hahn__complaining_inj f H :=
   let X := fresh in
