@@ -21,6 +21,7 @@ about lists and binary relations.
 - HahnNatExtra.v : a few properties of natural numbers
 - HahnWf.v : well-founded and finitely supported relations
 - HahnMinPath.v : minimal paths/cycles over relations
+- HahnOmega.v : natural numbers with infinity
 - HahnPath.v : paths over relations
 - HahnRelationsBasic.v : binary relations
 - HahnRewrite.v : support for rewriting equivalent relations
