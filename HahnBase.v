@@ -27,6 +27,13 @@ Create HintDb hahn_full discriminated. (* Expensive lemmas *)
 
 Ltac exten := apply functional_extensionality.
 
+(** Notation for classical if-then-else *)
+
+Notation "'ifP' c 'then' u 'else' v" :=
+  (if excluded_middle_informative c then u else v)
+  (at level 200).
+
+
 (* ************************************************************************** *)
 (** ** Coersion of [bool] into [Prop] *)
 (* ************************************************************************** *)

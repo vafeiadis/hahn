@@ -13,7 +13,7 @@ Section FunctionUpdate.
   Variables (A B: Type).
 
   Definition upd (f : A -> B) a b x :=
-    if excluded_middle_informative (x = a) then b else f x.
+    ifP x = a then b else f x.
 
   Lemma upds f a b : upd f a b a = b.
   Proof. unfold upd; desf. Qed.
