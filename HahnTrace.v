@@ -2,32 +2,33 @@
 (** * Lemmas about traces (finite or infinite sequences) *)
 (******************************************************************************)
 
-Require Import HahnBase HahnList HahnSets HahnOmega.
+Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
+Require Import HahnOmega HahnWf.
 Require Import Omega IndefiniteDescription.
 
 Set Implicit Arguments.
 
 Lemma set_infinite_natE (s : nat -> Prop) (INF: ~ set_finite s) n :
-  exists m, s m /\ length (filterP s (seq 0 m)) = n.
+  exists m, s m /\ length (filterP s (List.seq 0 m)) = n.
 Proof.
   assert (IMP: forall findom, exists x, s x /\ ~ In x findom).
   { unfold set_finite in *; apply NNPP; intro X; clarify_not.
     eapply INF; eexists; ins; apply NNPP; intro Y; eauto. }
   apply functional_choice in IMP; destruct IMP as [nin IMP].
-  assert (exists m, s m /\ n <= length (filterP s (seq 0 m))).
+  assert (exists m, s m /\ n <= length (filterP s (List.seq 0 m))).
   { induction n; desf.
     1: exists (nin nil); split; [apply IMP | omega].
-    exists (nin (seq 0 (S m))); split; [apply IMP|].
+    exists (nin (List.seq 0 (S m))); split; [apply IMP|].
     rewrite seq_split0 with (a := m).
     rewrite filterP_app, length_app; ins; desf; ins; omega.
-    specialize (IMP (seq 0 (S m))); desf.
+    specialize (IMP (List.seq 0 (S m))); desf.
     rewrite in_seq0_iff in IMP0; omega. }
   desf; rewrite Nat.le_lteq in *; desf; eauto.
   clear - H0; induction m; ins.
-  replace (seq 0 0) with (@nil nat) in H0; ins; omega.
+  replace (List.seq 0 0) with (@nil nat) in H0; ins; omega.
   replace (S m) with (m + 1) in H0; try omega.
   rewrite seq_add, filterP_app, length_app in H0; ins.
-  replace (seq m 1) with (m :: nil) in H0; ins; desf; ins.
+  replace (List.seq m 1) with (m :: nil) in H0; ins; desf; ins.
   1: rewrite Nat.add_1_r, Nat.lt_succ_r, Nat.le_lteq in *; desf; eauto.
   rewrite Nat.add_0_r in *; eauto.
 Qed.
@@ -84,8 +85,8 @@ Hint Rewrite
      trace_prepend_app : trace_prepends.
 
 Lemma map_trace_prepend_geq A (l: list A) fl n (LT: length l <= n) :
-  map (trace_prepend l fl) (seq 0 n) =
-    l ++ map fl (seq 0 (n - length l)).
+  map (trace_prepend l fl) (List.seq 0 n) =
+    l ++ map fl (List.seq 0 (n - length l)).
 Proof.
   unfold trace_prepend.
   rewrite seq_split with (x := length l); ins.
@@ -98,7 +99,7 @@ Qed.
 Lemma map_trace_prepend_lt A (l: list A) fl n (LT: n < length l) :
   exists l' a l'',
     l = l' ++ a :: l'' /\ length l' = n /\
-    map (trace_prepend l fl) (seq 0 n) = l'.
+    map (trace_prepend l fl) (List.seq 0 n) = l'.
 Proof.
   unfold trace_prepend.
   destruct (Nat.le_exists_sub n (length l)) as (p & X & _);
@@ -121,7 +122,7 @@ Proof.
     rewrite in_map_iff.
     specialize (H (y + length l)); desf; eauto; try omega.
     exists (y + length l); rewrite Nat.add_sub in *; eauto. }
-  { exists (seq 0 (length l) ++ map (fun x => x + length l) findom);
+  { exists (List.seq 0 (length l) ++ map (fun x => x + length l) findom);
     intro y; ins.
     rewrite in_app_iff, in_seq0_iff, in_map_iff; desf; eauto.
     apply H in IN.
@@ -136,6 +137,9 @@ Qed.
 Inductive trace (A : Type) : Type :=
 | trace_fin (l : list A)
 | trace_inf (fl : nat -> A).
+
+Definition trace_finite A (t : trace A) :=
+  exists l, t = trace_fin l.
 
 (** [trace_app] concatenates two traces *)
 
@@ -163,12 +167,12 @@ Definition trace_length A (t : trace A) : nat_omega :=
   | trace_inf fl => NOinfinity
   end.
 
-(** [trace_in a t] returns true iff [a] is an element of the trace [t] *)
+(** [trace_elems t] returns true iff [a] is an element of the trace [t] *)
 
-Definition trace_in A (a : A) (t : trace A) :=
+Definition trace_elems A (t : trace A) :=
   match t with
-  | trace_fin l => In a l
-  | trace_inf fl => exists n, a = fl n
+  | trace_fin l => (fun a => In a l)
+  | trace_inf fl => (fun a => exists n, a = fl n)
   end.
 
 (** [trace_nth n t d] returns the [n]th element of trace [t]
@@ -192,7 +196,7 @@ Definition trace_filter A (f : A -> Prop) (t : trace A) : trace A :=
     | left FIN =>
         let B := set_finite_nat_bounded FIN in
         let n := proj1_sig (constructive_indefinite_description _ B) in
-        trace_fin (filterP f (map fl (seq 0 (S n))))
+        trace_fin (filterP f (map fl (List.seq 0 (S n))))
     | right INF =>
         trace_inf
           (fun n =>
@@ -212,6 +216,20 @@ Definition trace_prefix A (t t' : trace A) :=
   | trace_inf f, trace_inf f' => forall x, f x = f' x
   end.
 
+(** Is the trace duplicate-free? *)
+
+Definition trace_nodup A (t: trace A) :=
+  forall i j (LTi: i < j) (LTj: NOmega.lt_nat_l j (trace_length t)) d,
+    trace_nth i t d <> trace_nth j t d.
+
+(** Is [e] before [e'] in the duplicate-free trace [t]? *)
+
+Definition trace_order A (t: trace A) e e' :=
+  trace_nodup t /\
+  (exists i j, i < j /\ NOmega.lt_nat_l j (trace_length t)
+              /\ trace_nth i t e = e /\ trace_nth j t e = e').
+
+
 (******************************************************************************)
 (** Basic lemmas *)
 (******************************************************************************)
@@ -223,6 +241,31 @@ Proof.
   destruct t; ins; desf; auto using nth_indep.
 Qed.
 
+Lemma trace_nth_in A (t : trace A) n
+      (LT : NOmega.lt_nat_l n (trace_length t)) d :
+  trace_elems t (trace_nth n t d).
+Proof.
+  destruct t; ins; desf; eauto using nth_In.
+Qed.
+
+Hint Resolve trace_nth_in : hahn.
+
+Lemma trace_in_nth A (t : trace A) a (IN : trace_elems t a) d :
+  exists n, NOmega.lt_nat_l n (trace_length t) /\
+            trace_nth n t d = a.
+Proof.
+  destruct t; ins; desf; eauto using In_nth.
+Qed.
+
+Lemma trace_elems_nth A (t : trace A) d :
+  trace_elems t
+   ≡₁ (⋃₁ n ∈ (fun n => NOmega.lt_nat_l n (trace_length t)),
+       eq (trace_nth n t d)).
+Proof.
+  repeat autounfold with unfolderDb; intuition; desf;
+    eauto using trace_in_nth with hahn.
+Qed.
+
 Lemma trace_length_app A (t t' : trace A) :
   trace_length (trace_app t t') =
   NOmega.add (trace_length t) (trace_length t').
@@ -230,9 +273,11 @@ Proof.
   destruct t, t'; ins; auto using length_app.
 Qed.
 
+(** Lemmas about concatenation of traces *)
+
 Lemma trace_in_app A (a : A) (t t' : trace A) :
-  trace_in a (trace_app t t') <->
-  trace_in a t \/ trace_length t <> NOinfinity /\ trace_in a t'.
+  trace_elems (trace_app t t') a <->
+  trace_elems t a \/ trace_length t <> NOinfinity /\ trace_elems t' a.
 Proof.
   split; destruct t, t'; ins; unfold trace_prepend in *;
     desf; rewrite ?in_app_iff in *; desf;
@@ -240,6 +285,16 @@ Proof.
   all: try solve [right; split; ins; eauto].
   apply In_nth with (d := fl 0) in H; desf; exists n; desf; ins.
   exists (n + length l); desf; try f_equal; omega.
+Qed.
+
+Lemma trace_elems_app A (t t' : trace A) :
+  trace_elems (trace_app t t') ≡₁
+    trace_elems t ∪₁ ifP trace_finite t then trace_elems t' else ∅.
+Proof.
+  unfold set_union, trace_finite; split; intro x;
+    rewrite trace_in_app; ins; desf; desf; ins; eauto.
+  destruct t; ins; destruct n; eauto.
+  right; ins.
 Qed.
 
 Lemma trace_nth_app (n : nat) A (t t' : trace A) (d : A) :
@@ -252,10 +307,33 @@ Proof.
       auto using nth_indep; omega.
 Qed.
 
+Lemma trace_appA A (t t' t'' : trace A) :
+  trace_app (trace_app t t') t'' = trace_app t (trace_app t' t'').
+Proof.
+  unfold trace_app; ins; desf; try by rewrite appA.
+  all: f_equal; extensionality x; desf.
+  by rewrite trace_prepend_app.
+Qed.
+
+Lemma trace_app_assoc A (t t' t'' : trace A) :
+  trace_app t (trace_app t' t'') = trace_app (trace_app t t') t''.
+Proof.
+  symmetry; apply trace_appA.
+Qed.
+
+(** Lemmas about [trace_map] *)
+
 Lemma trace_in_map A (a : A) B (f : B -> A) (t : trace B) :
-  trace_in a (trace_map f t) <-> exists x, trace_in x t /\ f x = a.
+  trace_elems (trace_map f t) a <-> exists x, trace_elems t x /\ f x = a.
 Proof.
   destruct t; ins; try rewrite in_map_iff; split; ins; desf; eauto.
+Qed.
+
+Lemma trace_elems_map A B (f : B -> A) (t : trace B) :
+  trace_elems (trace_map f t) ≡₁ set_collect f (trace_elems t).
+Proof.
+  unfold set_collect; split; intro x; destruct t; ins; desf;
+    try rewrite in_map_iff in *; desf; eauto.
 Qed.
 
 Lemma trace_nth_map (n : nat) A (a : A) B (f : B -> A) (t : trace B) d :
@@ -264,8 +342,10 @@ Proof.
   destruct t; ins; apply map_nth.
 Qed.
 
+(** Lemmas about [trace_filter] *)
+
 Lemma trace_in_filter A (a : A) (f : A -> Prop) (t : trace A) :
-  trace_in a (trace_filter f t) <-> trace_in a t /\ f a.
+  trace_elems (trace_filter f t) a <-> trace_elems t a /\ f a.
 Proof.
   destruct t; ins; desf; ins; rewrite ?in_filterP_iff, ?in_map_iff; ins.
   all: split; ins; desf; splits; eauto.
@@ -273,13 +353,19 @@ Proof.
   all: destruct (constructive_indefinite_description); ins; desf.
   { in_simp; apply l in H0; omega. }
   revert a0.
-  instantiate (1 := length (filterP (fl ↓₁ f) (seq 0 n0))).
+  instantiate (1 := length (filterP (fl ↓₁ f) (List.seq 0 n0))).
   destruct (lt_eq_lt_dec x n0) as [[LT|]|LT]; desf.
   unfold set_map.
   all: rewrite (seq_split0 LT), filterP_app, length_app;
     ins; desf; ins; omega.
 Qed.
 
+Lemma trace_elems_filter A (f : A -> Prop) (t : trace A) :
+  trace_elems (trace_filter f t) ≡₁ trace_elems t ∩₁ f.
+Proof.
+  repeat autounfold with unfolderDb; split; ins.
+  all: rewrite trace_in_filter in *; desf.
+Qed.
 
 Lemma trace_filter_app A (f : A -> Prop) (t t' : trace A)
       (IMP: trace_length (trace_filter f t) <> NOinfinity ->
@@ -335,6 +421,7 @@ Proof.
   }
 Qed.
 
+(** Lemmas about [trace_prefix] *)
 
 Lemma trace_prefix_app A (t t' : trace A) :
   trace_prefix t (trace_app t t').
@@ -355,7 +442,6 @@ Proof.
   - exists (trace_fin nil); f_equal; extensionality x; eauto.
 Qed.
 
-
 Lemma trace_prefix_refl A (t : trace A) :
   trace_prefix t t.
 Proof.
@@ -374,19 +460,111 @@ Proof.
     ins; desf; omega.
 Qed.
 
+(** No duplicates *)
 
-Lemma trace_appA A (t t' t'' : trace A) :
-  trace_app (trace_app t t') t'' = trace_app t (trace_app t' t'').
+Lemma trace_nodup_inj A (t: trace A)
+      (ND: trace_nodup t)
+      i (LTi : NOmega.lt_nat_l i (trace_length t))
+      j (LTj : NOmega.lt_nat_l j (trace_length t)) d d'
+      (EQ: trace_nth i t d = trace_nth j t d') :
+  i = j.
 Proof.
-  unfold trace_app; ins; desf; try by rewrite appA.
-  all: f_equal; extensionality x; desf.
-  by rewrite trace_prepend_app.
+  rewrite trace_nth_indep with (d := d) (d' := d') in EQ; ins.
+  destruct (lt_eq_lt_dec i j) as [[LT|]|LT]; ins.
+  all: exfalso; eapply ND; eauto.
 Qed.
 
-Lemma trace_app_assoc A (t t' t'' : trace A) :
-  trace_app t (trace_app t' t'') = trace_app (trace_app t t') t''.
+(** Lemmas about [trace_order] *)
+
+Lemma trace_order_in1 A (t : trace A) a b :
+  trace_order t a b -> trace_elems t a.
 Proof.
-  symmetry; apply trace_appA.
+  unfold trace_order; destruct t; ins; desf; ins; eauto.
+  rewrite <- H2; apply nth_In; omega.
+Qed.
+
+Lemma trace_order_in2 A (t : trace A) a b :
+  trace_order t a b -> trace_elems t b.
+Proof.
+  unfold trace_order; destruct t; ins; desf; ins; eauto.
+  rewrite <- H2; apply nth_In; omega.
+Qed.
+
+Hint Immediate trace_order_in1 trace_order_in2 : hahn.
+
+Lemma trace_order_total A (t : trace A) (ND : trace_nodup t) :
+  is_total (trace_elems t) (trace_order t).
+Proof.
+  red; ins.
+  apply trace_in_nth with (d := a) in IWa; desf.
+  apply trace_in_nth with (d := a) in IWb; desf.
+  destruct (lt_eq_lt_dec n n0) as [[LT|]|LT]; desf; try congruence.
+  left; repeat eexists; eauto.
+  right; repeat eexists; eauto using trace_nth_indep.
+  rewrite trace_nth_indep with (d' := a); ins.
+Qed.
+
+Lemma trace_order_trans A (t : trace A) x y z :
+  trace_order t x y ->
+  trace_order t y z ->
+  trace_order t x z.
+Proof.
+  unfold trace_order; splits; ins; desf.
+  rewrite trace_nth_indep with (d' := x) in *; ins; eauto.
+  2: destruct (trace_length t); ins; omega.
+  exists i0, j; splits; eauto.
+  destruct (le_lt_dec j0 i) as [|LT]; try omega.
+  exfalso; eapply H0; try apply LT; eauto.
+Qed.
+
+Lemma trace_order_irrefl A (t : trace A) x
+      (ORD: trace_order t x x) : False.
+Proof.
+  unfold trace_order in *; ins; desf.
+  eapply ORD with (d := x); eauto; congruence.
+Qed.
+
+Lemma fsupp_trace_order A (t : trace A) :
+  fsupp (trace_order t).
+Proof.
+  intro y.
+  tertium_non_datur (trace_elems t y).
+  2: exists nil; ins; eauto with hahn.
+  apply trace_in_nth with (d := y) in H; desc.
+  exists (map (fun i => trace_nth i t y) (List.seq 0 n)).
+  unfold trace_order; ins; desf.
+  ins; in_simp.
+  rewrite trace_nth_indep with (d' := x) in H0; ins.
+  apply trace_nodup_inj in H0; ins; desf.
+  exists i; rewrite trace_nth_indep with (d' := x);
+    splits; ins; in_simp; eauto with hahn.
+Qed.
+
+Lemma trace_order_nth_nth A (t : trace A)
+      n (LTn : NOmega.lt_nat_l n (trace_length t)) d
+      m (LTm : NOmega.lt_nat_l m (trace_length t)) d' :
+  trace_order t (trace_nth n t d) (trace_nth m t d') <->
+  trace_nodup t /\ n < m.
+Proof.
+  unfold trace_order; split; ins; desf; splits; ins.
+    apply trace_nodup_inj in H2; ins; desf.
+    apply trace_nodup_inj in H3; ins; desf.
+    destruct (trace_length t); ins; omega.
+  exists n, m; splits; ins; auto using trace_nth_indep.
+Qed.
+
+
+Lemma exists_max (cond : nat -> Prop) n :
+  (forall m (LT : m < n), ~ cond m)
+  \/ exists m, m < n /\ cond m /\ forall j, m < j -> j < n -> ~ cond j.
+Proof.
+  induction n; [left; ins; omega|].
+  tertium_non_datur (cond n).
+    right; exists n; splits; ins; omega.
+  desf; [left | right].
+  ins; rewrite Nat.lt_succ_r, Nat.le_lteq in *; desf; eauto.
+  exists m; splits; ins; eauto.
+  rewrite Nat.lt_succ_r, Nat.le_lteq in *; desf; eauto.
 Qed.
 
 
@@ -445,4 +623,18 @@ Section LTS_traces.
     rewrite H0; ins.
   Qed.
 
+  Lemma LTS_traceE t (T : LTS_trace t) :
+    exists fl',
+      LTS_init lts (fl' 0) /\
+      (forall i (LTi : NOmega.lt_nat_l i (trace_length t)) d,
+          LTS_step lts (fl' i) (trace_nth i t d) (fl' (S i))).
+  Proof.
+    destruct t; ins; desf.
+    exists fl'; split; ins.
+  Qed.
+
 End LTS_traces.
+
+
+Hint Resolve fsupp_trace_order : hahn.
+

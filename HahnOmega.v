@@ -256,5 +256,21 @@ Module NOmega.
       (Morphisms.respectful Logic.eq (Morphisms.respectful Logic.eq iff))
       lt.
   Proof. split; ins; desf. Qed.
-    
+
+  Lemma lt_lt_nat n m k :
+    n < m -> NOmega.lt_nat_l m k -> NOmega.lt_nat_l n k.
+  Proof.
+    destruct k; ins; omega.
+  Qed.
+
+  Lemma le_lt_nat n m k :
+    n <= m -> NOmega.lt_nat_l m k -> NOmega.lt_nat_l n k.
+  Proof.
+    destruct k; ins; omega.
+  Qed.
+
 End NOmega.
+
+Hint Immediate NOmega.lt_lt_nat : hahn.
+Hint Immediate NOmega.le_lt_nat : hahn.
+

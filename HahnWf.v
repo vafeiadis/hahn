@@ -397,11 +397,19 @@ Section finite_support.
     eauto using fsupp_ct_rt, fsupp_ct.
   Qed.
 
+  Lemma fsupp_restr_eq B (f : A -> B) r :
+    fsupp r -> fsupp (restr_eq_rel f r).
+  Proof.
+    unfold fsupp, restr_eq_rel; ins; desf.
+    specialize (H y); desf.
+    exists findom; ins; desf; eauto.
+  Qed.
+
 End finite_support.
 
 Hint Resolve fsupp_empty fsupp_eqv fsupp_cross : hahn.
 Hint Resolve fsupp_union fsupp_bunion fsupp_seq : hahn.
 Hint Resolve fsupp_inter_l fsupp_inter_r fsupp_minus : hahn.
-Hint Resolve fsupp_restr : hahn.
+Hint Resolve fsupp_restr fsupp_restr_eq : hahn.
 Hint Resolve fsupp_cr fsupp_pow fsupp_ct fsupp_ct_rt : hahn.
 Hint Immediate functional_inv_fsupp : hahn.
