@@ -1051,6 +1051,60 @@ Proof.
   }
 Qed.
 
+Lemma nth_filterP A (f : A -> Prop) (l : list A) i d
+      (LT : i < length (filterP f l)) :
+  exists n, n < length l
+            /\ nth i (filterP f l) d = nth n l d
+            /\ i = length (filterP f (map (fun i => nth i l d)
+                                          (List.seq 0 n))).
+Proof.
+  revert i LT; induction l using rev_induction; ins; desf; ins; try omega.
+  rewrite filterP_app, length_app in *.
+  destruct (lt_dec i (length (filterP f l))).
+  { specialize_full IHl; eauto; desf.
+    exists n; rewrite !app_nth1; splits; ins; try omega.
+    do 2 f_equal; apply map_ext_in; ins; rewrite in_seq0_iff in *;
+      rewrite app_nth1; ins; omega.
+  }
+  ins; desf; ins; try omega.
+  assert (i = length (filterP f l)) by omega; desf.
+  exists (length l); splits; try omega.
+  rewrite !app_nth2, !Nat.sub_diag; ins; try omega.
+  do 2 f_equal.
+  symmetry; eapply map_nth_seq with (d := d); ins.
+  apply app_nth1; ins.
+Qed.
+
+
+Lemma nth_filterP' A (f : A -> Prop) (l : list A) n d
+      (LT : n < length l) (F: f (nth n l d)):
+  nth (length (filterP f (map (fun i => nth i l d)
+                              (List.seq 0 n))))
+      (filterP f l) d = nth n l d.
+Proof.
+  revert n F LT; induction l using rev_induction; ins; desf; ins; try omega.
+  rewrite filterP_app, length_app in *.
+  destruct (lt_dec n (length l)).
+  { rewrite !app_nth1 in *; ins.
+    specialize_full IHl; eauto; desf.
+    rewrite <- IHl.
+    do 3 f_equal; apply map_ext_in; ins; rewrite in_seq0_iff in *;
+      rewrite app_nth1; ins; omega.
+    erewrite <- map_nth_seq
+      with (a := 0) (l := l)
+           (f := fun i => nth i (l ++ a :: nil) d) at 1; auto using app_nth1.
+    rewrite (seq_split0 l0), map_app, filterP_app, length_app; ins; desf; ins;
+      try omega.
+  }
+  ins; desf; ins.
+  all: assert (n = length l) by omega; desf.
+  all: rewrite app_nth2, Nat.sub_diag in F; ins; desf; try omega.
+  rewrite map_nth_seq with (d := d).
+    rewrite !app_nth2, ?Nat.sub_diag; ins.
+  ins; rewrite app_nth1; ins.
+Qed.
+
+
 (** [mk_list] *)
 (******************************************************************************)
 

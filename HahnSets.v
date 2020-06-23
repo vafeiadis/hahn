@@ -614,6 +614,13 @@ Proof.
   specialize (H0 x); tauto.
 Qed.
 
+Lemma set_bunion_lt_S A n (P : nat -> A -> Prop) :
+  (⋃₁i < S n, P i) ≡₁ (⋃₁i < n, P i) ∪₁ P n.
+Proof.
+  unfold set_bunion, set_equiv, set_subset, set_union;
+    split; ins; desf; eauto.
+  rewrite Nat.lt_succ_r, Nat.le_lteq in *; desf; eauto.
+Qed.
 
 (** Add rewriting support. *)
 
