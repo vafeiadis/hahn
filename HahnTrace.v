@@ -563,7 +563,7 @@ Proof.
   eapply H with (d := d) in LT; congruence.
 Qed.
 
-Lemma trace_nodup_mapE A (f : A -> Prop) (t : trace A) :
+Lemma trace_nodup_mapE A B (f : A -> B) (t : trace A) :
   trace_nodup (trace_map f t) -> trace_nodup t.
 Proof.
   unfold trace_nodup; ins; desf.
