@@ -708,6 +708,18 @@ Proof.
   by eapply in_undup_iff in i; intro X; rewrite X in *.
 Qed.
 
+Lemma undup_filter A f (l : list A) : undup (filter f l) = filter f (undup l).
+Proof.
+  induction l; ins; desf; ins; desf;
+    rewrite in_filter_iff in *; clarify_not; desf; congruence.
+Qed.
+
+Lemma undup_filterP A f (l : list A) : undup (filterP f l) = filterP f (undup l).
+Proof.
+  induction l; ins; desf; ins; desf;
+    rewrite in_filterP_iff in *; clarify_not; desf; congruence.
+Qed.
+
 Lemma Permutation_undup A (l l' : list A) :
   Permutation l l' -> Permutation (undup l) (undup l').
 Proof.
@@ -733,6 +745,13 @@ Proof.
   inv ND; eapply IHl1 in H0; desf.
 Qed.
 
+Lemma set_finiteE A (s : A -> Prop) :
+  set_finite s <-> exists findom, NoDup findom /\ s ≡₁ (fun x => In x findom).
+Proof.
+  repeat autounfold with unfolderDb; intuition; desf; eauto.
+  exists (undup (filterP s findom)); splits; ins.
+  all: rewrite in_undup_iff, in_filterP_iff in *; desf; eauto.
+Qed.
 
 (** Lemmas about list concatenation *)
 (******************************************************************************)
@@ -1253,3 +1272,17 @@ Ltac in_simp :=
     rewrite in_seq_iff in *; desc; clarify |
     rewrite in_filter_iff in *; desc; clarify |
     rewrite in_filterP_iff in *; desc; clarify ].
+
+Ltac in_des :=
+  try match goal with |- ~ _ => intro end;
+  repeat first [
+    rewrite in_rev_iff in * |
+    rewrite in_undup_iff in * |
+    rewrite in_flatten_iff in *; desc; clarify |
+    rewrite in_map_iff in *; desc; clarify |
+    rewrite in_seq0_iff in *; desc; clarify |
+    rewrite in_mk_list_iff in *; desc; clarify |
+    rewrite in_seq_iff in *; desc; clarify |
+    rewrite in_filter_iff in *; desc; clarify |
+    rewrite in_filterP_iff in *; desc; clarify |
+    rewrite in_app_iff in *; des].
