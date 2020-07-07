@@ -1113,6 +1113,10 @@ Section TranspProperties.
   Lemma same_relation_transpE r r' : transp r ≡ transp r' -> r ≡ r'.
   Proof. u. Qed.
 
+  Lemma transp_strict_patial_order r :
+    strict_partial_order r -> strict_partial_order r⁻¹.
+  Proof. u. Qed.
+
 End TranspProperties.
 
 Hint Rewrite transp_inv transp_cross transp_eqv_rel : hahn.
