@@ -470,7 +470,7 @@ Section PathUnion.
   Proof.
     split.
     - apply inclusion_t_ind_right.
-      + unionL; [unionR left | unionR right]; firstorder.
+      + rewrite (ct_step r) at 1. basic_solver 10.
       + relsf; unionL.
         * rewrite ct_end at 2; basic_solver 10.
         * rewrite !seqA; rewrite <- ct_end; basic_solver 10.

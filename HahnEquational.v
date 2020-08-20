@@ -728,7 +728,7 @@ Section PropertiesClos.
 
   Lemma ct_step r : r ⊆ r⁺.
   Proof.
-    firstorder.
+    by red; ins; econs.
   Qed.
 
   Lemma rt_unit r : r＊ ⨾ r ⊆ r＊.
