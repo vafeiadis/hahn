@@ -355,6 +355,13 @@ Proof.
     auto using Permutation_filterP, filterP_set_equiv.
 Qed.
 
+Lemma Permutation_filterP_split A f (l : list A) :
+  Permutation l (filterP f l ++ filterP (fun x => ~ f x) l).
+Proof.
+  induction l; ins; desf; simpls;
+    eauto using perm_skip, Permutation_cons_app.
+Qed.
+
 Instance filterP_Proper A : Proper (_ ==> _ ==> _) _ := Permutation_filterP2 (A:=A).
 
 
