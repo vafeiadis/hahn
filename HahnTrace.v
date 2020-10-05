@@ -764,6 +764,19 @@ Section LTS_traces.
     exists fl'; split; ins.
   Qed.
 
+  Lemma LTS_traceE' t
+        (DOM: exists fl',
+            LTS_init lts (fl' 0) /\
+            (forall i,
+                NOmega.lt_nat_l i (trace_length t) ->
+                forall d, LTS_step lts (fl' i) (trace_nth i t d) (fl' (S i)))):
+    LTS_trace t.
+  Proof.
+    ins. desc. red.
+    destruct t; [by vauto| ].
+    simpl in *. exists fl'. split; intuition.
+  Qed.
+
 End LTS_traces.
 
 
