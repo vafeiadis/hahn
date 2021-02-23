@@ -1,4 +1,4 @@
-Require Import NPeano HahnBase HahnList HahnRelationsBasic.
+Require Import Arith HahnBase HahnList HahnRelationsBasic.
 
 Set Implicit Arguments.
   

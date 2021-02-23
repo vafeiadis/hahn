@@ -48,7 +48,7 @@ Proof. reflexivity. Qed.
 Lemma hahn__not_false_is_true : ~ false.
 Proof. discriminate. Qed.
 
-Hint Resolve hahn__true_is_true hahn__not_false_is_true : core.
+Global Hint Resolve hahn__true_is_true hahn__not_false_is_true : core.
 
 (* ************************************************************************** *)
 (** ** Very basic automation *)
@@ -151,7 +151,7 @@ Proof. by intros; case eqP. Qed.
 Lemma beq_sym : forall (T : eqType) (x y : T), (eq_op x y) = (eq_op y x).
 Proof. intros; do 2 case eqP; congruence. Qed.
 
-Hint Resolve beq_refl : hahn.
+Global Hint Resolve beq_refl : hahn.
 Hint Rewrite beq_refl : hahn_trivial.
 
 Notation eqxx := beq_refl.
@@ -209,13 +209,13 @@ Proof. by case eqP. Qed.
 
 (** Set up for basic simplification: database of reflection lemmas *)
 
-Hint Resolve hahn__internal_eqP neqP eqnP : hahn_refl.
-Hint Resolve Z.eqb_spec Z.leb_spec0 Z.ltb_spec0 : hahn_refl.
-Hint Resolve N.eqb_spec N.leb_spec0 N.ltb_spec0 : hahn_refl.
-Hint Resolve Pos.eqb_spec Pos.leb_spec0 Pos.ltb_spec0 : hahn_refl.
-Hint Resolve Nat.eqb_spec Nat.leb_spec0 Nat.ltb_spec0 : hahn_refl.
-Hint Resolve Ascii.eqb_spec String.eqb_spec : hahn_refl.
-Hint Resolve Bool.eqb_spec : hahn_refl.
+Global Hint Resolve hahn__internal_eqP neqP eqnP : hahn_refl.
+Global Hint Resolve Z.eqb_spec Z.leb_spec0 Z.ltb_spec0 : hahn_refl.
+Global Hint Resolve N.eqb_spec N.leb_spec0 N.ltb_spec0 : hahn_refl.
+Global Hint Resolve Pos.eqb_spec Pos.leb_spec0 Pos.ltb_spec0 : hahn_refl.
+Global Hint Resolve Nat.eqb_spec Nat.leb_spec0 Nat.ltb_spec0 : hahn_refl.
+Global Hint Resolve Ascii.eqb_spec String.eqb_spec : hahn_refl.
+Global Hint Resolve Bool.eqb_spec : hahn_refl.
 
 Ltac hahn__complaining_inj f H :=
   let X := fresh in
@@ -288,7 +288,7 @@ Notation "⟪ t ⟫" := (NW (fun _ => t)) (at level 79, no associativity, format
 Ltac unnw := unfold NW in *.
 Ltac rednw := red; unnw.
 
-Hint Unfold NW : core.
+Global Hint Unfold NW : core.
 
 Ltac splits :=
   intros; unfold NW;

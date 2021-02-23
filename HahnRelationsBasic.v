@@ -99,12 +99,12 @@ Definition acyclic A (r: relation A) := irreflexive (clos_trans r).
 
 Definition cross_rel A (r r' : A -> Prop) := (fun a b => r a /\ r' b).
 
-Hint Unfold reflexive symmetric transitive inclusion same_relation : unfolderDb.
-Hint Unfold union transp singl_rel inter_rel minus_rel bunion : unfolderDb.
-Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq map_rel : unfolderDb.
-Hint Unfold clos_refl clos_sym clos_refl_sym dom_rel codom_rel cross_rel collect_rel : unfolderDb.
-Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb.
-Hint Unfold antisymmetric strict_partial_order strict_total_order : unfolderDb.
+Global Hint Unfold reflexive symmetric transitive inclusion same_relation : unfolderDb.
+Global Hint Unfold union transp singl_rel inter_rel minus_rel bunion : unfolderDb.
+Global Hint Unfold eq_rel eqv_rel eqv_dom_rel restr_rel restr_eq_rel seq map_rel : unfolderDb.
+Global Hint Unfold clos_refl clos_sym clos_refl_sym dom_rel codom_rel cross_rel collect_rel : unfolderDb.
+Global Hint Unfold immediate irreflexive acyclic is_total functional : unfolderDb.
+Global Hint Unfold antisymmetric strict_partial_order strict_total_order : unfolderDb.
 
 (** We introduce the following notation. *)
 
@@ -172,7 +172,7 @@ Proof. vauto. Qed.
 Lemma r_step A (r: relation A) x y : r x y -> r^? x y.
 Proof. vauto. Qed.
 
-Hint Immediate r_refl r_step : core hahn.
+Global Hint Immediate r_refl r_step : core hahn.
 
 Section BasicProperties.
 
@@ -758,15 +758,15 @@ End BasicProperties.
 
 (** Declare several of the above lemmas as hints for [(e)auto]. *)
 
-Hint Resolve same_relation_refl2 : core hahn.
+Global Hint Resolve same_relation_refl2 : core hahn.
 
-Hint Resolve
+Global Hint Resolve
      reflexive_seq reflexive_rt reflexive_cr
      reflexive_union_l reflexive_union_r reflexive_inter
      transitive_rt transitive_ct
   : hahn.
 
-Hint Resolve
+Global Hint Resolve
      inclusion_refl2 same_relation_refl2
      inclusion_inter_l1_search inclusion_inter_l2_search inclusion_inter_r
      inclusion_union_r1 inclusion_union_r2
@@ -775,16 +775,16 @@ Hint Resolve
      inclusion_restr_eq_l inclusion_restr_rel_l
   : hahn.
 
-Hint Resolve trans_irr_antisymmetric strict_partial_order_antisymmetric : hahn.
+Global Hint Resolve trans_irr_antisymmetric strict_partial_order_antisymmetric : hahn.
 
-Hint Resolve
+Global Hint Resolve
      inclusion_step_t inclusion_t_t inclusion_t_ind inclusion_rt_rt
      inclusion_r_rt inclusion_step_rt inclusion_step_cr inclusion_r_cr : hahn.
 
-Hint Immediate inclusion_acyclic : hahn.
+Global Hint Immediate inclusion_acyclic : hahn.
 
-Hint Immediate inclusion_t_rt : hahn.
-Hint Immediate inclusion_eqv_rt inclusion_eqv_cr : hahn.
+Global Hint Immediate inclusion_t_rt : hahn.
+Global Hint Immediate inclusion_eqv_rt inclusion_eqv_cr : hahn.
 
 Lemma clos_trans_of_clos_trans A (r : relation A) x y :
   r⁺⁺ x y <-> r⁺ x y.

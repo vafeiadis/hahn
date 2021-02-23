@@ -2,7 +2,7 @@
 (** * Minimal paths and cycles *)
 (******************************************************************************)
 
-Require Import NPeano Omega.
+Require Import Arith micromega.Lia.
 Require Import HahnBase HahnList HahnRelationsBasic HahnRewrite.
 
 Set Implicit Arguments.
@@ -12,10 +12,10 @@ Lemma mod_S_expand i n (NZ : n <> 0) :
 Proof.
   desf; desf;
     rewrite Nat.add_mod with (a := 1); try done;
-    rewrite (Nat.mod_small 1); try omega.
+    rewrite (Nat.mod_small 1); try lia.
     by simpl; rewrite Heq0, Nat.mod_same.
   assert (UB := Nat.mod_upper_bound i n).
-  rewrite (Nat.mod_small (1 + i mod n)); omega.
+  rewrite (Nat.mod_small (1 + i mod n)); lia.
 Qed.
 
 Lemma mod_SS_expand i n : 
@@ -67,10 +67,10 @@ Lemma get_max_bounded_nat (P : nat -> Prop) x n (LE: x <= n) (SAT: P x) :
   exists m, m <= n /\ P m /\ forall k, k <= n -> P k -> k <= m.
 Proof.
   destruct get_first_nat with (P := fun x => P (n - x)); desf.
-  exists (n - m); repeat split; ins; eauto; try omega. 
-  replace k with (n - (n - k)) in H2; [apply H0 in H2|]; omega.
+  exists (n - m); repeat split; ins; eauto; try lia. 
+  replace k with (n - (n - k)) in H2; [apply H0 in H2|]; lia.
   destruct (H (n - x)).
-  replace (n - (n - x)) with x; eauto; omega.
+  replace (n - (n - x)) with x; eauto; lia.
 Qed.
 
 Lemma path_minimize :
@@ -84,24 +84,24 @@ Lemma path_minimize :
                 r (f i) (f j) -> j = S i >> .
 Proof.
   ins; apply clos_trans_tn1 in PATH; induction PATH; desf; unnw.
-    exists (fun x => match x with 0 => a | S _ => y end), 0; intuition; try omega. 
-      by apply NPeano.Nat.le_0_r in LT; desf.
+    exists (fun x => match x with 0 => a | S _ => y end), 0; intuition; try lia. 
+      by apply Nat.le_0_r in LT; desf.
 
   destruct (get_first_nat (fun x => x <= n /\ r (f x) z)) as [(m & M)|M]; desc.
   { exists (fun x => if Compare_dec.le_dec x m then f x else z), m;
-    repeat split; ins; desf; try omega.
-      by eapply STEP; omega.
-    by assert (i = m) by omega; desf. 
-    by eapply MIN; eauto; omega.
-    assert (j = S m) by omega; desf.
-    specialize (M0 i); specialize_full M0; try split; ins; omega. }
+    repeat split; ins; desf; try lia.
+      by eapply STEP; lia.
+    by assert (i = m) by lia; desf. 
+    by eapply MIN; eauto; lia.
+    assert (j = S m) by lia; desf.
+    specialize (M0 i); specialize_full M0; try split; ins; lia. }
   { exists (fun x => if Compare_dec.le_dec x (S n) then f x else z), (S n);
-    repeat split; ins; desf; try omega.
-      by eapply STEP; omega.
-    assert (i = S n) by omega; desf. 
-    eapply MIN; eauto; try omega.
-    destruct (eqP i (S n)); desf; try omega.
-    destruct (M i); split; ins; omega. }
+    repeat split; ins; desf; try lia.
+      by eapply STEP; lia.
+    assert (i = S n) by lia; desf. 
+    eapply MIN; eauto; try lia.
+    destruct (eqP i (S n)); desf; try lia.
+    destruct (M i); split; ins; lia. }
 Qed.
 
 Structure min_cycle_mod X (r : relation X) (f : nat -> X) (n : nat) : Prop := 
@@ -161,20 +161,20 @@ Proof.
     with (P := fun x => r (f m) (f x)) (x := mm) (n := m) as [kk K]; ins; desc.
     clear mm M0 M1; rename kk into mm.
     exists (fun x => if eq_op x (S (m - mm)) then (f mm) else (f (x + mm))), (m - mm); 
-      repeat split; ins; desf; desf; try omega.
-    by rewrite NPeano.Nat.sub_add.
-    eapply STEP; omega.
-    left; apply M' in H; omega.  
+      repeat split; ins; desf; desf; try lia.
+    by rewrite Nat.sub_add.
+    eapply STEP; lia.
+    left; apply M' in H; lia.  
     destruct (eqP j 0); desf; ins.
-      right; apply M' in H; omega.
-    left; apply MIN in H; try split; try omega. 
+      right; apply M' in H; lia.
+    left; apply MIN in H; try split; try lia. 
     apply NNPP; intro K'.
-    assert (Z:=H); apply M' in Z; try omega.
-    assert (i = m - mm) by omega; subst.
-    rewrite Nat.sub_add in *; ins; apply K1 in H; omega.
+    assert (Z:=H); apply M' in Z; try lia.
+    assert (i = m - mm) by lia; subst.
+    rewrite Nat.sub_add in *; ins; apply K1 in H; lia.
   }
   { exists f, n;
-    repeat split; ins; desf; try omega. 
+    repeat split; ins; desf; try lia. 
     destruct (le_lt_dec j i); [edestruct M|]; eauto.
  }
 Qed.
@@ -190,19 +190,19 @@ Proof.
     by rewrite (MOD (S n)), Nat.mod_same.
     apply MIN in H.
     destruct (eqP i n), (eqP j (S n)); subst; auto;
-      rewrite ?Nat.mod_same, ?Nat.mod_small in H; omega. 
+      rewrite ?Nat.mod_same, ?Nat.mod_small in H; lia. 
   }
   exists (fun x => f (x mod (S n))), (S n); split; intros; try done.
   - by rewrite Nat.mod_mod.
   - assert (UB := Nat.mod_upper_bound i (S n)).
-    exploit (STEP (i mod S n)); try omega.
+    exploit (STEP (i mod S n)); try lia.
     rewrite mod_SS_expand; desf; desf. 
       by rewrite !Nat.mod_1_r, ENDS.
     by rewrite Heq0, ENDS.
   - assert (UBi := Nat.mod_upper_bound i (S n)).
     assert (UBj := Nat.mod_upper_bound j (S n)).
-    apply MIN in H; try omega.
-    rewrite mod_SS_expand; desf; desf; omega.
+    apply MIN in H; try lia.
+    rewrite mod_SS_expand; desf; desf; lia.
 Qed.
 
 
@@ -222,13 +222,13 @@ Proof.
   split; intros A B; destruct A; desc; unnw; eauto. 
   exists f, n; repeat split; ins; eauto.
   destruct (lt_dec i j).
-    destruct j; [exfalso; omega|]; ins; auto. 
-    specialize (STEP j); specialize_full STEP; try omega.
-    rewrite <- H in STEP; eapply MIN in STEP; try omega.
-  destruct (lt_dec j i); try omega.
-  destruct i; [exfalso; omega|]; ins; auto. 
-  specialize (STEP i); specialize_full STEP; try omega.
-  rewrite H in STEP; eapply MIN in STEP; try omega.
+    destruct j; [exfalso; lia|]; ins; auto. 
+    specialize (STEP j); specialize_full STEP; try lia.
+    rewrite <- H in STEP; eapply MIN in STEP; try lia.
+  destruct (lt_dec j i); try lia.
+  destruct i; [exfalso; lia|]; ins; auto. 
+  specialize (STEP i); specialize_full STEP; try lia.
+  rewrite H in STEP; eapply MIN in STEP; try lia.
 Qed.
 
 (** Minimum cycle lemma *)

@@ -4,7 +4,7 @@
 
 Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
 Require Import HahnEquational HahnRewrite.
-Require Import NPeano Omega Setoid.
+Require Import Arith Setoid.
 
 Set Implicit Arguments.
 
@@ -109,11 +109,11 @@ Qed.
 
 End BasicProperties.
 
-Hint Immediate max_elt_weaken : hahn.
-Hint Resolve wmax_elt_union max_elt_union : hahn.
-Hint Resolve wmax_elt_t wmax_elt_r wmax_elt_rt max_elt_t : hahn.
-Hint Resolve max_elt_restr_eq wmax_elt_restr_eq : hahn.
-Hint Resolve max_elt_seq1 max_elt_seq2 wmax_elt_seq1 wmax_elt_seq2 : hahn.
+Global Hint Immediate max_elt_weaken : hahn.
+Global Hint Resolve wmax_elt_union max_elt_union : hahn.
+Global Hint Resolve wmax_elt_t wmax_elt_r wmax_elt_rt max_elt_t : hahn.
+Global Hint Resolve max_elt_restr_eq wmax_elt_restr_eq : hahn.
+Global Hint Resolve max_elt_seq1 max_elt_seq2 wmax_elt_seq1 wmax_elt_seq2 : hahn.
 
 Section MoreProperties.
 
@@ -325,7 +325,7 @@ Qed.
 
 End MoreProperties.
 
-Hint Unfold max_elt wmax_elt : unfolderDb.
+Global Hint Unfold max_elt wmax_elt : unfolderDb.
 
 Require Import Morphisms.
 

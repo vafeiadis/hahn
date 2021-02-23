@@ -2,7 +2,7 @@
 (** * Decomposing paths and cycles *)
 (******************************************************************************)
 
-Require Import Omega.
+Require Import Arith micromega.Lia.
 Require Import HahnBase HahnList HahnRelationsBasic.
 Require Import HahnEquational HahnMaxElt HahnRewrite.
 Require Import HahnDom HahnMinPath.
@@ -26,7 +26,7 @@ Proof.
   rewrite app_length in *; ins.
   forward apply (IHn (restr_rel (fun x => x <> b) r) (l1 ++ l2)); 
     eauto using irreflexive_restr, transitive_restr.
-  by rewrite app_length in *; ins; omega.
+  by rewrite app_length in *; ins; lia.
   by unfold restr_rel; red; ins; desf; eapply DOMA in REL; rewrite <- Permutation_middle in *; ins; desf; eauto.
 
   clear - Rba ACYC T; unfold restr_rel.
@@ -470,7 +470,7 @@ Section PathUnion.
   Proof.
     split.
     - apply inclusion_t_ind_right.
-      + rewrite (ct_step r) at 1. basic_solver 10.
+      + unionL; [unionR left | unionR right]; unfolder; eauto using t_step, rt_refl.
       + relsf; unionL.
         * rewrite ct_end at 2; basic_solver 10.
         * rewrite !seqA; rewrite <- ct_end; basic_solver 10.
@@ -664,14 +664,14 @@ Proof.
   rewrite !seq_pow_l, H; clear H; try done. 
   autorewrite with hahn; autorewrite with hahn hahn_full.
   unionL; eauto with hahn.
-  - unionR right; eapply inclusion_bunion_r with 0; ins; try omega; rels.
-    replace (n' - 0) with n' by omega; eauto with hahn. 
-  - unionR right; eapply inclusion_bunion_r with 0; ins; try omega; rels.
+  - unionR right; eapply inclusion_bunion_r with 0; ins; try lia; rels.
+    replace (n' - 0) with n' by lia; eauto with hahn. 
+  - unionR right; eapply inclusion_bunion_r with 0; ins; try lia; rels.
     hahn_frame_l.
     arewrite (r ⊆ (r ∪ r') ^^ 1) at 1 by simpl; rels.
     arewrite (r' ⊆ r ∪ r') at 1; rewrite !pow_nm.
-    replace (x + (1 + (n' - x - 1))) with (n' - 0) by omega; rels.
-  - unionR right; eapply inclusion_bunion_r with (S x); ins; try omega; rels.
+    replace (x + (1 + (n' - x - 1))) with (n' - 0) by lia; rels.
+  - unionR right; eapply inclusion_bunion_r with (S x); ins; try lia; rels.
     by rewrite seq_pow_l, !seqA.
 Qed.
 

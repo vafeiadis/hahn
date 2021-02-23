@@ -2,7 +2,7 @@
 (** * Decomposing paths and cycles *)
 (******************************************************************************)
 
-Require Import Omega.
+Require Import Arith micromega.Lia.
 Require Import HahnBase HahnList HahnRelationsBasic.
 Require Import HahnEquational HahnMaxElt HahnRewrite.
 Require Import HahnDom HahnMinPath HahnPath.

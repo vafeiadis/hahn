@@ -2,7 +2,7 @@
 (** * Equational properties of relations *)
 (******************************************************************************)
 
-Require Import Program.Basics NPeano Omega Permutation List Setoid.
+Require Import Program.Basics Arith micromega.Lia Permutation List Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnSets.
 
 Set Implicit Arguments.
@@ -13,7 +13,7 @@ Local Open Scope program_scope.
 (** Set up setoid rewriting *)
 (******************************************************************************)
 
-Hint Unfold Basics.impl : unfolderDb.
+Global Hint Unfold Basics.impl : unfolderDb.
 Local Ltac u := autounfold with unfolderDb in *; splits; ins; desf;
                 try solve [intuition; desf; eauto].
 
@@ -728,7 +728,7 @@ Section PropertiesClos.
 
   Lemma ct_step r : r ⊆ r⁺.
   Proof.
-    by red; ins; econs.
+    vauto.
   Qed.
 
   Lemma rt_unit r : r＊ ⨾ r ⊆ r＊.
@@ -862,7 +862,7 @@ Section good_ctx_lemmas.
 
 End good_ctx_lemmas.
 
-Hint Resolve good_ctx_id good_ctx_const good_ctx_seq_l
+Global Hint Resolve good_ctx_id good_ctx_const good_ctx_seq_l
   good_ctx_seq_r good_ctx_union good_ctx_compose : hahn.
 
 Section ExtraPropertiesClos.
@@ -1224,11 +1224,11 @@ Lemma powE A (r : relation A) n a b :
 Proof.
   split.
     generalize b; induction n; ins; unfold seq, eqv_rel in *; desf.
-      exists (fun x => b0); splits; ins; omega.
+      exists (fun x => b0); splits; ins; lia.
     specialize (IHn _ H); desf.
     exists (fun x => if eq_op x (S n) then b0 else f x); ins; desf; desf.
-    splits; ins; desf; ins; desf; try omega; eauto.
-    apply IHn1; omega.
+    splits; ins; desf; ins; desf; try lia; eauto.
+    apply IHn1; lia.
   ins; desf; induction n; ins; exists (f n); split; eauto.
 Qed.
 
@@ -1283,7 +1283,7 @@ Proof.
 Qed.
 
 Hint Rewrite pow_1 pow_0 : hahn.
-Hint Resolve pow_rt : hahn.
+Global Hint Resolve pow_rt : hahn.
 
 (******************************************************************************)
 (** Properties of cross product *)

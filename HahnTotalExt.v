@@ -2,7 +2,7 @@
 (** * Extension of a partial order to a total order *)
 (******************************************************************************)
 
-Require Import NPeano Omega Setoid.
+Require Import Arith micromega.Lia Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnRewrite.
 Require Import HahnSets HahnMaxElt.
 Require Import Zorn.
@@ -129,7 +129,7 @@ Lemma tot_ext_nat_total r : is_total (fun _ => True) (tot_ext_nat r).
 Proof.
   unfold tot_ext_nat; red; ins.
   eapply tot_ext_total with (r:=r) (dom := rev (List.seq 0 (S (a + b)))) in NEQ;
-    desf; eauto; rewrite <- in_rev, in_seq; omega.
+    desf; eauto; rewrite <- in_rev, in_seq; lia.
 Qed.
 
 Lemma tot_ext_nat_inv r x y :
@@ -195,7 +195,7 @@ Proof.
   desc; apply in_split in INa; desf.
   assert(exists b, s ＊ a1 b /\ max_elt s b).
     { eapply (H (l1 ++ l2)).
-      * unfold ltof; rewrite !app_length; simpl; omega.
+      * unfold ltof; rewrite !app_length; simpl; lia.
       * ins.
         assert(INc: In c (l1 ++ a :: l2)).
           by eapply DOM; eapply rt_trans; vauto.

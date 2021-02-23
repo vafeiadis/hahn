@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase HahnSets.
-Require Import Omega Setoid Morphisms Sorted.
+Require Import Arith micromega.Lia Setoid Morphisms Sorted.
 Require Import IndefiniteDescription.
 Require Export List Permutation.
 
@@ -41,7 +41,7 @@ Proof. eauto using in_or_app. Qed.
 Lemma in_app_r A (a : A) l l' : In a l' -> In a (l ++ l').
 Proof. eauto using in_or_app. Qed.
 
-Hint Resolve in_app_l in_app_r in_cons in_eq : hahn.
+Global Hint Resolve in_app_l in_app_r in_cons in_eq : hahn.
 
 Lemma In_split2 :
   forall A (x: A) l (IN: In x l),
@@ -562,7 +562,7 @@ Fixpoint undup A (l: list A) :=
 Lemma nodup_one A (x: A) : NoDup (x :: nil).
 Proof. vauto. Qed.
 
-Hint Resolve NoDup_nil nodup_one : core hahn.
+Global Hint Resolve NoDup_nil nodup_one : core hahn.
 
 Lemma nodup_map:
   forall (A B: Type) (f: A -> B) (l: list A),
@@ -656,7 +656,7 @@ Proof.
   econstructor; eauto; rewrite in_filterP_iff; tauto.
 Qed.
 
-Hint Resolve nodup_filter nodup_filterP : core hahn.
+Global Hint Resolve nodup_filter nodup_filterP : core hahn.
 
 Lemma Permutation_nodup A ( l l' : list A) :
   Permutation l l' -> NoDup l -> NoDup l'.
@@ -697,7 +697,7 @@ Proof. induction l; split; ins; desf; ins; desf; eauto. Qed.
 Lemma nodup_undup A (l : list A) : NoDup (undup l).
 Proof. induction l; ins; desf; constructor; rewrite ?in_undup_iff in *; eauto. Qed.
 
-Hint Resolve nodup_undup : core hahn.
+Global Hint Resolve nodup_undup : core hahn.
 
 Lemma undup_nodup A (l : list A) : NoDup l -> undup l = l.
 Proof. induction 1; ins; desf; congruence. Qed.
@@ -927,24 +927,24 @@ Proof. ins. Qed.
 Lemma seqS a n : seq a (S n) = seq a n ++ (a + n) :: nil.
 Proof.
   revert a; induction n; ins.
-    f_equal; omega.
-  rewrite IHn; do 3 f_equal; omega.
+    f_equal; lia.
+  rewrite IHn; do 3 f_equal; lia.
 Qed.
 
 Lemma in_seq_iff a n l : In a (seq n l) <-> n <= a < n + l.
 Proof.
-  revert n; induction l; ins; rewrite ?IHl; omega.
+  revert n; induction l; ins; rewrite ?IHl; lia.
 Qed.
 
 Lemma in_seq0_iff x a : In x (seq 0 a) <-> x < a.
 Proof.
-  rewrite in_seq_iff; omega.
+  rewrite in_seq_iff; lia.
 Qed.
 
 Lemma nodup_seq n l : NoDup (seq n l).
 Proof.
   revert n; induction l; ins; constructor; ins; eauto.
-  rewrite in_seq_iff; omega.
+  rewrite in_seq_iff; lia.
 Qed.
 
 Lemma seq_split :
@@ -953,8 +953,8 @@ Lemma seq_split :
     seq a y = seq a x ++ seq (x + a) (y - x).
 Proof.
   induction x; ins; rewrite ?Nat.sub_0_r; ins.
-  destruct y; ins; try omega.
-  f_equal; rewrite IHx; repeat (f_equal; try omega).
+  destruct y; ins; try lia.
+  f_equal; rewrite IHx; repeat (f_equal; try lia).
 Qed.
 
 Lemma seq_split_gen :
@@ -962,13 +962,13 @@ Lemma seq_split_gen :
   n <= a < n + l ->
   seq n l = seq n (a - n) ++ a :: seq (S a) (l + n - a - 1).
 Proof.
-  induction l; ins; desf; ins; try omega.
-    repeat f_equal; omega.
+  induction l; ins; desf; ins; try lia.
+    repeat f_equal; lia.
   destruct (eqP n (S n0)); subst.
-    replace (n0 - n0) with 0 by omega; ins; repeat f_equal; omega.
-  rewrite IHl with (a := S n0); try omega.
-  desf; ins; try replace (n0 - n2) with (S (n0 - S n2)) by omega;
-  ins; repeat (f_equal; try omega).
+    replace (n0 - n0) with 0 by lia; ins; repeat f_equal; lia.
+  rewrite IHl with (a := S n0); try lia.
+  desf; ins; try replace (n0 - n2) with (S (n0 - S n2)) by lia;
+  ins; repeat (f_equal; try lia).
 Qed.
 
 Lemma seq_split_perm :
@@ -977,7 +977,7 @@ Lemma seq_split_perm :
   exists l', Permutation (seq 0 l) (a :: l') /\ ~ In a l'.
 Proof.
   ins; eapply In_NoDup_Permutation;
-    eauto using nodup_seq; apply in_seq_iff; omega.
+    eauto using nodup_seq; apply in_seq_iff; lia.
 Qed.
 
 Lemma seq_split0 :
@@ -985,14 +985,14 @@ Lemma seq_split0 :
   a < l ->
   seq 0 l = seq 0 a ++ a :: seq (S a) (l - a - 1).
 Proof.
-  ins; rewrite seq_split_gen with (a := a); repeat f_equal; omega.
+  ins; rewrite seq_split_gen with (a := a); repeat f_equal; lia.
 Qed.
 
 Lemma seq_add len1 len2 start :
   seq start (len1 + len2) = seq start len1 ++ seq (start + len1) len2.
 Proof.
-  rewrite seq_split with (x := len1); try omega.
-  f_equal; f_equal; omega.
+  rewrite seq_split with (x := len1); try lia.
+  f_equal; f_equal; lia.
 Qed.
 
 Lemma seq_eq_nil start len :
@@ -1018,9 +1018,9 @@ Lemma seq_eq_app start len l l' :
       seq (start + length l) (len - length l) = l'.
 Proof.
   revert start len; induction l; ins.
-    repeat split; ins; desf; f_equal; omega.
+    repeat split; ins; desf; f_equal; lia.
     destruct len; ins.
-      split; ins; desf; omega.
+      split; ins; desf; lia.
     specialize (IHl (S start) len); intuition; desf; intuition; auto using f_equal.
     rewrite Nat.add_succ_comm in *; ins.
     rewrite Nat.add_succ_comm in *; auto using f_equal, le_S_n.
@@ -1031,9 +1031,9 @@ Lemma map_nth_seq A (f : nat -> A) a d l
   map f (seq a (length l)) = l.
 Proof.
   revert a EQ; induction l; ins; f_equal.
-    rewrite <- (EQ 0); try rewrite Nat.add_0_r; ins; omega.
+    rewrite <- (EQ 0); try rewrite Nat.add_0_r; ins; lia.
   eapply IHl; ins; rewrite <- Nat.add_succ_r.
-  eapply (EQ (S i)); omega.
+  eapply (EQ (S i)); lia.
 Qed.
 
 Lemma map_seq_shift A (f g : nat -> A) a b n
@@ -1042,7 +1042,7 @@ Lemma map_seq_shift A (f g : nat -> A) a b n
 Proof.
   induction n; try done.
   rewrite !seqS, !map_app; ins; f_equal.
-  apply IHn; ins; apply EQ; omega.
+  apply IHn; ins; apply EQ; lia.
   f_equal; apply EQ; ins.
 Qed.
 
@@ -1054,19 +1054,19 @@ Lemma filterP_map_seq_eq A (f : A -> Prop) fl a n m
   filterP f (map fl (seq a n)) = filterP f (map fl (seq a m)).
 Proof.
   destruct (lt_eq_lt_dec n m) as [[LT|]|LT]; desf.
-  { rewrite seq_split with (x := n) (y := m); try omega.
+  { rewrite seq_split with (x := n) (y := m); try lia.
     rewrite map_app, filterP_app.
     symmetry; rewrite app_eq_prefix, filterP_eq_nil; ins.
     rewrite in_map_iff in *; desf.
     rewrite in_seq_iff in *.
-    apply Fn in COND; omega.
+    apply Fn in COND; lia.
   }
-  { rewrite seq_split with (x := m) (y := n); try omega.
+  { rewrite seq_split with (x := m) (y := n); try lia.
     rewrite map_app, filterP_app.
     rewrite app_eq_prefix, filterP_eq_nil; ins.
     rewrite in_map_iff in *; desf.
     rewrite in_seq_iff in *.
-    apply Fm in COND; omega.
+    apply Fm in COND; lia.
   }
 Qed.
 
@@ -1077,18 +1077,18 @@ Lemma nth_filterP A (f : A -> Prop) (l : list A) i d
             /\ i = length (filterP f (map (fun i => nth i l d)
                                           (List.seq 0 n))).
 Proof.
-  revert i LT; induction l using rev_induction; ins; desf; ins; try omega.
+  revert i LT; induction l using rev_induction; ins; desf; ins; try lia.
   rewrite filterP_app, length_app in *.
   destruct (lt_dec i (length (filterP f l))).
   { specialize_full IHl; eauto; desf.
-    exists n; rewrite !app_nth1; splits; ins; try omega.
+    exists n; rewrite !app_nth1; splits; ins; try lia.
     do 2 f_equal; apply map_ext_in; ins; rewrite in_seq0_iff in *;
-      rewrite app_nth1; ins; omega.
+      rewrite app_nth1; ins; lia.
   }
-  ins; desf; ins; try omega.
-  assert (i = length (filterP f l)) by omega; desf.
-  exists (length l); splits; try omega.
-  rewrite !app_nth2, !Nat.sub_diag; ins; try omega.
+  ins; desf; ins; try lia.
+  assert (i = length (filterP f l)) by lia; desf.
+  exists (length l); splits; try lia.
+  rewrite !app_nth2, !Nat.sub_diag; ins; try lia.
   do 2 f_equal.
   symmetry; eapply map_nth_seq with (d := d); ins.
   apply app_nth1; ins.
@@ -1101,23 +1101,23 @@ Lemma nth_filterP' A (f : A -> Prop) (l : list A) n d
                               (List.seq 0 n))))
       (filterP f l) d = nth n l d.
 Proof.
-  revert n F LT; induction l using rev_induction; ins; desf; ins; try omega.
+  revert n F LT; induction l using rev_induction; ins; desf; ins; try lia.
   rewrite filterP_app, length_app in *.
   destruct (lt_dec n (length l)).
   { rewrite !app_nth1 in *; ins.
     specialize_full IHl; eauto; desf.
     rewrite <- IHl.
     do 3 f_equal; apply map_ext_in; ins; rewrite in_seq0_iff in *;
-      rewrite app_nth1; ins; omega.
+      rewrite app_nth1; ins; lia.
     erewrite <- map_nth_seq
       with (a := 0) (l := l)
            (f := fun i => nth i (l ++ a :: nil) d) at 1; auto using app_nth1.
     rewrite (seq_split0 l0), map_app, filterP_app, length_app; ins; desf; ins;
-      try omega.
+      try lia.
   }
   ins; desf; ins.
-  all: assert (n = length l) by omega; desf.
-  all: rewrite app_nth2, Nat.sub_diag in F; ins; desf; try omega.
+  all: assert (n = length l) by lia; desf.
+  all: rewrite app_nth2, Nat.sub_diag in F; ins; desf; try lia.
   rewrite map_nth_seq with (d := d).
     rewrite !app_nth2, ?Nat.sub_diag; ins.
   ins; rewrite app_nth1; ins.
@@ -1137,7 +1137,7 @@ Lemma mk_listE n A (f: nat -> A) :
   mk_list n f = map f (seq 0 n).
 Proof.
   induction n; ins; rewrite IHn.
-  rewrite seq_split with (x:=n) (y:=S n); try omega.
+  rewrite seq_split with (x:=n) (y:=S n); try lia.
   by rewrite map_app, plus_0_r, <- minus_Sn_m, minus_diag.
 Qed.
 
@@ -1145,24 +1145,24 @@ Lemma in_mk_list_iff A (x: A) n f :
   In x (mk_list n f) <-> exists m, m < n /\ x = f m.
 Proof.
   induction n; ins; try (rewrite in_app_iff, IHn; clear IHn); desc;
-    split; ins; desf; try omega; try (by repeat eexists; omega).
+    split; ins; desf; try lia; try (by repeat eexists; lia).
   destruct (eqP m n); desf; eauto.
-  left; repeat eexists; ins; omega.
+  left; repeat eexists; ins; lia.
 Qed.
 
 Lemma mk_list_length A n (f : nat -> A) :
   length (mk_list n f) = n.
 Proof.
-  induction n; ins; rewrite app_length; ins; omega.
+  induction n; ins; rewrite app_length; ins; lia.
 Qed.
 
 Lemma mk_list_nth A i n f (d : A) :
   nth i (mk_list n f) d = if le_lt_dec n i then d else f i.
 Proof.
   induction n; ins; desf; rewrite app_nth; desf;
-  rewrite mk_list_length in *; desf; try omega.
-    apply nth_overflow; ins; omega.
-  by assert (i = n) by omega; desf; rewrite minus_diag.
+  rewrite mk_list_length in *; desf; try lia.
+    apply nth_overflow; ins; lia.
+  by assert (i = n) by lia; desf; rewrite minus_diag.
 Qed.
 
 Definition length_mk_list := mk_list_length.

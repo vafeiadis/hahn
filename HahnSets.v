@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase.
-Require Import Program.Basics List Omega Relations Setoid Morphisms.
+Require Import Program.Basics List Arith micromega.Lia Relations Setoid Morphisms.
 
 Set Implicit Arguments.
 
@@ -73,9 +73,9 @@ Notation "a ⊆ b" := (set_subset a b) (at level 60) : function_scope.
 Notation "a ≡ b" := (set_equiv a b)  (at level 60) : function_scope. *)
 
 
-Hint Unfold set_empty set_full set_compl set_union set_inter : unfolderDb.
-Hint Unfold set_minus set_subset set_equiv set_coinfinite set_finite : unfolderDb.
-Hint Unfold set_collect set_map set_bunion set_disjoint : unfolderDb.
+Global Hint Unfold set_empty set_full set_compl set_union set_inter : unfolderDb.
+Global Hint Unfold set_minus set_subset set_equiv set_coinfinite set_finite : unfolderDb.
+Global Hint Unfold set_collect set_map set_bunion set_disjoint : unfolderDb.
 
 (** Basic properties of set operations *)
 (******************************************************************************)
@@ -571,12 +571,12 @@ Section SetProperties.
 
   Lemma set_le n : (fun i => i <= n) ≡₁ (fun i => i < n) ∪₁ (eq n).
   Proof.
-    u; intuition; omega.
+    u; intuition; lia.
   Qed.
 
   Lemma set_lt n : (fun i => i < n) ≡₁ (fun i => i <= n) \₁ (eq n).
   Proof.
-    u; intuition; omega.
+    u; intuition; lia.
   Qed.
 
 End SetProperties.
@@ -597,10 +597,10 @@ Lemma set_finite_coinfinite_nat (s: nat -> Prop) :
   set_finite s -> set_coinfinite s.
 Proof.
   assert (LT: forall l x, In x l -> x <= fold_right Init.Nat.add 0 l).
-    induction l; ins; desf; try apply IHl in H; omega.
+    induction l; ins; desf; try apply IHl in H; lia.
   repeat autounfold with unfolderDb; red; ins; desf.
   tertium_non_datur (s (S (fold_right plus 0 findom + fold_right plus 0 findom0))) as [X|X];
-   [apply H in X | apply H0 in X]; apply LT in X; omega.
+   [apply H in X | apply H0 in X]; apply LT in X; lia.
 Qed.
 
 Lemma set_coinfinite_fresh (s: nat -> Prop) (COINF: set_coinfinite s) :
@@ -696,8 +696,8 @@ Proof. reflexivity. Qed.
 Lemma set_equiv_refl2 A (x: A -> Prop) :  x ≡₁ x.
 Proof. reflexivity. Qed.
 
-Hint Immediate set_subset_refl2 : core hahn.
-Hint Resolve set_equiv_refl2 : core hahn.
+Global Hint Immediate set_subset_refl2 : core hahn.
+Global Hint Resolve set_equiv_refl2 : core hahn.
 
 Hint Rewrite set_compl_empty set_compl_full set_compl_compl : hahn.
 Hint Rewrite set_compl_union set_compl_inter set_compl_minus : hahn.
@@ -719,9 +719,9 @@ Hint Rewrite set_collect_union : hahn_full.
 Hint Rewrite set_disjoint_union_l set_disjoint_union_r : hahn_full.
 Hint Rewrite set_disjoint_bunion_l set_disjoint_bunion_r : hahn_full.
 
-Hint Immediate set_subset_empty_l set_subset_full_r : hahn.
-Hint Immediate set_finite_empty set_finite_eq set_finite_le set_finite_lt : hahn.
-Hint Immediate set_disjoint_empty_l set_disjoint_empty_r : hahn.
+Global Hint Immediate set_subset_empty_l set_subset_full_r : hahn.
+Global Hint Immediate set_finite_empty set_finite_eq set_finite_le set_finite_lt : hahn.
+Global Hint Immediate set_disjoint_empty_l set_disjoint_empty_r : hahn.
 
-Hint Resolve set_subset_union_r : hahn.
-Hint Resolve set_finite_unionI set_finite_bunion : hahn.
+Global Hint Resolve set_subset_union_r : hahn.
+Global Hint Resolve set_finite_unionI set_finite_bunion : hahn.

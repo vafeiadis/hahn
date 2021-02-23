@@ -421,11 +421,11 @@ Ltac relsf :=
                 progress autorewrite with hahn hahn_full ];
     try done; eauto 3 with hahn.
 
-Hint Resolve eq_in_l eq_in_r rt_rt ct_rt rt_ct cr_ct ct_cr cr_rt rt_cr ct_begin ct_end : hahn_full.
-Hint Resolve inclusion_seq_eqv_r inclusion_seq_eqv_l clos_rt_idempotent inclusion_t_rt : hahn_full.
-Hint Resolve inclusion_eqv_rel_true inclusion_minus_rel rewrite_trans : hahn_full.
+Global Hint Resolve eq_in_l eq_in_r rt_rt ct_rt rt_ct cr_ct ct_cr cr_rt rt_cr ct_begin ct_end : hahn_full.
+Global Hint Resolve inclusion_seq_eqv_r inclusion_seq_eqv_l clos_rt_idempotent inclusion_t_rt : hahn_full.
+Global Hint Resolve inclusion_eqv_rel_true inclusion_minus_rel rewrite_trans : hahn_full.
 
-Hint Resolve pow_rel_mori : hahn.
+Global Hint Resolve pow_rel_mori : hahn.
 
 
 (** Helpful tactics for inclusions *)

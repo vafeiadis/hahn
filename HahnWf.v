@@ -2,7 +2,7 @@
 (** * Well-founded and finitely supported relations *)
 (******************************************************************************)
 
-Require Import Setoid Morphisms Wf_nat Omega.
+Require Import Arith micromega.Lia Setoid Morphisms Wf_nat.
 Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
 Require Import HahnEquational HahnRewrite HahnDom.
 
@@ -28,13 +28,13 @@ Definition n_total A (s : A -> Prop) (r : relation A) (n : nat) :=
 Definition has_finite_antichains A (s : A -> Prop) (r : relation A) :=
   exists n, n_total s r n.
 
-Hint Unfold fsupp ltof n_total has_finite_antichains : unfolderDb.
+Global Hint Unfold fsupp ltof n_total has_finite_antichains : unfolderDb.
 
 Lemma has_finite_antichainsI A s (r : relation A) n :
   n_total s r n -> has_finite_antichains s r.
 Proof. vauto. Qed.
 
-Hint Immediate has_finite_antichainsI : hahn.
+Global Hint Immediate has_finite_antichainsI : hahn.
 
 Add Parametric Morphism A : (@fsupp A) with signature
   inclusion --> Basics.impl as fsupp_mori.
@@ -52,7 +52,7 @@ Add Parametric Morphism A : (@n_total A) with signature
   set_subset --> inclusion ++> le ++> Basics.impl as n_total_mori.
 Proof.
   unfolder; ins.
-  apply H2 in ND; try omega; desf; repeat eexists; eauto.
+  apply H2 in ND; try lia; desf; repeat eexists; eauto.
 Qed.
 
 Add Parametric Morphism A : (@n_total A) with signature
@@ -89,20 +89,20 @@ Proof.
     rewrite (le_plus_minus _ _ L); generalize (j - S i) as k.
     revert R1; generalize (2 * n + 1) as m; ins.
     induction k; rewrite ?Nat.add_0_r; vauto.
-      apply t_step, R1; omega.
-    eapply t_trans, t_step; [apply IHk; omega|].
-    rewrite Nat.add_succ_r; apply R1; omega.
+      apply t_step, R1; lia.
+    eapply t_trans, t_step; [apply IHk; lia|].
+    rewrite Nat.add_succ_r; apply R1; lia.
   }
   tertium_non_datur (exists i j, i < j <= n /\ f (2 * i) = f (2 * j)) as [C|C];
     desc.
   {
-    exists (2 * i + (2 * n - 2 * j)); split; try omega.
+    exists (2 * i + (2 * n - 2 * j)); split; try lia.
     rewrite <- Nat.add_succ_r.
     hahn_rewrite pow_add; exists (f (2 * i)); splits.
-      apply powE; exists f; splits; ins; eapply R1; omega.
+      apply powE; exists f; splits; ins; eapply R1; lia.
     rewrite C0; apply powE; exists (fun n => f (2 * j + n)).
-    splits; try (f_equal; omega).
-    intros; rewrite Nat.add_succ_r; apply R1; omega.
+    splits; try (f_equal; lia).
+    intros; rewrite Nat.add_succ_r; apply R1; lia.
   }
   forward eapply (TOT (map (fun x => f (2 * x)) (List.seq 0 (S n)))).
     by rewrite length_map, length_seq; ins.
@@ -110,30 +110,30 @@ Proof.
     apply nodup_map; auto using nodup_seq; red; intros.
     rewrite in_seq0_iff in *.
     destruct (lt_eq_lt_dec x y) as [[L|]|L]; desf; eapply C.
-    eexists x, y; splits; ins; omega.
-    eexists y, x; splits; ins; omega.
+    eexists x, y; splits; ins; lia.
+    eexists y, x; splits; ins; lia.
   }
   all: intros; desf; rewrite in_map_iff in *; desc; rewrite in_seq0_iff in *; desf.
-  eapply DOMA, R1; omega.
+  eapply DOMA, R1; lia.
   assert (K: r ^^ (S (2 * x0 + (2 * n + 1 - 2 * x))) (f 0) (f (S (2 * n)))).
   {
     assert (K: r ^^ (2 * x0) (f 0) (f (2 * x0))).
-      apply powE; exists f; splits; ins; eapply R1; omega.
+      apply powE; exists f; splits; ins; eapply R1; lia.
     assert (L: r ^^ (2 * n + 1 - 2 * x) (f (2 * x)) (f (S (2 * n)))).
     { apply powE; exists (fun n => f (2 * x + n)); rewrite ?Nat.add_0_r.
-      rewrite le_plus_minus_r; splits; intros; try done; try omega.
-      f_equal; omega.
-      rewrite Nat.add_succ_r; apply R1; omega. }
+      rewrite le_plus_minus_r; splits; intros; try done; try lia.
+      f_equal; lia.
+      rewrite Nat.add_succ_r; apply R1; lia. }
     rewrite <- Nat.add_succ_l, <- Nat.add_1_r.
     do 2 hahn_rewrite pow_add; unfold seq; repeat eexists; eauto.
   }
   destruct (lt_eq_lt_dec x0 x) as [[]|]; desf.
-  - eexists; split; try exact K; omega.
+  - eexists; split; try exact K; lia.
   - edestruct IRR.
-    exists (2 * x0 - 2 * x); split; try omega.
+    exists (2 * x0 - 2 * x); split; try lia.
     eexists; split; [apply powE|edone].
     exists (fun n => f (n + 2 * x)); splits; intros;
-      try (f_equal; omega); apply R1; omega.
+      try (f_equal; lia); apply R1; lia.
 Qed.
 
 Lemma ct_bounded_n_total A s (r : relation A) (ACYC: acyclic r)
@@ -145,7 +145,7 @@ Proof.
   2: by rewrite ct_end, pow_rt.
   apply inclusion_t_ind_right.
   { exists 0; split; [|by apply pow_1].
-    destruct n; try omega.
+    destruct n; try lia.
     forward eapply (TOT (x :: nil)); ins; desf; eauto. }
   relsf.
   apply inclusion_bunion_l; intros.
@@ -154,7 +154,7 @@ Proof.
   destruct (eqP (S x) (2 * n)) as [->|].
     eapply pow_bounded_n_total; eauto.
     by apply irreflexive_bunion; intros; rewrite pow_ct.
-  by apply inclusion_bunion_r with (S x); try omega.
+  by apply inclusion_bunion_r with (S x); try lia.
 Qed.
 
 Lemma rt_bounded_n_total A s (r : relation A) (ACYC: acyclic r)
@@ -164,7 +164,7 @@ Proof.
   split; auto using inclusion_bunion_l, pow_rt.
   rewrite rtE, ct_bounded_n_total; eauto.
   repeat (apply inclusion_union_l || apply inclusion_bunion_l; intros).
-    apply inclusion_bunion_r with 0; ins; omega.
+    apply inclusion_bunion_r with 0; ins; lia.
   apply inclusion_bunion_r with (S x); ins.
 Qed.
 
@@ -216,7 +216,7 @@ Section well_founded.
 
 End well_founded.
 
-Hint Resolve wf_restr : hahn.
+Global Hint Resolve wf_restr : hahn.
 
 (** Properties of finitely supported relations. *)
 
@@ -237,7 +237,7 @@ Section finite_support.
     assert (IN := FS _ Rya).
     apply In_split in IN; desf.
     eapply H with (y0 := l1 ++ l2); ins.
-      by rewrite !app_length; simpl; omega.
+      by rewrite !app_length; simpl; lia.
     assert (Rxa: r x a) by eauto.
     generalize (FS _ Rxa); rewrite !in_app_iff; ins; desf; eauto.
     exfalso; eauto.
@@ -259,7 +259,7 @@ Section finite_support.
     tertium_non_datur (immediate r x y) as [|NIMM]; vauto.
     assert (N := M _ NIMM NIMM0); apply In_split in N; desf.
     apply t_trans with (y := n); eapply H with (y := l1 ++ l2); ins.
-    1,3: by rewrite !app_length; simpl; omega.
+    1,3: by rewrite !app_length; simpl; lia.
     - apply M in H1; eauto; rewrite !in_app_iff in *; ins; desf; eauto.
       exfalso; eauto.
     - apply M in H2; eauto; rewrite !in_app_iff in *; ins; desf; eauto.
@@ -407,9 +407,9 @@ Section finite_support.
 
 End finite_support.
 
-Hint Resolve fsupp_empty fsupp_eqv fsupp_cross : hahn.
-Hint Resolve fsupp_union fsupp_bunion fsupp_seq : hahn.
-Hint Resolve fsupp_inter_l fsupp_inter_r fsupp_minus : hahn.
-Hint Resolve fsupp_restr fsupp_restr_eq : hahn.
-Hint Resolve fsupp_cr fsupp_pow fsupp_ct fsupp_ct_rt : hahn.
-Hint Immediate functional_inv_fsupp : hahn.
+Global Hint Resolve fsupp_empty fsupp_eqv fsupp_cross : hahn.
+Global Hint Resolve fsupp_union fsupp_bunion fsupp_seq : hahn.
+Global Hint Resolve fsupp_inter_l fsupp_inter_r fsupp_minus : hahn.
+Global Hint Resolve fsupp_restr fsupp_restr_eq : hahn.
+Global Hint Resolve fsupp_cr fsupp_pow fsupp_ct fsupp_ct_rt : hahn.
+Global Hint Immediate functional_inv_fsupp : hahn.

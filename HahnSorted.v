@@ -83,10 +83,10 @@ Proof.
   constructor; eauto.
 Qed.
 
-Hint Resolve NoDup_StronglySorted : hahn.
-Hint Resolve SSorted_nil : hahn.
-Hint Resolve StronglySorted_filterP : hahn.
-Hint Resolve StronglySorted_filter : hahn.
+Global Hint Resolve NoDup_StronglySorted : hahn.
+Global Hint Resolve SSorted_nil : hahn.
+Global Hint Resolve StronglySorted_filterP : hahn.
+Global Hint Resolve StronglySorted_filter : hahn.
 
 Lemma sorted_perm_eq : forall A (cmp: A -> A -> Prop)
   (TRANS: transitive cmp)
@@ -129,8 +129,8 @@ Fixpoint isort A (r : relation A) l :=
     filterP (fun y => r y x) l' ++ x :: filterP (fun y => ~ r y x) l'
   end.
 
-Hint Resolve SSorted_nil : hahn.
-Hint Resolve StronglySorted_filterP : hahn.
+Global Hint Resolve SSorted_nil : hahn.
+Global Hint Resolve StronglySorted_filterP : hahn.
 
 Lemma in_isort_iff A x (r : relation A) l : In x (isort r l) <-> In x l.
 Proof.

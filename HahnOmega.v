@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase HahnList.
-Require Import Omega.
+Require Import Arith micromega.Lia.
 
 Set Implicit Arguments.
 
@@ -169,7 +169,7 @@ Module NOmega.
 
   Lemma lt_irrefl x : ~ lt x x.
   Proof.
-    destruct x; ins; omega.
+    destruct x; ins; lia.
   Qed.
 
 (*  Lemma lt_eq_cases : forall n m : nat, n <= m <-> n < m \/ n = m. *)
@@ -260,17 +260,17 @@ Module NOmega.
   Lemma lt_lt_nat n m k :
     n < m -> NOmega.lt_nat_l m k -> NOmega.lt_nat_l n k.
   Proof.
-    destruct k; ins; omega.
+    destruct k; ins; lia.
   Qed.
 
   Lemma le_lt_nat n m k :
     n <= m -> NOmega.lt_nat_l m k -> NOmega.lt_nat_l n k.
   Proof.
-    destruct k; ins; omega.
+    destruct k; ins; lia.
   Qed.
 
 End NOmega.
 
-Hint Immediate NOmega.lt_lt_nat : hahn.
-Hint Immediate NOmega.le_lt_nat : hahn.
+Global Hint Immediate NOmega.lt_lt_nat : hahn.
+Global Hint Immediate NOmega.le_lt_nat : hahn.
 
