@@ -14,6 +14,7 @@ about lists and binary relations.
 - HahnExtraNotation.v : notation for decidable equality.
 - HahnFun.v : functional update
 - HahnFuneq.v : functional preservation properties of relations
+- HahnLift.v : lifting relations to partial equivalence relations
 - HahnList.v : lemmas about lists
 - HahnListBefore.v : list-induced ordering
 - HahnMaxElt.v : maximal elements of a relation

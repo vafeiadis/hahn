@@ -608,3 +608,10 @@ Hint Resolve transp_domb cross_domb restr_domb restr_domb_mon : hahn.
 Hint Rewrite dom_empty codom_empty dom_union codom_union : hahn.
 Hint Rewrite dom_eqv codom_eqv dom_eqv1 codom_eqv1 : hahn.
 Hint Rewrite dom_cross codom_cross : hahn_full.
+
+Ltac dom_helper :=
+  match goal with
+  | |- ?x ≡ _ => apply dom_helper_3; unfold x
+  | |- ?x ⊆ _ => apply dom_helper_1, dom_helper_3; unfold x
+  | |- ?x ⊆ _ => unfold x
+  end.

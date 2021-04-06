@@ -7,3 +7,4 @@ Require Export HahnDom HahnFuneq HahnWf.
 Require Export HahnSorted HahnSegment HahnTrace.
 Require Export HahnTotalExt HahnTotalList.
 Require Export HahnCountable HahnAdjacent.
+Require Export HahnLift.

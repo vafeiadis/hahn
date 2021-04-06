@@ -8,6 +8,6 @@ HahnWf.v HahnTotalList.v HahnTotalExt.v
 HahnSorted.v HahnSegment.v
 HahnOmega.v HahnTrace.v
 HahnMinPath.v HahnPath.v HahnAcyclic.v
-HahnCountable.v
+HahnCountable.v HahnLift.v
 Zorn.v
 HahnAdjacent.v
