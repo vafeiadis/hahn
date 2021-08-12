@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase HahnSets.
-Require Import Arith micromega.Lia Setoid Morphisms Sorted.
+Require Import Arith Lia Setoid Morphisms Sorted.
 Require Import IndefiniteDescription.
 Require Export List Permutation.
 
@@ -296,6 +296,12 @@ Proof.
   by ins; apply Permutation_filter.
 Qed.
 
+Lemma length_filter A f (l : list A) :
+  length (filter f l) <= length l.
+Proof.
+  induction l; ins; desf; ins; lia.
+Qed.
+
 (** List filtering with a [Prop]-predicate *)
 (******************************************************************************)
 
@@ -411,6 +417,11 @@ Proof.
   apply app_nil_end.
 Qed.
 
+Lemma length_filterP A f (l : list A) :
+  length (filterP f l) <= length l.
+Proof.
+  induction l; ins; desf; ins; lia.
+Qed.
 
 (** List flattening *)
 (******************************************************************************)
@@ -435,6 +446,11 @@ Proof.
   by induction l; ins; desf; ins; rewrite appA, IHl.
 Qed.
 
+Lemma length_flatten A (l : list (list A)) :
+  length (flatten l) = list_sum (map (length (A:=A)) l).
+Proof.
+  induction l; ins; desf; rewrite length_app; lia.
+Qed.
 
 (** List reverse *)
 (******************************************************************************)
@@ -553,7 +569,7 @@ Qed.
 Fixpoint undup A (l: list A) :=
   match l with nil => nil
     | x :: l =>
-      if excluded_middle_informative (In x l) then undup l else x :: undup l
+      ifP (In x l) then undup l else x :: undup l
   end.
 
 (** Lemmas about [NoDup] and [undup] *)
@@ -577,29 +593,6 @@ Proof.
   intro; desf.
 Qed.
 
-Lemma nodup_append_commut:
-  forall (A: Type) (a b: list A),
-  NoDup (a ++ b) -> NoDup (b ++ a).
-Proof.
-  intro A.
-  assert (forall (x: A) (b: list A) (a: list A),
-           NoDup (a ++ b) -> ~(In x a) -> ~(In x b) ->
-           NoDup (a ++ x :: b)).
-    induction a; simpl; intros.
-    constructor; auto.
-    inversion H. constructor. red; intro.
-    elim (in_app_or _ _ _ H6); intro.
-    elim H4. apply in_or_app. tauto.
-    elim H7; intro. subst a. elim H0. left. auto.
-    elim H4. apply in_or_app. tauto.
-    auto.
-  induction a; simpl; intros.
-  rewrite <- app_nil_end. auto.
-  inversion H0. apply H. auto.
-  red; intro; elim H3. apply in_or_app. tauto.
-  red; intro; elim H3. apply in_or_app. tauto.
-Qed.
-
 Lemma nodup_cons A (x: A) l:
   NoDup (x :: l) <-> ~ In x l /\ NoDup l.
 Proof. split; inversion 1; vauto. Qed.
@@ -615,23 +608,27 @@ Proof.
   ins; intuition (subst; eauto).
 Qed.
 
-Lemma nodup_append:
-  forall (A: Type) (l1 l2: list A),
+Lemma nodup_append_commut A (a b : list A) :
+  NoDup (a ++ b) -> NoDup (b ++ a).
+Proof.
+  ins; rewrite nodup_app in *; unfold disjoint in *.
+  desf; splits; ins; eauto.
+Qed.
+
+Lemma nodup_append A (l1 l2: list A) :
   NoDup l1 -> NoDup l2 -> disjoint l1 l2 ->
   NoDup (l1 ++ l2).
 Proof.
   generalize nodup_app; firstorder.
 Qed.
 
-Lemma nodup_append_right:
-  forall (A: Type) (l1 l2: list A),
+Lemma nodup_append_right A (l1 l2: list A) :
   NoDup (l1 ++ l2) -> NoDup l2.
 Proof.
   generalize nodup_app; firstorder.
 Qed.
 
-Lemma nodup_append_left:
-  forall (A: Type) (l1 l2: list A),
+Lemma nodup_append_left A (l1 l2: list A) :
   NoDup (l1 ++ l2) -> NoDup l1.
 Proof.
   generalize nodup_app; firstorder.
@@ -642,7 +639,6 @@ Proof.
   induction l; ins.
   rewrite nodup_app, !nodup_cons, IHl, disjoint_rev_l, disjoint_one_r; intuition.
 Qed.
-
 
 Lemma nodup_filter A (l: list A) (ND: NoDup l) f : NoDup (filter f l).
 Proof.
@@ -831,14 +827,14 @@ Section map_filter.
 
   Lemma in_map_filter x l :
     In x (map_filter l) <-> exists a, f a = Some x /\ In a l.
-  Proof.
+  Proof using.
     induction l; ins; desf; ins; try (rewrite IHn; clear IHn);
     intuition; desf; eauto.
   Qed.
 
   Lemma map_filter_app (l l' : list A) :
     map_filter (l ++ l') = map_filter l ++ map_filter l'.
-  Proof.
+  Proof using.
     induction l; ins; desf; ins; congruence.
   Qed.
 
@@ -846,7 +842,7 @@ Section map_filter.
     NoDup l ->
     (forall x y z, In x l -> In y l -> f x = Some z -> f y = Some z -> x = y) ->
     NoDup (map_filter l).
-  Proof.
+  Proof using.
     induction l; ins; desf; rewrite ?nodup_cons, ?in_map_filter in *;
       desf; splits; eauto.
     by intro; desf; eauto; rewrite (H0 a a0 b) in H; eauto.
