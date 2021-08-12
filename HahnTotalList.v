@@ -141,6 +141,19 @@ Proof.
                       total_order_from_list_in2].
 Qed.
 
+Lemma total_order_from_list_filterP A l (P : A -> Prop):
+  total_order_from_list (filterP P l) ≡
+  total_order_from_list l ∩ P × P.
+Proof.
+  unfold inter_rel, cross_rel.
+  split; red; induction l as [ | a l]; ins; desf.
+  all: try solve [forward eapply total_order_from_list_in1; eauto; ins].
+  all: repeat rewrite total_order_from_list_cons in *; desf.
+  all: try rewrite in_filterP_iff in *; desf; eauto.
+  all: try apply IHl in H; desf; eauto.
+Qed.
+
+
 (******************************************************************************)
 (** Next, we prove some basic properties of [mk_tou]. *)
 (******************************************************************************)
@@ -414,7 +427,7 @@ Definition reorder po a b x y :=
 
 Lemma reorderK po a b (NIN: ~ po b a) (IN: po a b) :
   reorder (reorder po a b) b a ≡ po.
-Proof.
+Proof using.
   unfold reorder; split; red; ins; desf; intuition.
   destruct (classic (x = a)); desf; destruct (classic (y = b)); desf; intuition;
   left; intuition; desf.
@@ -423,7 +436,7 @@ Qed.
 Lemma Permutation_reord i ll1 l1 a b l2 ll2 :
   Permutation (i ++ concat (ll1 ++ (l1 ++ b :: a :: l2) :: ll2))
               (i ++ concat (ll1 ++ (l1 ++ a :: b :: l2) :: ll2)).
-Proof.
+Proof using.
   rewrite !concat_app, !concat_cons; ins;
   eauto using Permutation_app, perm_swap.
 Qed.
@@ -432,7 +445,7 @@ Lemma mk_po_reorder init ll1 l1 a b l2 ll2 :
   NoDup (init ++ concat (ll1 ++ (l1 ++ b :: a :: l2) :: ll2)) ->
   reorder (mk_po init (ll1 ++ (l1 ++ a :: b :: l2) :: ll2)) a b ≡
   mk_po init (ll1 ++ (l1 ++ b :: a :: l2) :: ll2).
-Proof.
+Proof using.
   unfold reorder; split; red; ins; desf; eauto using mk_po_swap, mk_po_trivial.
   destruct (classic (x = b /\ y = a)); eauto 8 using mk_po_swap, mk_po_trivial.
   left; split; ins; desf; eauto using mk_po_swap, mk_po_trivial.
