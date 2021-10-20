@@ -27,7 +27,9 @@ Qed.
 Lemma eqmod_add_idemp_l n i j k :
   (k + i) mod n = (k + j) mod n <-> i mod n = j mod n.
 Proof.
-  destruct (eqP n 0); desf.
+  destruct (eqP n 0).
+  { clarify; simpl; lia. }
+  desf.
   rewrite !(Nat.add_mod k); try done.
   split; [intro L|by intros ->].
   rewrite !(Nat.add_mod_idemp_r) in L; try done.
