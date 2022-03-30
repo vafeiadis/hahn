@@ -236,7 +236,7 @@ Section finite_support.
     constructor; intros y Rya.
     assert (IN := FS _ Rya).
     apply In_split in IN; desf.
-    eapply H with (y0 := l1 ++ l2); ins.
+    eapply H with (y := l1 ++ l2); ins.
       by rewrite !app_length; simpl; lia.
     assert (Rxa: r x a) by eauto.
     generalize (FS _ Rxa); rewrite !in_app_iff; ins; desf; eauto.
