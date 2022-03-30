@@ -6,3 +6,5 @@
 *.v.d
 *.aux
 Makefile.coq*
+.Makefile.coq.d
+.lia.cache
