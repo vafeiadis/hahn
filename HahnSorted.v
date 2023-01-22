@@ -120,6 +120,16 @@ Proof.
   firstorder.
 Qed.
 
+Lemma restr_StronglySorted A cond (r: relation A) l:
+  StronglySorted r l ->
+  Forall cond l ->
+  StronglySorted (restr_rel cond r) l.
+Proof.
+  induction l; ins.
+  rewrite StronglySorted_cons_iff, ForallE in *.
+  firstorder.
+Qed.
+
 
 Fixpoint isort A (r : relation A) l :=
   match l with
@@ -153,4 +163,17 @@ Proof.
     forward eapply TOT with (a:=x) (b:=a); try red; ins; desf; eauto.
     forward eapply TOT with (a:=x1) (b:=x2); try red; ins; desf; eauto.
   exfalso; eauto.
+Qed.
+
+Lemma isort_Permutation A (r : relation A) l : Permutation l (isort r l).
+Proof.
+  induction l; ins.
+  apply Permutation_cons_app.
+  now rewrite <- Permutation_filterP_split.
+Qed.
+
+Lemma isort_NoDup A (r : relation A) l : NoDup l <-> NoDup (isort r l).
+Proof.
+  split; apply Permutation_nodup;
+    eauto using Permutation_sym, isort_Permutation.
 Qed.
