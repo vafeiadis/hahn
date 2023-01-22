@@ -10,7 +10,7 @@
 
 Require Import Bool Arith ZArith String.
 Require ClassicalFacts.
-Require Export ClassicalDescription FunctionalExtensionality.
+Require Export ClassicalDescription IndefiniteDescription FunctionalExtensionality.
 
 Open Scope bool_scope.
 Open Scope list_scope.
@@ -509,6 +509,16 @@ Tactic Notation "tertium_non_datur" constr(P) :=
 
 Tactic Notation "tertium_non_datur" constr(P) "as" simple_intropattern(pattern) :=
   destruct (classic P) as pattern; clarify_not.
+  
+(* Tactic for simplifying the goal & context when working with
+   constructive_indefinite_description. *)
+Ltac des_indefinite_description :=
+  repeat match goal with
+           H : context[constructive_indefinite_description ?x ?y] |- _ 
+             => destruct (constructive_indefinite_description x y); simpls
+           | |- context[constructive_indefinite_description ?x ?y] 
+              => destruct (constructive_indefinite_description x y); simpls 
+         end.
 
 (* ************************************************************************** *)
 (** ** Unification helpers *)
