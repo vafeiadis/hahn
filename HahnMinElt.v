@@ -339,9 +339,13 @@ Global Hint Unfold min_elt wmin_elt : unfolderDb.
 
 Require Import Morphisms.
 
+#[export]
 Instance min_elt_Proper A : Proper (inclusion --> set_subset) _ := set_subset_min_elt (A:=A).
+#[export]
 Instance wmin_elt_Proper A : Proper (inclusion --> set_subset) _ := set_subset_wmin_elt (A:=A).
+#[export]
 Instance min_elt_Propere A : Proper (same_relation ==> set_equiv) _ := set_equiv_min_elt (A:=A).
+#[export]
 Instance wmin_elt_Propere A : Proper (same_relation ==> set_equiv) _ := set_equiv_wmin_elt (A:=A).
 
 Add Parametric Morphism A : (@min_elt A) with signature

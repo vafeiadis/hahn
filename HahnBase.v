@@ -152,6 +152,7 @@ Lemma beq_sym : forall (T : eqType) (x y : T), (eq_op x y) = (eq_op y x).
 Proof. intros; do 2 case eqP; congruence. Qed.
 
 Global Hint Resolve beq_refl : hahn.
+#[export]
 Hint Rewrite beq_refl : hahn_trivial.
 
 Notation eqxx := beq_refl.

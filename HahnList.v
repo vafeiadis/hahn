@@ -28,9 +28,10 @@ Definition length_firstn := firstn_length.
 Definition length_seq := seq_length.
 Definition length_repeat := repeat_length.
 
-Hint Rewrite length_nil length_cons length_app length_rev length_map : calc_length.
-Hint Rewrite length_combine length_prod length_firstn length_seq  : calc_length.
-Hint Rewrite length_repeat : calc_length.
+#[export]
+Hint Rewrite length_nil length_cons length_app length_rev length_map
+             length_combine length_prod length_firstn length_seq 
+             length_repeat : calc_length.
 
 Lemma in_cons_iff A (a b : A) l : In b (a :: l) <-> a = b \/ In b l.
 Proof. done. Qed.
@@ -361,6 +362,7 @@ Proof.
     auto using Permutation_filterP, filterP_set_equiv.
 Qed.
 
+#[export] 
 Instance filterP_Proper A : Proper (_ ==> _ ==> _) _ := Permutation_filterP2 (A:=A).
 
 
@@ -1164,6 +1166,7 @@ Qed.
 Definition length_mk_list := mk_list_length.
 Definition nth_mk_list := mk_list_nth.
 
+#[export] 
 Hint Rewrite length_mk_list : calc_length.
 
 

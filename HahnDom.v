@@ -596,17 +596,21 @@ Proof.
   unfold dom_cond; unfolder; ins; splits; ins; desf; eauto 10.
 Qed.
 
+#[export]
 Hint Unfold doma domb eq_dom dom_cond : unfolderDb.
 
-Hint Resolve eqv_doma seq_eqv_doma restr_eq_rel_doma : hahn. 
-Hint Resolve seq_doma union_doma ct_doma seq_r_doma : hahn.
-Hint Resolve transp_doma cross_doma restr_doma restr_doma_mon : hahn.
-Hint Resolve eqv_domb seq_eqv_domb restr_eq_rel_domb : hahn.
-Hint Resolve seq_domb union_domb ct_domb seq_r_domb : hahn.
-Hint Resolve transp_domb cross_domb restr_domb restr_domb_mon : hahn.
+#[export]
+Hint Resolve eqv_doma seq_eqv_doma restr_eq_rel_doma 
+             seq_doma union_doma ct_doma seq_r_doma
+             transp_doma cross_doma restr_doma restr_doma_mon
+             eqv_domb seq_eqv_domb restr_eq_rel_domb
+             seq_domb union_domb ct_domb seq_r_domb
+             transp_domb cross_domb restr_domb restr_domb_mon : hahn.
 
-Hint Rewrite dom_empty codom_empty dom_union codom_union : hahn.
-Hint Rewrite dom_eqv codom_eqv dom_eqv1 codom_eqv1 : hahn.
+#[export]
+Hint Rewrite dom_empty codom_empty dom_union codom_union
+             dom_eqv codom_eqv dom_eqv1 codom_eqv1 : hahn.
+#[export]
 Hint Rewrite dom_cross codom_cross : hahn_full.
 
 Ltac dom_helper :=

@@ -329,9 +329,13 @@ Global Hint Unfold max_elt wmax_elt : unfolderDb.
 
 Require Import Morphisms.
 
+#[export]
 Instance max_elt_Proper A : Proper (_ --> _) _ := set_subset_max_elt (A:=A).
+#[export]
 Instance wmax_elt_Proper A : Proper (_ --> _) _ := set_subset_wmax_elt (A:=A).
+#[export]
 Instance max_elt_Propere A : Proper (_ ==> _) _ := set_equiv_max_elt (A:=A).
+#[export]
 Instance wmax_elt_Propere A : Proper (_ ==> _) _ := set_equiv_wmax_elt (A:=A).
 
 
