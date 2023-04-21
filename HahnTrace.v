@@ -76,6 +76,7 @@ Proof.
   all: first [apply nth_indep | f_equal]; lia.
 Qed.
 
+#[export]
 Hint Rewrite
      filterP_app
      length_app

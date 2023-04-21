@@ -635,17 +635,28 @@ Add Parametric Relation A : (A -> Prop) (set_equiv (A:=A))
   transitivity proved by (set_equiv_trans (A:=A))
   as set_equiv_rel.
 
+#[export]
 Instance set_compl_Proper A : Proper (_ --> _) _ := set_subset_compl (A:=A).
+#[export]
 Instance set_union_Proper A : Proper (_ ==> _ ==> _) _ := set_subset_union (A:=A).
+#[export]
 Instance set_inter_Proper A : Proper (_ ==> _ ==> _) _ := set_subset_inter (A:=A).
+#[export]
 Instance set_minus_Proper A : Proper (_ ++> _ --> _) _ := set_subset_minus (A:=A).
+#[export]
 Instance set_bunion_Proper A B : Proper (_ ==> _ ==> _) _ := set_subset_bunion_guard (A:=A) (B:=B).
 
+#[export]
 Instance set_compl_Propere A : Proper (_ ==> _) _ := set_equiv_compl (A:=A).
+#[export]
 Instance set_union_Propere A : Proper (_ ==> _ ==> _) _ := set_equiv_union (A:=A).
+#[export]
 Instance set_inter_Propere A : Proper (_ ==> _ ==> _) _ := set_equiv_inter (A:=A).
+#[export]
 Instance set_minus_Propere A : Proper (_ ==> _ ==> _) _ := set_equiv_minus (A:=A).
+#[export]
 Instance set_bunion_Propere A B : Proper (_ ==> _ ==> _) _ := set_equiv_bunion_guard (A:=A) (B:=B).
+#[export]
 Instance set_subset_Proper A : Proper (_ ==> _ ==> _) _ := set_equiv_subset (A:=A).
 
 Add Parametric Morphism A : (@set_finite A) with signature
@@ -699,24 +710,42 @@ Proof. reflexivity. Qed.
 Global Hint Immediate set_subset_refl2 : core hahn.
 Global Hint Resolve set_equiv_refl2 : core hahn.
 
+#[export]
 Hint Rewrite set_compl_empty set_compl_full set_compl_compl : hahn.
+#[export]
 Hint Rewrite set_compl_union set_compl_inter set_compl_minus : hahn.
+#[export]
 Hint Rewrite set_union_empty_l set_union_empty_r set_union_full_l set_union_full_r : hahn.
+#[export]
 Hint Rewrite set_inter_empty_l set_inter_empty_r set_inter_full_l set_inter_full_r : hahn.
+#[export]
 Hint Rewrite set_bunion_empty set_bunion_eq set_bunion_bunion_l : hahn.
+#[export]
 Hint Rewrite set_collect_empty set_collect_eq set_collect_bunion : hahn.
+#[export]
 Hint Rewrite set_finite_union : hahn.
+#[export]
 Hint Rewrite set_disjoint_eq_eq set_disjoint_eq_l set_disjoint_eq_r : hahn.
 
+#[export]
 Hint Rewrite set_inter_union_l set_inter_union_r set_union_eq_empty : hahn_full.
+#[export]
 Hint Rewrite set_minus_union_l set_minus_union_r set_union_eq_empty : hahn_full.
+#[export]
 Hint Rewrite set_subset_union_l set_subset_inter_r : hahn_full.
+#[export]
 Hint Rewrite set_minusK set_interK set_unionK : hahn_full.
+#[export]
 Hint Rewrite set_bunion_inter_compat_l set_bunion_inter_compat_r : hahn_full.
+#[export]
 Hint Rewrite set_bunion_minus_compat_r : hahn_full.
+#[export]
 Hint Rewrite set_bunion_union_l set_bunion_union_r : hahn_full.
+#[export]
 Hint Rewrite set_collect_union : hahn_full.
+#[export]
 Hint Rewrite set_disjoint_union_l set_disjoint_union_r : hahn_full.
+#[export]
 Hint Rewrite set_disjoint_bunion_l set_disjoint_bunion_r : hahn_full.
 
 Global Hint Immediate set_subset_empty_l set_subset_full_r : hahn.
