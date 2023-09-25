@@ -134,6 +134,10 @@ Lemma same_relation_exp A (r r' : relation A) (EQ: r ≡ r') :
   forall x y, r x y <-> r' x y.
 Proof. split; apply EQ. Qed.
 
+Lemma same_relation_exp' A (r r' : relation A) (EQ: forall x y, r x y <-> r' x y):
+  r ≡ r'. 
+Proof. red. split; red; ins; by apply EQ. Qed.
+
 Lemma same_relation_refl A : reflexive (@same_relation A).
 Proof. u. Qed.
 
