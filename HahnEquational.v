@@ -1597,7 +1597,7 @@ Lemma acyclic_case_split A (r : relation A) f :
   acyclic (restr_rel f r) /\ (forall x (NEG: ~ f x) (CYC: r⁺ x x), False).
 Proof.
   unfold restr_rel; repeat split; repeat red; ins; desc; eauto.
-    by eapply H, clos_trans_mon; eauto; instantiate; ins; desf.
+    by eapply H, clos_trans_mon; eauto; ins; desf.
   destruct (classic (f x)) as [K|K]; eauto.
   assert (M: (fun a b => r a b /\ f a /\ f b) ＊ x x) by vauto.
   generalize K; revert H0 M K; generalize x at 2 3 5; ins.
@@ -1605,7 +1605,7 @@ Proof.
   destruct (classic (f y)); eauto 6 using clos_refl_trans.
   eapply H1; eauto.
   eapply t_rt_trans, rt_trans; eauto using t_step, clos_trans_in_rt, clos_tn1_trans.
-  by eapply clos_refl_trans_mon; eauto; instantiate; ins; desf.
+  by eapply clos_refl_trans_mon; eauto; ins; desf.
 Qed.
 
 Lemma seqA2 A (r r' r'' : relation A) x y :
