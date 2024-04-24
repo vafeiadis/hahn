@@ -284,6 +284,10 @@ Section SetProperties.
   Lemma set_subset_collect f s s' (S: s ⊆₁ s') : f ↑₁ s ⊆₁ f ↑₁ s'.
   Proof. u. Qed.
 
+  Lemma set_minus_subset s s':
+    s \₁ s' ⊆₁ s.
+  Proof. u. Qed. 
+
   (** Properties of set equivalence. *)
 
   Lemma set_equivE s s' : s ≡₁ s' <-> s ⊆₁ s' /\ s' ⊆₁ s.
@@ -325,6 +329,10 @@ Section SetProperties.
 
   Lemma set_equiv_exp s s' (EQ: s ≡₁ s') : forall x, s x <-> s' x.
   Proof. split; apply EQ. Qed.
+
+  Lemma set_equiv_exp' s s' (EQ: forall x, s x <-> s' x):
+    s ≡₁ s'. 
+  Proof. red. split; red; ins; by apply EQ. Qed.
 
   (** Absorption properties. *)
 
@@ -515,6 +523,14 @@ Section SetProperties.
       tertium_non_datur (y = a); desf; eauto 8 using in_or_app.
     eexists findom0; ins; desf; apply IHfindom; eexists; splits; eauto; congruence.
   Qed.
+
+  Lemma set_finite_minus s s' (FIN: set_finite s):
+    set_finite (s \₁ s').
+  Proof. u. Qed.
+  
+  Lemma set_finite_inter s s' (FIN: set_finite s):
+    set_finite (s ∩₁ s').
+  Proof. u. Qed.
 
   (** Set disjointness *)
 
