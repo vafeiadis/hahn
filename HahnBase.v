@@ -8,15 +8,18 @@
 
 (** Symbols starting with [hahn__] are internal. *)
 
-Require Import Bool Arith ZArith String.
-Require ClassicalFacts.
-Require Export ClassicalDescription FunctionalExtensionality.
+From Stdlib Require Import Bool Arith ZArith String.
+From Stdlib Require ClassicalFacts.
+From Stdlib Require Export ClassicalDescription IndefiniteDescription FunctionalExtensionality.
 
 Open Scope bool_scope.
 Open Scope list_scope.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
+
+Ltac Tauto.intuition_solver ::= auto with *. (* Forward compatibility. 
+                                                At some point defalt will be changed to just auto. *)
 
 (** Set up hint databases *)
 Create HintDb hahn discriminated.      (* General stuff, used by done *)
@@ -510,6 +513,16 @@ Tactic Notation "tertium_non_datur" constr(P) :=
 
 Tactic Notation "tertium_non_datur" constr(P) "as" simple_intropattern(pattern) :=
   destruct (classic P) as pattern; clarify_not.
+  
+(* Tactic for simplifying the goal & context when working with
+   constructive_indefinite_description. *)
+Ltac des_indefinite_description :=
+  repeat match goal with
+           H : context[constructive_indefinite_description ?x ?y] |- _ 
+             => destruct (constructive_indefinite_description x y); simpls
+           | |- context[constructive_indefinite_description ?x ?y] 
+              => destruct (constructive_indefinite_description x y); simpls 
+         end.
 
 (* ************************************************************************** *)
 (** ** Unification helpers *)

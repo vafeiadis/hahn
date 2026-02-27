@@ -2,7 +2,7 @@
 (** * Equational properties of relations *)
 (******************************************************************************)
 
-Require Import Program.Basics Arith micromega.Lia Permutation List Setoid.
+From Stdlib Require Import Program.Basics Arith micromega.Lia Permutation List Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnSets.
 
 Set Implicit Arguments.
@@ -1561,7 +1561,7 @@ Proof.
   ins; destruct (classic (exists c, r a c /\ r c b)); desf.
   2: by eapply t_step; split; ins; eauto.
   forward (by eapply D'; eauto) as K; apply in_split in K; desf.
-  rewrite app_length in *; ins; rewrite <- plus_n_Sm, <- app_length in *; desf.
+  rewrite length_app in *; ins; rewrite <- plus_n_Sm, <- length_app in *; desf.
   apply t_trans with c; eapply IHn with (dom := l1 ++ l2); ins;
   forward (by eapply (D' c0); eauto);
   rewrite !in_app_iff; ins; desf; eauto; exfalso; eauto.

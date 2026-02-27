@@ -4,7 +4,7 @@
 
 Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
 Require Import HahnOmega HahnWf.
-Require Import Arith micromega.Lia IndefiniteDescription.
+From Stdlib Require Import Arith micromega.Lia IndefiniteDescription.
 
 Set Implicit Arguments.
 
@@ -394,10 +394,10 @@ Proof.
       do 2 f_equal.
       eapply filterP_map_seq_eq; simpl; eauto.
       ins; forward apply (l0 (length l + i)); desf; try lia.
-        by rewrite minus_plus.
+        by rewrite Nat.add_simpl_l.
       ins; eapply l1 in H; lia.
     - eapply map_trace_prepend_lt with (fl := fl) in l2; desf.
-      rewrite l4, filterP_app, appA; clear l4.
+      rewrite l4, filterP_app, <- app_assoc; clear l4.
       f_equal.
       symmetry; rewrite app_eq_prefix, app_eq_nil, ?filterP_eq_nil.
       remember (a :: l'') as l; clear a l'' Heql.
@@ -465,15 +465,15 @@ Proof.
     destruct (IndefiniteDescription.constructive_indefinite_description);
       ins; desf.
     apply nth_filterP with (d := d) in LT; desf.
-    rewrite map_length, seq_length in *; ins.
-    exists n; splits; try rewrite map_length, seq_length; ins.
+    rewrite List.length_map, List.length_seq in *; ins.
+    exists n; splits; try rewrite List.length_map, List.length_seq; ins.
     rewrite LT0, nth_indep with (d' := fl 0); ins.
     rewrite map_nth, seq_nth; ins.
-    rewrite map_length, seq_length; ins.
+    rewrite List.length_map, List.length_seq; ins.
     do 2 f_equal; apply map_ext_in; ins; in_simp.
     rewrite nth_indep with (d' := fl 0); ins.
     rewrite map_nth, seq_nth; ins; lia.
-    rewrite map_length, seq_length; ins; lia.
+    rewrite List.length_map, List.length_seq; ins; lia.
   }
   destruct set_infinite_natE with (n := i) as (m & F & NF).
   exists m; desf.
@@ -496,7 +496,7 @@ Proof.
     destruct (IndefiniteDescription.constructive_indefinite_description);
       ins; desf.
     clear LT; assert (LT := l _ F); ins.
-    rewrite seqS, (seq_split0 LT), appA, map_app, filterP_app.
+    rewrite seqS, (seq_split0 LT), <- app_assoc, map_app, filterP_app.
     rewrite app_nth2, Nat.sub_diag; ins; desf.
   }
   destruct (IndefiniteDescription.constructive_indefinite_description); ins.
@@ -533,7 +533,7 @@ Qed.
 Lemma trace_prefix_refl A (t : trace A) :
   trace_prefix t t.
 Proof.
-  destruct t; ins; eauto using app_nil_end.
+  destruct t; ins; eauto using app_nil_r.
 Qed.
 
 Lemma trace_prefix_trans A (t t' t'' : trace A) :
@@ -542,7 +542,7 @@ Lemma trace_prefix_trans A (t t' t'' : trace A) :
   trace_prefix t t''.
 Proof.
   destruct t, t', t''; ins; desf; try rewrite <- H0; eauto.
-    by rewrite appA; vauto.
+    by rewrite <- app_assoc; vauto.
   forward apply H0 with (i := i) (d := d);
     rewrite ?length_app, ?nth_app;
     ins; desf; lia.

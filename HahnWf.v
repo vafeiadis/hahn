@@ -2,8 +2,8 @@
 (** * Well-founded and finitely supported relations *)
 (******************************************************************************)
 
-Require Import Arith micromega.Lia Setoid Morphisms Wf_nat.
-Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
+From Stdlib Require Import Arith micromega.Lia Setoid Morphisms Wf_nat.
+Require Import HahnBase HahnNatExtra HahnList HahnSets HahnRelationsBasic.
 Require Import HahnEquational HahnRewrite HahnDom.
 
 Set Implicit Arguments.
@@ -237,7 +237,7 @@ Section finite_support.
     assert (IN := FS _ Rya).
     apply In_split in IN; desf.
     eapply (H (l1 ++ l2)); ins.
-      by rewrite !app_length; simpl; lia.
+      by rewrite !List.length_app; simpl; lia.
     assert (Rxa: r x a) by eauto.
     generalize (FS _ Rxa); rewrite !in_app_iff; ins; desf; eauto.
     exfalso; eauto.
@@ -259,7 +259,7 @@ Section finite_support.
     tertium_non_datur (immediate r x y) as [|NIMM]; vauto.
     assert (N := M _ NIMM NIMM0); apply In_split in N; desf.
     apply t_trans with (y := n); eapply H with (y := l1 ++ l2); ins.
-    1,3: by rewrite !app_length; simpl; lia.
+    1,3: by rewrite !List.length_app; simpl; lia.
     - apply M in H1; eauto; rewrite !in_app_iff in *; ins; desf; eauto.
       exfalso; eauto.
     - apply M in H2; eauto; rewrite !in_app_iff in *; ins; desf; eauto.

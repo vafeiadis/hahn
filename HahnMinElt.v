@@ -4,7 +4,7 @@
 
 Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
 Require Import HahnEquational HahnRewrite HahnMaxElt.
-Require Import Arith Setoid.
+From Stdlib Require Import Arith Setoid.
 
 Set Implicit Arguments.
 

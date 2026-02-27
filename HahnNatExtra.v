@@ -1,4 +1,5 @@
-Require Import NPeano Arith micromega.Lia Setoid HahnBase.
+From Stdlib Require Import Arith micromega.Lia Setoid.
+Require Import HahnBase.
 
 Lemma div2_add_double n m :
   Nat.div2 (2 * n + m) = n + Nat.div2 m.
@@ -10,6 +11,23 @@ Qed.
 
 Lemma add_eq_zero n m : n + m = 0 <-> n = 0 /\ m = 0. 
 Proof. lia. Qed.
+
+Lemma le_plus_minus n m : n <= m -> m = n + (m - n).
+Proof.
+  lia.
+Qed.
+
+Lemma le_plus_minus_r n m : n <= m -> n + (m - n) = m.
+Proof.
+  lia.
+Qed.
+
+Lemma lt_S_n n m : S n < S m -> n < m.
+Proof.
+  lia.
+Qed.
+
+  
 
 (*****************************************************************************)
 (** Sum of arithmetic series *)

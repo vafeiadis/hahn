@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase HahnList.
-Require Import Arith micromega.Lia.
+From Stdlib Require Import Arith micromega.Lia.
 
 Set Implicit Arguments.
 

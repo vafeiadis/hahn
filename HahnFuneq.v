@@ -1,5 +1,5 @@
 Require Import HahnBase HahnRelationsBasic.
-Require Import Setoid.
+From Stdlib Require Import Setoid.
 Set Implicit Arguments.
 
 Section FunEq.

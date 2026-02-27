@@ -2,7 +2,7 @@
 (** * Countable sets *)
 (******************************************************************************)
 
-Require Import Arith micromega.Lia Setoid IndefiniteDescription ClassicalChoice.
+From Stdlib Require Import Arith micromega.Lia Setoid IndefiniteDescription ClassicalChoice.
 Require Import HahnBase HahnList HahnEquational HahnRewrite.
 Require Import HahnRelationsBasic HahnSets HahnNatExtra.
 Require Import HahnListBefore HahnWf HahnSorted HahnTotalExt.
@@ -32,7 +32,7 @@ Proof.
     by apply in_seq; lia.
   assert (L: findP cond (List.seq 0 (S n)) < S n).
   {
-    rewrite <- (seq_length (S n) 0) at 2.
+    rewrite <- (length_seq (S n) 0) at 2.
     revert IN; generalize (List.seq 0 (S n)).
     induction l; ins; desf; intuition.
   }
@@ -83,7 +83,7 @@ Lemma lt_funI f (ONE: forall x, x < f x) i j (LT: i < j) d :
 Proof.
   revert i LT; induction j; ins; try lia.
   destruct (eqP i j); desf; eauto.
-  eapply lt_trans, ONE; apply IHj; lia.
+  eapply Nat.lt_trans, ONE; apply IHj; lia.
 Qed.
 
 Definition lt_size A i (s : A -> Prop) :=
@@ -411,7 +411,7 @@ Section enum_ext.
     exists l, prefix_of_nat j = prefix_of_nat i ++ l.
   Proof.
     apply le_plus_minus in LEQ; rewrite LEQ; generalize (j - i) as n.
-    clear; intro n; rewrite Nat.add_comm; induction n; ins; desf; eauto using app_nil_end.
+    clear; intro n; rewrite Nat.add_comm; induction n; ins; desf; eauto using app_nil_r.
     by rewrite IHn; eexists; rewrite <- app_assoc.
   Qed.
 
@@ -539,7 +539,7 @@ Section enum_ext.
         exists (length l1).
         destruct (le_lt_dec i (length l1)) as [Y|Y].
           apply prefix_of_nat_prefix in Y; desc.
-          rewrite Y, X, appA, nth_app; desf; try lia.
+          rewrite Y, X, <- app_assoc, nth_app; desf; try lia.
           rewrite Nat.sub_diag; done.
         forward apply (@prefix_of_nat_prefix (length l1) i) as Z; desc; try lia.
         forward apply length_prefix_of_nat with (n := length l1); eauto.
@@ -570,7 +570,7 @@ Section enum_ext.
         exists (length l1).
         destruct (le_lt_dec i (length l1)) as [Y|Y].
           apply prefix_of_nat_prefix in Y; desc.
-          rewrite Y, X, appA, nth_app; desf; try lia.
+          rewrite Y, X, <- app_assoc, nth_app; desf; try lia.
           rewrite Nat.sub_diag; splits; ins.
           assert (length (prefix_of_nat i) <= n).
           { generalize (nodup_prefix_of_nat i),
@@ -604,7 +604,7 @@ Section enum_ext.
 
     assert (Lin : i < n). {
       clear - SUR Li. red in Li; desc.
-      eapply lt_le_trans; eauto.
+      eapply Nat.lt_le_trans; eauto.
       replace n with (length (map f (List.seq 0 n)))
                      by now (rewrite length_map, length_seq).
       apply NoDup_incl_length; try red; ins.

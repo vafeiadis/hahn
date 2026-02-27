@@ -1,6 +1,6 @@
 Require Import HahnBase HahnRelationsBasic.
 Require Import HahnRewrite.
-Require Import Setoid.
+From Stdlib Require Import Setoid.
 Set Implicit Arguments.
 
 Section Defs.

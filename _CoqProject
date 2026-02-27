@@ -1,3 +1,4 @@
+-arg "-set Warnings=-notation-incompatible-prefix"  # Suppressing a warning regarding ⟪ _ ⟫ and ⟪ _ : _ ⟫ notations.
 -R . hahn
 Hahn.v
 HahnBase.v HahnFun.v HahnSets.v HahnList.v HahnNatExtra.v

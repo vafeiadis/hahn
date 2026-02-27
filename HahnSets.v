@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase.
-Require Import Program.Basics List Arith micromega.Lia Relations Setoid Morphisms.
+From Stdlib Require Import Program.Basics List Arith micromega.Lia Relations Setoid Morphisms.
 
 Set Implicit Arguments.
 

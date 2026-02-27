@@ -2,7 +2,7 @@
 (** * Extension of a partial order to a total order *)
 (******************************************************************************)
 
-Require Import Arith micromega.Lia Setoid.
+From Stdlib Require Import Arith micromega.Lia Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnRewrite.
 Require Import HahnSets HahnMaxElt.
 Require Import Zorn.
@@ -195,7 +195,7 @@ Proof.
   desc; apply in_split in INa; desf.
   assert(exists b, s ＊ a1 b /\ max_elt s b).
     { eapply (H (l1 ++ l2)).
-      * unfold ltof; rewrite !app_length; simpl; lia.
+      * unfold ltof; rewrite !List.length_app; simpl; lia.
       * ins.
         assert(INc: In c (l1 ++ a :: l2)).
           by eapply DOM; eapply rt_trans; vauto.
@@ -421,7 +421,8 @@ Proof.
   assert (MM: M ⊆ M') by (unfolder; ins; desf; eauto).
   assert (M'OK: R ⊆ M' /\ strict_partial_order M').
   { split; [eby eapply inclusion_trans |].
-    split; red; ins; desf; eauto 8 using (proj1 PO), (proj2 PO).
+    destruct PO as [IRR TRANS].
+    split; red; ins; desf; eauto 8 using IRR, TRANS.
   }
   specialize (MAX (exist _ M' M'OK) MM); ins.
   apply INCOMP, MAX; desf; eauto.

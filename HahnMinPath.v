@@ -2,7 +2,7 @@
 (** * Minimal paths and cycles *)
 (******************************************************************************)
 
-Require Import Arith micromega.Lia.
+From Stdlib Require Import Arith micromega.Lia.
 Require Import HahnBase HahnList HahnRelationsBasic HahnRewrite.
 
 Set Implicit Arguments.
@@ -11,9 +11,9 @@ Lemma mod_S_expand i n (NZ : n <> 0) :
   (S i mod n) = if eq_op n 1 then 0 else if eq_op (S (i mod n)) n then 0 else S (i mod n).
 Proof.
   desf; desf;
-    rewrite Nat.add_mod with (a := 1); try done;
+    rewrite Nat.Div0.add_mod with (a := 1); try done;
     rewrite (Nat.mod_small 1); try lia.
-    by simpl; rewrite Heq0, Nat.mod_same.
+    by simpl; rewrite Heq0, Nat.Div0.mod_same.
   assert (UB := Nat.mod_upper_bound i n).
   rewrite (Nat.mod_small (1 + i mod n)); lia.
 Qed.
@@ -30,13 +30,13 @@ Proof.
   destruct (eqP n 0).
   { clarify; simpl; lia. }
   desf.
-  rewrite !(Nat.add_mod k); try done.
+  rewrite !(Nat.Div0.add_mod k); try done.
   split; [intro L|by intros ->].
-  rewrite !(Nat.add_mod_idemp_r) in L; try done.
+  rewrite !(Nat.Div0.add_mod_idemp_r) in L; try done.
   apply f_equal with (f := fun x => ((n - k mod n) + x) mod n) in L.
-  rewrite !Nat.add_mod_idemp_r, !Nat.add_assoc, !Nat.sub_add in L; 
+  rewrite !Nat.Div0.add_mod_idemp_r, !Nat.add_assoc, !Nat.sub_add in L; 
     eauto using Nat.mod_upper_bound, Nat.lt_le_incl. 
-  do 2 (rewrite Nat.add_mod, Nat.mod_same, Nat.add_0_l, Nat.mod_mod in L; try done).
+  do 2 (rewrite Nat.Div0.add_mod, Nat.Div0.mod_same, Nat.add_0_l, Nat.Div0.mod_mod in L; try done).
 Qed.
 
 Lemma eqmod_add_idemp_r n i j k :
@@ -131,7 +131,7 @@ Lemma min_cycle_wlog X (r : relation X) f n (MC : min_cycle_mod r f n)
   exists f, << MC : min_cycle_mod r f n >> /\ << PROP : P (f 0) >>.
 Proof.
   exists (fun x => f (x + i)); unnw; repeat split; ins; try apply MC.
-    by rewrite !(mp_modulo MC (_ + i)), Nat.add_mod_idemp_l; try apply MC.
+    by rewrite !(mp_modulo MC (_ + i)), Nat.Div0.add_mod_idemp_l; try apply MC.
   eby rewrite (min_cycle_step MC) in *; eapply eqmod_add_idemp_r.
 Qed.
 
@@ -189,13 +189,13 @@ Proof.
   rewrite acyclic_minimize1; split; intros A B; destruct A; desc.
   { destruct B as [NZ MOD STEP MIN]; destruct n; try done. 
     exists f, n; unnw; repeat split; intros; try done; eauto.
-    by rewrite (MOD (S n)), Nat.mod_same.
+    by rewrite (MOD (S n)), Nat.Div0.mod_same.
     apply MIN in H.
     destruct (eqP i n), (eqP j (S n)); subst; auto;
-      rewrite ?Nat.mod_same, ?Nat.mod_small in H; lia. 
+      rewrite ?Nat.Div0.mod_same, ?Nat.mod_small in H; lia. 
   }
   exists (fun x => f (x mod (S n))), (S n); split; intros; try done.
-  - by rewrite Nat.mod_mod.
+  - by rewrite Nat.Div0.mod_mod.
   - assert (UB := Nat.mod_upper_bound i (S n)).
     forward apply (STEP (i mod S n)); try lia.
     rewrite mod_SS_expand; desf; desf. 

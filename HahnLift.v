@@ -2,8 +2,8 @@
 (** Lifting of relations to partial equivalence classes                       *)
 (******************************************************************************)
 
-Require Import HahnBase HahnSets HahnRelationsBasic.
-Require Import Setoid HahnEquational.
+Require Import HahnBase HahnSets HahnRelationsBasic HahnEquational.
+From Stdlib Require Import Setoid.
 
 Set Implicit Arguments.
 
