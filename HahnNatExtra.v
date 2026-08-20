@@ -1,4 +1,5 @@
-Require Import NPeano Arith micromega.Lia Setoid HahnBase.
+From Coq Require Import Arith Lia Setoid.
+Require Import HahnBase.
 
 Lemma div2_add_double n m :
   Nat.div2 (2 * n + m) = n + Nat.div2 m.
@@ -36,14 +37,16 @@ Qed.
 
 Lemma arith_sum_le_mono n m (L : n <= m) : arith_sum n <= arith_sum m.
 Proof.
-  apply le_plus_minus in L; rewrite L; clear L; generalize (m - n) as k; ins.
+  replace m with (n + (m - n)) by lia; clear L.
+  generalize (m - n) as k; ins.
   rewrite Nat.add_comm; induction k; ins.
   rewrite arith_sum_S; lia.
 Qed.
 
 Lemma arith_sum_lt n m (L : n < m) : arith_sum n + n < arith_sum m.
 Proof.
-  apply le_plus_minus in L; rewrite L; clear L; generalize (m - S n) as k; intros.
+  replace m with (S n + (m - S n)) by lia; clear L.
+  generalize (m - S n) as k; intros.
   replace (S n + k) with (S (n + k)) by done.
   rewrite arith_sum_S.
   forward apply (arith_sum_le_mono n (n + k)); lia.

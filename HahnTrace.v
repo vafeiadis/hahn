@@ -4,7 +4,7 @@
 
 Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
 Require Import HahnOmega HahnWf.
-Require Import Arith micromega.Lia IndefiniteDescription.
+Require Import Arith Lia IndefiniteDescription.
 
 Set Implicit Arguments.
 
@@ -394,7 +394,7 @@ Proof.
       do 2 f_equal.
       eapply filterP_map_seq_eq; simpl; eauto.
       ins; forward apply (l0 (length l + i)); desf; try lia.
-        by rewrite minus_plus.
+        by replace (length l + i - length l) with i by lia.
       ins; eapply l1 in H; lia.
     - eapply map_trace_prepend_lt with (fl := fl) in l2; desf.
       rewrite l4, filterP_app, appA; clear l4.
@@ -465,15 +465,15 @@ Proof.
     destruct (IndefiniteDescription.constructive_indefinite_description);
       ins; desf.
     apply nth_filterP with (d := d) in LT; desf.
-    rewrite map_length, seq_length in *; ins.
-    exists n; splits; try rewrite map_length, seq_length; ins.
+    rewrite length_map, length_seq in *; ins.
+    exists n; splits; try rewrite length_map, length_seq; ins.
     rewrite LT0, nth_indep with (d' := fl 0); ins.
     rewrite map_nth, seq_nth; ins.
-    rewrite map_length, seq_length; ins.
+    rewrite length_map, length_seq; ins.
     do 2 f_equal; apply map_ext_in; ins; in_simp.
     rewrite nth_indep with (d' := fl 0); ins.
     rewrite map_nth, seq_nth; ins; lia.
-    rewrite map_length, seq_length; ins; lia.
+    rewrite length_map, length_seq; ins; lia.
   }
   destruct set_infinite_natE with (n := i) as (m & F & NF).
   exists m; desf.
@@ -533,7 +533,7 @@ Qed.
 Lemma trace_prefix_refl A (t : trace A) :
   trace_prefix t t.
 Proof.
-  destruct t; ins; eauto using app_nil_end.
+  destruct t; ins; eauto using app_nil_r, eq_sym.
 Qed.
 
 Lemma trace_prefix_trans A (t t' t'' : trace A) :

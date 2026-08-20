@@ -29,10 +29,13 @@ Lemma set_subset_wmax_elt (S: r' ⊆ r) : wmax_elt r ⊆₁ wmax_elt r'.
 Proof. unfold wmax_elt, inclusion, set_subset in *; intuition; eauto. Qed.
 
 Lemma set_equiv_max_elt (S: r ≡ r') : max_elt r ≡₁ max_elt r'.
-Proof. unfold max_elt, same_relation, set_equiv, set_subset in *; intuition; eauto. Qed.
+Proof.
+  unfold wmax_elt, same_relation, set_equiv, set_subset in *.
+  splits; red; ins; desf; eauto.
+Qed.
 
 Lemma set_equiv_wmax_elt (S: r ≡ r') : wmax_elt r ≡₁ wmax_elt r'.
-Proof. unfold wmax_elt, same_relation, set_equiv in *; intuition; eauto. Qed.
+Proof. unfold wmax_elt, same_relation, set_equiv in *; split; red; ins; desf; eauto. Qed.
 
 Lemma max_elt_weaken : max_elt r a -> wmax_elt r a.
 Proof.
@@ -197,7 +200,7 @@ Proof.
   rewrite crE; relsf; rewrite seq_singl_max; relsf.
 Qed.
 
-Lemma seq_eqv_max r : 
+Lemma seq_eqv_max r :
   ⦗max_elt r⦘ ⨾ r ≡ (∅₂).
 Proof.
   basic_solver.
@@ -221,7 +224,7 @@ Proof.
   rewrite crE; relsf; rewrite seq_eqv_max; relsf.
 Qed.
 
-Lemma transp_seq_eqv_max r : 
+Lemma transp_seq_eqv_max r :
   r⁻¹ ⨾ ⦗max_elt r⦘ ≡ (∅₂).
 Proof.
   basic_solver.

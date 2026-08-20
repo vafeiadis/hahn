@@ -2,7 +2,7 @@
 (** * Extension of a partial order to a total order *)
 (******************************************************************************)
 
-Require Import Arith micromega.Lia Setoid.
+Require Import Arith Lia Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnRewrite.
 Require Import HahnSets HahnMaxElt.
 Require Import Zorn.
@@ -91,7 +91,7 @@ Proof.
   red; ins; eapply tot_ext_irr, tot_ext_trans, tot_ext_extends; eauto.
 Qed.
 
-Lemma tot_ext_extends_dom A dom dom' (r : relation A) : 
+Lemma tot_ext_extends_dom A dom dom' (r : relation A) :
   tot_ext dom r ⊆ tot_ext (dom' ++ dom) r.
 Proof.
   induction dom'; ins; eauto using one_ext_extends with hahn.
@@ -104,7 +104,7 @@ Definition tot_ext_nat r x y := exists k, tot_ext (rev (List.seq 0 k)) r x y.
 
 Lemma tot_ext_nat_extends r : r ⊆ tot_ext_nat r.
 Proof.
-  exists 0; vauto. 
+  exists 0; vauto.
 Qed.
 
 Lemma tot_ext_nat_trans r : transitive (tot_ext_nat r).
@@ -155,12 +155,12 @@ Proof.
   rewrite !seqA, IH; relsf.
   unfold seq, transp, minus_rel, clos_refl, inclusion in *.
   ins; desf; splits.
-    assert (x = y \/ r x y) by eauto. 
-    by desf; destruct H1; vauto. 
-  by intro; apply H1; vauto. 
+    assert (x = y \/ r x y) by eauto.
+    by desf; destruct H1; vauto.
+  by intro; apply H1; vauto.
 Qed.
 
-Definition tot_ext_suc A (dom : list A) (r s : relation A) : relation A := 
+Definition tot_ext_suc A (dom : list A) (r s : relation A) : relation A :=
   s⁺ ∪ s＊ ⨾ ⦗max_elt s⦘ ⨾ tot_ext dom r ⨾ ⦗max_elt s⦘ ⨾ s⁻¹＊.
 
 Lemma functional_path A (s: relation A) (FUN: functional s):
@@ -195,7 +195,7 @@ Proof.
   desc; apply in_split in INa; desf.
   assert(exists b, s ＊ a1 b /\ max_elt s b).
     { eapply (H (l1 ++ l2)).
-      * unfold ltof; rewrite !app_length; simpl; lia.
+      * unfold ltof; rewrite !length_app; simpl; lia.
       * ins.
         assert(INc: In c (l1 ++ a :: l2)).
           by eapply DOM; eapply rt_trans; vauto.
@@ -206,12 +206,12 @@ Proof.
   apply rt_begin; right; eexists; eauto.
 Qed.
 
-Lemma last_functional A (s: relation A) (FUN: functional s): 
+Lemma last_functional A (s: relation A) (FUN: functional s):
   functional (s＊ ⨾ ⦗max_elt s⦘).
 Proof.
   apply functional_alt.
   rewrite transp_seq; relsf.
-  rewrite !seqA, transp_rt. 
+  rewrite !seqA, transp_rt.
   sin_rewrite functional_path; [relsf | done].
   seq_rewrite seq_eqv_max_rt; rels.
   seq_rewrite transp_seq_eqv_max_rt; rels.
@@ -227,7 +227,7 @@ Proof.
   apply IN in H0; revert H0; basic_solver.
 Qed.
 
-Lemma last_exists_rewrite A dom (s: relation A) 
+Lemma last_exists_rewrite A dom (s: relation A)
       (ACYC: acyclic s)
       (IN: s ⊆ ⦗fun x : A => In x dom⦘ ⨾ s ⨾ ⦗fun x : A => In x dom⦘):
   ⦗fun _ => True⦘ ⊆ s＊ ⨾ ⦗max_elt s⦘ ⨾ s⁻¹＊.
@@ -243,7 +243,7 @@ destruct (classic (In y dom)) as [INy|NINy]; cycle 1.
   apply transp_rt with (r:=s); vauto.
 Qed.
 
-Lemma tot_ext_suc_trans A dom (r s: relation A) (SUC: Successor r s) :  
+Lemma tot_ext_suc_trans A dom (r s: relation A) (SUC: Successor r s) :
   transitive (tot_ext_suc dom r s).
 Proof.
 unfold tot_ext_suc.
@@ -263,7 +263,7 @@ repeat apply inclusion_union_l; eauto with hahn.
 Qed.
 
 
-Lemma tot_ext_suc_irr A dom (r s: relation A) (SUC: Successor r s) 
+Lemma tot_ext_suc_irr A dom (r s: relation A) (SUC: Successor r s)
   (ACYC: acyclic r): irreflexive (tot_ext_suc dom r s).
 Proof.
 red in SUC; desc.
@@ -279,7 +279,7 @@ rewrite irreflexive_union; splits.
   generalize (tot_ext_irr dom ACYC); basic_solver.
 Qed.
 
-Lemma tot_ext_suc_total A dom (r s: relation A) 
+Lemma tot_ext_suc_total A dom (r s: relation A)
   (ACYC: acyclic r) (SUC: Successor r s)
   (IN: s ⊆ ⦗fun x => In x dom⦘ ⨾ s ⨾ ⦗fun x => In x dom⦘):
  is_total (fun x => In x dom) (tot_ext_suc dom r s).
@@ -314,8 +314,8 @@ destruct (classic (b0=b1)) as [EQ1|NEQ1]; subst.
     by apply transp_rt with (r:=s); generalize H0; basic_solver 2.
 Qed.
 
-Lemma tot_ext_suc_extends A dom (r s: relation A) 
-  (ACYC: acyclic r) (SUC: Successor r s) 
+Lemma tot_ext_suc_extends A dom (r s: relation A)
+  (ACYC: acyclic r) (SUC: Successor r s)
   (IN: s ⊆ ⦗fun x => In x dom⦘ ⨾ s ⨾ ⦗fun x => In x dom⦘) :
   r ⊆ tot_ext_suc dom r s.
 Proof.
@@ -329,11 +329,11 @@ sin_rewrite succ_helper; [|by apply SUC].
 rewrite inclusion_minus_rel.
 cdes SUC; rewrite INC at 3; rels.
 unfold tot_ext_suc.
-rewrite inclusion_t_ind with (r' := tot_ext dom r); 
+rewrite inclusion_t_ind with (r' := tot_ext dom r);
   [auto with hahn | red; eapply tot_ext_extends | apply tot_ext_trans].
 Qed.
 
-Lemma tot_ext_suc_suc A dom (r s: relation A) (SUC: Successor r s) : 
+Lemma tot_ext_suc_suc A dom (r s: relation A) (SUC: Successor r s) :
   Successor (tot_ext_suc dom r s) s.
 Proof.
   unfold Successor, tot_ext_suc in *; ins; desf; splits; auto with hahn.
@@ -375,7 +375,7 @@ Qed.
 Add Parametric Morphism A : (@tot_ext_suc A) with signature
   eq ==> same_relation ==> same_relation ==> same_relation as tot_ext_suc_more.
 Proof.
-  by unfold tot_ext_suc; ins; rewrite H, H0. 
+  by unfold tot_ext_suc; ins; rewrite H, H0.
 Qed.
 
 
@@ -385,8 +385,8 @@ Qed.
 Lemma partial_order_included_in_total_order A (R: relation A) (POR: strict_partial_order R):
   exists R', inclusion R R' /\ strict_total_order (fun _ => True) R'.
 Proof.
-  forward apply (@zorns_lemma {Q: relation A | <<SUBST: R ⊆ Q>> /\ <<PO: strict_partial_order Q>>} 
-                              (fun R1 R2 => proj1_sig R1 ⊆ proj1_sig R2)) 
+  forward apply (@zorns_lemma {Q: relation A | <<SUBST: R ⊆ Q>> /\ <<PO: strict_partial_order Q>>}
+                              (fun R1 R2 => proj1_sig R1 ⊆ proj1_sig R2))
     as [[M ?] MAX]; desc; simpls.
   { firstorder. (* subset is preorder *) }
   { (* every chain has an upper bound *)
@@ -394,7 +394,7 @@ Proof.
     tertium_non_datur (C ≡₁ ∅) as [EMP|NEMP].
     * (* find an upper bound of an empty chain i.e. show that the set is nonempty *)
       exists (exist (fun Q => R ⊆ Q /\ strict_partial_order Q) R (conj (inclusion_refl _) POR)); ins.
-      by apply EMP in H. 
+      by apply EMP in H.
     * (* find an upper bound of a non-empty chain *)
       clear NEMP0; rename n into Q.
       remember ((fun x y => exists Q, <<CQ: C Q>> /\ <<Qab: proj1_sig Q x y>>)) as M.
@@ -421,7 +421,7 @@ Proof.
   assert (MM: M ⊆ M') by (unfolder; ins; desf; eauto).
   assert (M'OK: R ⊆ M' /\ strict_partial_order M').
   { split; [eby eapply inclusion_trans |].
-    split; red; ins; desf; eauto 8 using (proj1 PO), (proj2 PO).
+    destruct PO; split; red; ins; desf; eauto 8.
   }
   specialize (MAX (exist _ M' M'OK) MM); ins.
   apply INCOMP, MAX; desf; eauto.

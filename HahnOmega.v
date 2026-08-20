@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase HahnList.
-Require Import Arith micromega.Lia.
+Require Import Arith Lia.
 
 Set Implicit Arguments.
 
@@ -172,16 +172,16 @@ Module NOmega.
     destruct x; ins; lia.
   Qed.
 
-(*  Lemma lt_eq_cases : forall n m : nat, n <= m <-> n < m \/ n = m. *)
-
   Lemma leb_spec x y : Bool.reflect (le x y) (leb x  y).
   Proof.
-    generalize (leb_le x y); destruct leb; intuition.
+    generalize (leb_le x y); unfold iff; ins.
+    destruct leb; ins; desf; auto using Bool.reflect.
   Qed.
 
   Lemma ltb_spec x y : Bool.reflect (lt x y) (ltb x  y).
   Proof.
-    generalize (ltb_lt x y); destruct ltb; intuition.
+    generalize (ltb_lt x y); unfold iff; ins.
+    destruct ltb; ins; desf; auto using Bool.reflect.
   Qed.
 
   Lemma succ_inj n m : succ n = succ m -> n = m.
@@ -191,7 +191,7 @@ Module NOmega.
   Proof. split; destruct n, m; ins; desf. Qed.
     
   Lemma succ_inj_wd_neg n m : succ n <> succ m <-> n <> m.
-  Proof. intuition; desf; rewrite succ_inj_wd in *; desf. Qed.
+  Proof. intuition auto; desf; rewrite succ_inj_wd in *; desf. Qed.
 
   Lemma add_succ_l n m : add (succ n) m = succ (add n m).
   Proof. destruct n, m; ins. Qed.

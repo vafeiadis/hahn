@@ -75,7 +75,8 @@ Module Private.
     Instance equ_equivalence: Equivalence equ.
     Proof.
       split; red; intros *; rewrite !equ_spec; unfold default_eq;
-        intuition; etransitivity; eassumption.
+        intuition (auto; try reflexivity).
+      all: etransitivity; eassumption.
     Qed.
     
     Instance partial_order: PartialOrder equ le := equ_spec.
@@ -712,7 +713,7 @@ Section Theorems.
       S_proper:> Proper (eqA ==> iff) S;
       R_strict:> StrictOrder R;
       R_wellfounded: well_founded R;
-      R_proper:> Proper (eqA ==> eqA ==> iff) R;
+      R_proper: Proper (eqA ==> eqA ==> iff) R;
       R_carrier_correct: ∀ x y, R x y → S x ∧ S y;
       R_carrier_complete: ∀ x y, S x → S y → eqA x y ∨ R x y ∨ R y x
     }.
@@ -739,7 +740,7 @@ Section Theorems.
     Proof.
       split.
       - intros [[S R] good]; red; cbn.
-        split; intuition.
+        split; intuition auto.
       - intros [[S₁ R₁] good₁] [[S₂ R₂] good₂] [[S₃ R₃] good₃];
           unfold continues; cbn.
         intros [sub₁₂ closed₁₂ coincides₁₂] [sub₂₃ closed₂₃ coincides₂₃].
@@ -783,7 +784,7 @@ Section Theorems.
           constructor.
           intros z [ltz|[inz eqy]].
           * apply H.
-            intro contra; rewrite <- contra, eqxy in ltz.
+            intro contra. rewrite <- contra, eqxy in ltz.
             apply irreflexivity in ltz; contradiction.
           * apply H.
             now intro contra; rewrite contra in x_not_in.
@@ -944,7 +945,7 @@ Section Theorems.
   Qed.
   
   (* Not needed in this version. 
-     Original version did not asume choice, but only showed equivalence
+     Original version did not assume choice, but only showed equivalence
      of choice, Zorn's lemma, and Zermelo's theorem.
   Theorem axiom_of_choice_from_well_ordering_theorem
     (wo: ∀ {A} (eqA: relation A) {equA: Equivalence eqA},

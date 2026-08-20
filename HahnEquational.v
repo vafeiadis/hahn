@@ -15,7 +15,7 @@ Local Open Scope program_scope.
 
 Global Hint Unfold Basics.impl : unfolderDb.
 Local Ltac u := autounfold with unfolderDb in *; splits; ins; desf;
-                try solve [intuition; desf; eauto].
+                try solve [intuition auto; desf; eauto].
 
 (** First, for inclusion. *)
 
@@ -295,7 +295,7 @@ Section PropertiesSeqUnion.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
   Local Ltac uu := autounfold with unfolderDb in *; 
-            try solve [intuition; ins; desf; eauto; firstorder].
+            try solve [intuition auto; ins; desf; eauto; firstorder].
 
   Lemma seqA r1 r2 r3 : (r1 ⨾ r2) ⨾ r3 ≡ r1 ⨾ (r2 ⨾ r3).
   Proof. uu. Qed.
@@ -392,7 +392,7 @@ Section PropertiesBigUnion.
   Implicit Type r : relation A.
   Implicit Type rr : B -> relation A.
   Local Ltac uu := autounfold with unfolderDb in *; 
-            try solve [intuition; ins; desf; eauto; firstorder].
+            try solve [intuition auto; ins; desf; eauto; firstorder].
 
   Lemma bunion_empty rr : bunion ∅ rr ≡ ∅₂.
   Proof. uu. Qed.
@@ -916,54 +916,54 @@ End ExtraPropertiesClos.
 
 Lemma eqv_empty A : ⦗@set_empty A⦘ ≡ ∅₂.
 Proof.
-  autounfold with unfolderDb; intuition; desf; eauto.
+  autounfold with unfolderDb; intuition auto; desf; eauto.
 Qed.
   
 Lemma seq_eqv_r A (r : relation A) dom :
   r ⨾ ⦗dom⦘ ≡ (fun x y => r x y /\ dom y).
 Proof.
-  autounfold with unfolderDb; intuition; desf; eauto.
+  autounfold with unfolderDb; intuition auto; desf; eauto.
 Qed.
 
 Lemma seq_eqv_l A (r : relation A) dom :
   ⦗dom⦘ ⨾ r ≡ (fun x y => dom x /\ r x y).
 Proof.
-  autounfold with unfolderDb; intuition; desf; eauto.
+  autounfold with unfolderDb; intuition auto; desf; eauto.
 Qed.
 
 Lemma inclusion_seq_eqv_l A (r : relation A) dom :
   ⦗dom⦘ ⨾ r ⊆ r.
 Proof.
-  autounfold with unfolderDb; intuition; desf; eauto.
+  autounfold with unfolderDb; intuition auto; desf; eauto.
 Qed.
 
 Lemma inclusion_seq_eqv_r A (r : relation A) dom :
   r ⨾ ⦗dom⦘ ⊆ r.
 Proof.
-  autounfold with unfolderDb; intuition; desf; eauto.
+  autounfold with unfolderDb; intuition auto; desf; eauto.
 Qed.
 
 Lemma seq_eqv_lr A (r : relation A) dom1 dom2 :
   ⦗dom1⦘ ⨾ r ⨾ ⦗dom2⦘ ≡ (fun x y : A => dom1 x /\ r x y /\ dom2 y).
 Proof.
-  autounfold with unfolderDb; intuition; desf; eauto 10.
+  autounfold with unfolderDb; intuition auto; desf; eauto 10.
 Qed.
 
 Lemma seq_eqv_inter_ll A S (r r' : relation A) :
   (⦗S⦘ ⨾ r) ∩ r' ≡ ⦗S⦘ ⨾ r ∩ r'.
-Proof. autounfold with unfolderDb; intuition; desf; eauto. Qed.
+Proof. autounfold with unfolderDb; intuition auto; desf; eauto. Qed.
 
 Lemma seq_eqv_inter_lr A S (r r' : relation A) :
   (r ⨾ ⦗S⦘) ∩ r' ≡ r ∩ r' ⨾ ⦗S⦘.
-Proof. autounfold with unfolderDb; intuition; desf; eauto. Qed.
+Proof. autounfold with unfolderDb; intuition auto; desf; eauto. Qed.
 
 Lemma seq_eqv_minus_lr A (s : A -> Prop) (r r' : relation A) :
   (r ⨾ ⦗s⦘) \ r' ≡ (r \ r') ⨾ ⦗s⦘.
-Proof. autounfold with unfolderDb; intuition; desf; eauto. Qed.
+Proof. autounfold with unfolderDb; intuition auto; desf; eauto. Qed.
 
 Lemma seq_eqv_minus_ll A (s : A -> Prop) (r r' : relation A) :
   (⦗s⦘ ⨾ r) \ r' ≡ ⦗s⦘ ⨾ (r \ r').
-Proof. autounfold with unfolderDb; intuition; desf; eauto. Qed.
+Proof. autounfold with unfolderDb; intuition auto; desf; eauto. Qed.
 
 #[export] 
 Hint Rewrite eqv_empty : hahn.
@@ -1322,7 +1322,7 @@ Section PropertiesCross.
   Proof. u. Qed.
 
   Lemma ct_of_cross s s' : (s × s')⁺ ≡ s × s'.
-  Proof. u; induction H; desf; eauto. Qed.
+  Proof. u; vauto; induction H; desf; eauto. Qed.
 
   Lemma cross_minus_compl_l s s' s'' : s × s' \ (set_compl s) × s'' ≡ s × s'.
   Proof. u. Qed.
@@ -1561,7 +1561,7 @@ Proof.
   ins; destruct (classic (exists c, r a c /\ r c b)); desf.
   2: by eapply t_step; split; ins; eauto.
   forward (by eapply D'; eauto) as K; apply in_split in K; desf.
-  rewrite app_length in *; ins; rewrite <- plus_n_Sm, <- app_length in *; desf.
+  rewrite length_app in *; ins; rewrite <- plus_n_Sm, <- length_app in *; desf.
   apply t_trans with c; eapply IHn with (dom := l1 ++ l2); ins;
   forward (by eapply (D' c0); eauto);
   rewrite !in_app_iff; ins; desf; eauto; exfalso; eauto.

@@ -23,10 +23,10 @@ Proof.
    by destruct l; ins; econs; ins; exfalso; eauto.
   econs; intros b Rba.
   assert (IN:=DOMA _ _ Rba); apply in_split in IN; desf.
-  rewrite app_length in *; ins.
+  rewrite length_app in *; ins.
   forward apply (IHn (restr_rel (fun x => x <> b) r) (l1 ++ l2)); 
     eauto using irreflexive_restr, transitive_restr.
-  by rewrite app_length in *; ins; lia.
+  by rewrite length_app in *; ins; lia.
   by unfold restr_rel; red; ins; desf; eapply DOMA in REL; rewrite <- Permutation_middle in *; ins; desf; eauto.
 
   clear - Rba ACYC T; unfold restr_rel.
@@ -369,7 +369,7 @@ Proof.
   ins; destruct (classic (exists c, r a c /\ r c b)); desf.
   2: by eapply t_step; split; ins; eauto.
   forward eapply D' as X; eauto; apply in_split in X; desf.
-  rewrite app_length in *; ins; rewrite <- plus_n_Sm, <- app_length in *; desf.
+  rewrite length_app in *; ins; rewrite <- plus_n_Sm, <- length_app in *; desf.
   apply t_trans with c; eapply IHn with (dom := l1 ++ l2); ins;
   forward eapply (D' c0); eauto;
   rewrite !in_app_iff; ins; desf; eauto; exfalso; eauto.

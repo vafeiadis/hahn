@@ -36,7 +36,7 @@ about lists and binary relations.
 
 ## Build
 
-- Install [Coq](http://coq.inria.fr) 8.15
+- Install [Rocq](https://rocq-prover.org) 8.20.1
 - make
 
 ## Use

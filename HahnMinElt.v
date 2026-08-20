@@ -24,25 +24,36 @@ Variable a : A.
 
 Lemma min_transp : min_elt r⁻¹ ≡₁ max_elt r.
 Proof.
-  split; unfold min_elt, max_elt, transp, set_subset; ins; desf.  
+  split; unfold min_elt, max_elt, transp, set_subset; ins; desf.
 Qed.
 
 Lemma max_transp : max_elt r⁻¹ ≡₁ min_elt r.
 Proof.
-  split; unfold min_elt, max_elt, transp, set_subset; ins; desf.  
+  split; unfold min_elt, max_elt, transp, set_subset; ins; desf.
 Qed.
 
 Lemma set_subset_min_elt (S: r' ⊆ r) : min_elt r ⊆₁ min_elt r'.
-Proof. unfold min_elt, inclusion, set_subset in *; intuition; eauto. Qed.
+Proof.
+  unfold min_elt, same_relation, set_equiv, set_subset in *; ins; desf; eauto.
+Qed.
 
 Lemma set_subset_wmin_elt (S: r' ⊆ r) : wmin_elt r ⊆₁ wmin_elt r'.
-Proof. unfold wmin_elt, inclusion, set_subset in *; intuition; eauto. Qed.
+Proof.
+  unfold wmin_elt, same_relation, set_equiv, set_subset in *.
+  splits; ins; desf; eauto.
+Qed.
 
 Lemma set_equiv_min_elt (S: r ≡ r') : min_elt r ≡₁ min_elt r'.
-Proof. unfold min_elt, same_relation, set_equiv, set_subset in *; intuition; eauto. Qed.
+Proof.
+  unfold min_elt, same_relation, set_equiv, set_subset in *.
+  intuition eauto.
+Qed.
 
 Lemma set_equiv_wmin_elt (S: r ≡ r') : wmin_elt r ≡₁ wmin_elt r'.
-Proof. unfold wmin_elt, same_relation, set_equiv in *; intuition; eauto. Qed.
+Proof.
+  unfold wmin_elt, same_relation, set_equiv, set_subset in *.
+  intuition auto. 
+Qed.
 
 Lemma min_elt_weaken : min_elt r a -> wmin_elt r a.
 Proof.
@@ -66,7 +77,7 @@ Qed.
 
 Lemma wmin_elt_rt : wmin_elt r a -> wmin_elt (r＊) a.
 Proof.
-  red; ins; apply clos_rt_rt1n in REL; induction REL; intuition; desf; eauto.
+  red; ins; apply clos_rt_rt1n in REL; induction REL; intuition auto; desf; eauto.
 Qed.
 
 Lemma wmin_elt_t : wmin_elt r a -> wmin_elt (r⁺) a.
@@ -207,7 +218,7 @@ Proof.
   rewrite crE; relsf; rewrite seq_min_singl; relsf.
 Qed.
 
-Lemma seq_eqv_min r : 
+Lemma seq_eqv_min r :
   r ⨾ ⦗min_elt r⦘ ≡ ∅₂.
 Proof.
   basic_solver.
@@ -231,7 +242,7 @@ Proof.
   rewrite crE; relsf; rewrite seq_eqv_min; relsf.
 Qed.
 
-Lemma seq_eqv_min_transp r : 
+Lemma seq_eqv_min_transp r :
   ⦗min_elt r⦘ ⨾ r⁻¹  ≡ ∅₂.
 Proof.
   basic_solver.

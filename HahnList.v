@@ -16,21 +16,18 @@ Set Implicit Arguments.
 (** Very basic lemmas *)
 (******************************************************************************)
 
-Definition appA := app_ass.
+Definition appA A (l m n : list A) : (l ++ m) ++ n = l ++ m ++ n.
+Proof.
+  by rewrite app_assoc.
+Qed.
+
 Definition length_nil A : length (@nil A) = 0 := eq_refl.
 Definition length_cons A (a: A) l : length (a :: l) = S (length l) := eq_refl.
-Definition length_app := app_length.
-Definition length_rev := rev_length.
-Definition length_map := map_length.
-Definition length_combine := combine_length.
-Definition length_prod := prod_length.
-Definition length_firstn := firstn_length.
-Definition length_seq := seq_length.
 Definition length_repeat := repeat_length.
 
 #[export]
 Hint Rewrite length_nil length_cons length_app length_rev length_map
-             length_combine length_prod length_firstn length_seq 
+             length_combine length_prod length_firstn length_seq
              length_repeat : calc_length.
 
 Lemma in_cons_iff A (a b : A) l : In b (a :: l) <-> a = b \/ In b l.
@@ -164,7 +161,7 @@ Lemma app_cons_eq_snoc A (l1 l2 : list A) a a' l :
 Proof.
   split; ins; desf; [|by rewrite <- app_assoc].
   rewrite app_eq_snoc in H; ins; desf.
-  symmetry in H; rewrite app_cons_eq_cons in H; desf; eauto using app_nil_end.
+  symmetry in H; rewrite app_cons_eq_cons in H; desf; eauto using app_nil_r.
 Qed.
 
 Lemma snoc_eq_nil A (l : list A) a :
@@ -238,7 +235,7 @@ Lemma map_eq_app A B (f : A -> B) l l1' l2' :
   exists l1 l2, l = l1 ++ l2 /\ map f l1 = l1' /\ map f l2 = l2'.
 Proof.
   split; ins; desf; auto using map_app.
-  revert dependent l1'; induction l; destruct l1'; ins; desf.
+  generalize dependent l1'; induction l; destruct l1'; ins; desf.
   - exists nil, nil; ins.
   - eexists nil, (_ :: _); ins.
   - apply IHl in H; desf; eexists (_ :: _), _; ins.
@@ -362,7 +359,7 @@ Proof.
     auto using Permutation_filterP, filterP_set_equiv.
 Qed.
 
-#[export] 
+#[export]
 Instance filterP_Proper A : Proper (_ ==> _ ==> _) _ := Permutation_filterP2 (A:=A).
 
 
@@ -415,8 +412,7 @@ Proof.
   apply eq_sym, filterP_eq_cons in H1; desf.
   split; ins.
   eexists (_ ++ _), _; rewrite appA, filterP_app; splits; ins.
-  apply filterP_eq_nil in H2; rewrite H2.
-  apply app_nil_end.
+  apply filterP_eq_nil in H2; rewrite H2, app_nil_r; ins.
 Qed.
 
 Lemma length_filterP A f (l : list A) :
@@ -488,14 +484,14 @@ Lemma rev_filter A f (l : list A) :
   rev (filter f l) = filter f (rev l).
 Proof.
   induction l; ins; desf; ins; rewrite filter_app, IHl; ins; desf; ins.
-  auto using app_nil_end.
+  auto using app_nil_r.
 Qed.
 
 Lemma rev_filterP A f (l : list A) :
   rev (filterP f l) = filterP f (rev l).
 Proof.
   induction l; ins; desf; ins; rewrite filterP_app, IHl; ins; desf; ins.
-  auto using app_nil_end.
+  auto using app_nil_r.
 Qed.
 
 Lemma rev_map A B (f : A -> B) (l : list A) :
@@ -546,22 +542,22 @@ Lemma disjoint_nil_r A (l : list A) : disjoint l nil.
 Proof. done. Qed.
 
 Lemma disjoint_one_l A (a : A) (l : list A) : disjoint (a :: nil) l <-> ~ In a l.
-Proof. unfold disjoint; intuition; ins; desf; eauto. Qed.
+Proof. unfold disjoint; split; ins; desf; eauto. Qed.
 
 Lemma disjoint_one_r A (a : A) (l : list A) : disjoint l (a :: nil) <-> ~ In a l.
-Proof. unfold disjoint; intuition; ins; desf; eauto. Qed.
+Proof. unfold disjoint; split; ins; desf; eauto. Qed.
 
 
 Lemma disjoint_rev_l A (l1 l2 : list A) :
   disjoint (rev l1) l2 <-> disjoint l1 l2.
 Proof.
-  unfold disjoint; intuition; eapply H; eauto; try rewrite <- in_rev in *; eauto.
+  unfold disjoint; split; ins; eapply H; eauto; try rewrite <- in_rev in *; eauto.
 Qed.
 
 Lemma disjoint_rev_r A (l1 l2 : list A) :
   disjoint l1 (rev l2) <-> disjoint l1 l2.
 Proof.
-  unfold disjoint; intuition; eapply H; eauto; try rewrite <- in_rev in *; eauto.
+  unfold disjoint; split; ins; eapply H; eauto; try rewrite <- in_rev in *; eauto.
 Qed.
 
 
@@ -1017,11 +1013,11 @@ Lemma seq_eq_app start len l l' :
 Proof.
   revert start len; induction l; ins.
     repeat split; ins; desf; f_equal; lia.
-    destruct len; ins.
-      split; ins; desf; lia.
-    specialize (IHl (S start) len); intuition; desf; intuition; auto using f_equal.
-    rewrite Nat.add_succ_comm in *; ins.
-    rewrite Nat.add_succ_comm in *; auto using f_equal, le_S_n.
+  destruct len; ins.
+    split; ins; desf; lia.
+  specialize (IHl (S start) len); split; ins; desf.
+    specialize_full IHl; desf; splits; auto using f_equal; lia.
+  f_equal; eapply IHl0; splits; auto; lia.
 Qed.
 
 Lemma map_nth_seq A (f : nat -> A) a d l
@@ -1136,7 +1132,10 @@ Lemma mk_listE n A (f: nat -> A) :
 Proof.
   induction n; ins; rewrite IHn.
   rewrite seq_split with (x:=n) (y:=S n); try lia.
-  by rewrite map_app, plus_0_r, <- minus_Sn_m, minus_diag.
+  rewrite map_app; f_equal.
+  replace (n + 0) with n by lia.
+  replace (S n - n) with 1 by lia.
+  ins.
 Qed.
 
 Lemma in_mk_list_iff A (x: A) n f :
@@ -1148,25 +1147,23 @@ Proof.
   left; repeat eexists; ins; lia.
 Qed.
 
-Lemma mk_list_length A n (f : nat -> A) :
+Lemma length_mk_list A n (f : nat -> A) :
   length (mk_list n f) = n.
 Proof.
-  induction n; ins; rewrite app_length; ins; lia.
+  induction n; ins; rewrite length_app; ins; lia.
 Qed.
 
-Lemma mk_list_nth A i n f (d : A) :
+Lemma nth_mk_list A i n f (d : A) :
   nth i (mk_list n f) d = if le_lt_dec n i then d else f i.
 Proof.
   induction n; ins; desf; rewrite app_nth; desf;
-  rewrite mk_list_length in *; desf; try lia.
+  rewrite length_mk_list in *; desf; try lia.
     apply nth_overflow; ins; lia.
-  by assert (i = n) by lia; desf; rewrite minus_diag.
+  assert (i = n) by lia; desf.
+  replace (n - n) with 0 by lia; ins.
 Qed.
 
-Definition length_mk_list := mk_list_length.
-Definition nth_mk_list := mk_list_nth.
-
-#[export] 
+#[export]
 Hint Rewrite length_mk_list : calc_length.
 
 
@@ -1182,7 +1179,7 @@ Fixpoint max_of_list l :=
 Lemma max_of_list_app l l' :
   max_of_list (l ++ l') = max (max_of_list l) (max_of_list l').
 Proof.
-  by induction l; ins; rewrite IHl, Max.max_assoc.
+  by induction l; ins; rewrite IHl, Nat.max_assoc.
 Qed.
 
 (** Miscellaneous *)
@@ -1204,7 +1201,7 @@ Proof.
          eauto using in_cons.
       by specialize (H0 x); rewrite in_app_iff in *; ins; desf;
          destruct (classic (a = x)); subst; try tauto; exfalso; eauto using in_eq.
-    eexists; rewrite app_ass in *; ins.
+    eexists; rewrite appA in *; ins.
     by eapply Permutation_trans, Permutation_middle; eauto.
 
   destruct (IHl l'); eauto; ins.

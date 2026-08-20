@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase.
-Require Import Program.Basics List Arith micromega.Lia Relations Setoid Morphisms.
+Require Import Program.Basics List Arith Lia Relations Setoid Morphisms.
 
 Set Implicit Arguments.
 
@@ -217,7 +217,7 @@ Section SetProperties.
   (** Properties of set inclusion. *)
 
   Lemma set_subsetE s s' : s ⊆₁ s' <-> s \₁ s' ≡₁ ∅.
-  Proof. u; intuition; apply NNPP; firstorder. Qed.
+  Proof. u; intuition auto; apply NNPP; firstorder. Qed.
 
   Lemma set_subset_eq (P : A -> Prop) a (H : P a): eq a ⊆₁ P.
   Proof. by intros x H'; subst. Qed.
@@ -346,12 +346,12 @@ Section SetProperties.
   (** Singleton sets *)
 
   Lemma set_subset_single_l a s : eq a ⊆₁ s <-> s a.
-  Proof. u; intuition; desf. Qed.
+  Proof. u; intuition auto; desf. Qed.
 
   Lemma set_subset_single_r a s :
     s ⊆₁ eq a <-> s ≡₁ eq a \/ s ≡₁ ∅.
   Proof.
-    u; intuition; firstorder.
+    u; intuition auto; firstorder.
     destruct (classic (exists b, s b)) as [M|M]; desf.
        left; split; ins; desf; eauto.
        specialize (H _ M); desf.
@@ -360,15 +360,15 @@ Section SetProperties.
 
   Lemma set_subset_single_single a b :
     eq a ⊆₁ eq b <-> a = b.
-  Proof. u; intuition; desf; eauto using eq_sym. Qed.
+  Proof. u; intuition auto; desf; eauto using eq_sym. Qed.
 
   Lemma set_equiv_single_single a b :
     eq a ≡₁ eq b <-> a = b.
-  Proof. u; intuition; desf; apply H; ins. Qed.
+  Proof. u; intuition auto; desf; apply H; ins. Qed.
 
   Lemma set_nonemptyE s : ~ s ≡₁ ∅ <-> exists x, s x.
   Proof.
-    u; intuition; firstorder.
+    u; intuition auto; firstorder.
     apply NNPP; intro; apply H0; ins; eauto.
   Qed.
 
@@ -571,12 +571,12 @@ Section SetProperties.
 
   Lemma set_le n : (fun i => i <= n) ≡₁ (fun i => i < n) ∪₁ (eq n).
   Proof.
-    u; intuition; lia.
+    u; intuition auto; lia.
   Qed.
 
   Lemma set_lt n : (fun i => i < n) ≡₁ (fun i => i <= n) \₁ (eq n).
   Proof.
-    u; intuition; lia.
+    u; intuition auto; lia.
   Qed.
 
 End SetProperties.

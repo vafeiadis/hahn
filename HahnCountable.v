@@ -21,8 +21,8 @@ Lemma findP_spec A (cond : A -> Prop) (l : list A)
   cond (nth (findP cond l) l d) /\
   forall j, j < findP cond l -> ~ cond (nth j l d).
 Proof.
-  induction l; ins; desf; splits; ins; desf; try lia; intuition.
-  eauto using lt_S_n.
+  induction l; ins; desf; splits; ins; desf; try lia; intuition auto.
+  apply (H3 n0); auto; lia.
 Qed.
 
 Lemma exists_min (cond : nat -> Prop) (H: exists n, cond n) :
@@ -32,9 +32,9 @@ Proof.
     by apply in_seq; lia.
   assert (L: findP cond (List.seq 0 (S n)) < S n).
   {
-    rewrite <- (seq_length (S n) 0) at 2.
+    rewrite <- (length_seq (S n) 0) at 2.
     revert IN; generalize (List.seq 0 (S n)).
-    induction l; ins; desf; intuition.
+    induction l; ins; desf; intuition auto; lia.
   }
 
   forward eapply findP_spec with (cond := cond) (l := List.seq 0 (S n)) (d := 0)
@@ -83,7 +83,7 @@ Lemma lt_funI f (ONE: forall x, x < f x) i j (LT: i < j) d :
 Proof.
   revert i LT; induction j; ins; try lia.
   destruct (eqP i j); desf; eauto.
-  eapply lt_trans, ONE; apply IHj; lia.
+  etransitivity; try apply IHj; eauto; lia.
 Qed.
 
 Definition lt_size A i (s : A -> Prop) :=
@@ -200,7 +200,8 @@ Section countable.
       intros; specialize (M i); desc.
       specialize_full SUR; eauto; desf.
       destruct (le_lt_dec i0 i); [by edestruct M0; eauto|].
-      revert M M0; rewrite (le_plus_minus (S i) i0); auto with arith.
+      revert M M0.
+      replace i0 with (S i + (i0 - S i)) by lia; clear l.
       generalize (i0 - S i) as n; intros.
       exists (S i + findP (fun x => s x /\ ~ In x (mk_list (S i) f))
                           (mk_list (S n) (fun x => (f (S i + x))))).
@@ -219,7 +220,8 @@ Section countable.
           by exists j; auto with arith.
         specialize (K0 (j - S i)).
         rewrite nth_mk_list in K0; desf; [lia|].
-        rewrite le_plus_minus_r, in_mk_list_iff in K0; auto with arith.
+        replace (S i + (j - S i)) with j in K0 by lia.
+        rewrite in_mk_list_iff in K0; auto with arith.
         apply NNPP; intro; eapply K0; desf; lia. }
 
     apply choice in N; destruct N as [g N].
@@ -357,7 +359,7 @@ Section prefixes.
 
   Lemma in_prefixes a b : In a (prefixes b) <-> r a b.
   Proof.
-    unfold prefixes; rewrite in_isort_iff, in_undup_iff; in_simp; intuition.
+    unfold prefixes; rewrite in_isort_iff, in_undup_iff; in_simp; intuition auto.
     destruct (constructive_indefinite_description _ (F b)); ins; eauto.
   Qed.
 
@@ -410,8 +412,8 @@ Section enum_ext.
   Lemma prefix_of_nat_prefix i j (LEQ : i <= j) :
     exists l, prefix_of_nat j = prefix_of_nat i ++ l.
   Proof.
-    apply le_plus_minus in LEQ; rewrite LEQ; generalize (j - i) as n.
-    clear; intro n; rewrite Nat.add_comm; induction n; ins; desf; eauto using app_nil_end.
+    assert (exists n, j = n + i) by (exists (j - i); lia); clear LEQ; desf.
+    induction n; ins; desf; eauto using app_nil_r, eq_sym.
     by rewrite IHn; eexists; rewrite <- app_assoc.
   Qed.
 
@@ -420,8 +422,8 @@ Section enum_ext.
   Proof.
     unfold clos_refl; induction n; ins; in_simp;
       repeat (rewrite ?in_app_iff, ?in_prefixes; ins; in_simp).
-      intuition; desf; eauto; try (destruct i; ins; desf; eauto; lia).
-    rewrite IHn; clear IHn; intuition; desf; try solve [exists i; splits; auto]; eauto.
+      intuition auto; desf; eauto; try (destruct i; ins; desf; eauto; lia).
+    rewrite IHn; clear IHn; intuition auto; desf; try solve [exists i; splits; auto]; eauto.
     all: destruct (eqP i (S n)); [desf|assert (i <= n) by lia]; eauto 8.
     all: classical_right; splits; ins; eauto.
   Qed.
@@ -604,7 +606,7 @@ Section enum_ext.
 
     assert (Lin : i < n). {
       clear - SUR Li. red in Li; desc.
-      eapply lt_le_trans; eauto.
+      eapply Nat.lt_le_trans; eauto.
       replace n with (length (map f (List.seq 0 n)))
                      by now (rewrite length_map, length_seq).
       apply NoDup_incl_length; try red; ins.
