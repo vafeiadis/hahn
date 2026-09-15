@@ -1,5 +1,5 @@
 Require Import HahnBase HahnList.
-Require Export Relations.
+From Stdlib Require Export Relations.
 
 Set Implicit Arguments.
 

@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase.
-Require Import Program.Basics List Arith Lia Relations Setoid Morphisms.
+From Stdlib Require Import Program.Basics List Arith Lia Relations Setoid Morphisms.
 
 Set Implicit Arguments.
 
@@ -44,7 +44,7 @@ Arguments set_equiv {A}.
 
 Notation "P ∪₁ Q" := (set_union P Q) (at level 50, left associativity).
 Notation "P ∩₁ Q" := (set_inter P Q) (at level 40, left associativity).
-Notation "P \₁ Q" := (set_minus P Q) (at level 46).
+Notation "P \₁ Q" := (set_minus P Q) (at level 40, left associativity).
 Notation "∅"     := (@set_empty _).
 Notation "a ⊆₁ b" := (set_subset a b) (at level 60).
 Notation "a ≡₁ b" := (set_equiv a b)  (at level 60).
@@ -72,7 +72,7 @@ Notation "∅"     := (@set_empty _) : function_scope.
 Notation "a ⊆ b" := (set_subset a b) (at level 60) : function_scope.
 Notation "a ≡ b" := (set_equiv a b)  (at level 60) : function_scope. *)
 
-
+Create HintDb unfolderDb.
 Global Hint Unfold set_empty set_full set_compl set_union set_inter : unfolderDb.
 Global Hint Unfold set_minus set_subset set_equiv set_coinfinite set_finite : unfolderDb.
 Global Hint Unfold set_collect set_map set_bunion set_disjoint : unfolderDb.

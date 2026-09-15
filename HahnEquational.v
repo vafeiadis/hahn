@@ -2,7 +2,7 @@
 (** * Equational properties of relations *)
 (******************************************************************************)
 
-Require Import Program.Basics Arith micromega.Lia Permutation List Setoid.
+From Stdlib Require Import Program.Basics Arith Lia Permutation List Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnSets.
 
 Set Implicit Arguments.
@@ -1123,6 +1123,9 @@ End TranspProperties.
 
 #[export] 
 Hint Rewrite transp_inv transp_cross transp_eqv_rel : hahn.
+
+Create Rewrite HintDb rel_transp.
+
 #[export] 
 Hint Rewrite transp_inv transp_cross transp_eqv_rel transp_union transp_seq 
   transp_inter transp_minus transp_rt transp_ct transp_cr : rel_transp.

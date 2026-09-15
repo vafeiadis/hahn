@@ -2,7 +2,7 @@
 (** * Extension of a partial order to a total order *)
 (******************************************************************************)
 
-Require Import Arith Lia Setoid.
+From Stdlib Require Import Arith Lia Setoid.
 Require Import HahnBase HahnList HahnRelationsBasic HahnEquational HahnRewrite.
 Require Import HahnSets HahnMaxElt.
 Require Import Zorn.

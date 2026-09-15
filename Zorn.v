@@ -1,11 +1,10 @@
 (** A formalization of Zorn's lemma. *)
 (** Main author:  Johannes Kloos. *)
 
-From Coq Require Import Relations Equivalence Morphisms Utf8.
-From Coq Require Import ChoiceFacts ClassicalFacts.
-From Coq.Program Require Import Basics.
-
-From Coq.Logic Require Import SetoidChoice.
+From Stdlib Require Import Relations Equivalence Morphisms Utf8.
+From Stdlib Require Import ChoiceFacts ClassicalFacts.
+From Stdlib Require Import Program.Basics.
+From Stdlib Require Import Logic.SetoidChoice.
 
 Module Private.
   Class Le A := le: relation A.
@@ -723,9 +722,9 @@ Section Theorems.
       R_coincides: ∀ x y, S x → S y → (R x y ↔ R' x y)
     }.
     Definition order := { O | ordered_subset (fst O) (snd O) }.
-    Notation "o .S" := (fst (proj1_sig o)) (at level 30).
-    Notation "o .R" := (snd (proj1_sig o)) (at level 30).
-    Notation "o .good" := (proj2_sig o) (at level 30).
+    Notation "o .S" := (fst (proj1_sig o)).
+    Notation "o .R" := (snd (proj1_sig o)).
+    Notation "o .good" := (proj2_sig o).
     Instance: ∀ o: order, Proper (eqA ==> iff) (o.S).
     Proof. intro; apply (o.good). Qed.
     Instance: ∀ o: order, Proper (eqA ==> eqA ==> iff) (o.R).
@@ -894,9 +893,9 @@ Section Theorems.
     Qed.
   End WellOrderingTheorem.
 
-  Notation "o .S" := (fst (proj1_sig o)) (at level 30).
-  Notation "o .R" := (snd (proj1_sig o)) (at level 30).
-  Notation "o .good" := (proj2_sig o) (at level 30).
+  Notation "o .S" := (fst (proj1_sig o)).
+  Notation "o .R" := (snd (proj1_sig o)).
+  Notation "o .good" := (proj2_sig o).
   
   Theorem well_ordering_from_zorns_lemma
     (zl: ∀ A R preR chub, @ZornsLemma A R preR chub)

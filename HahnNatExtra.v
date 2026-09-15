@@ -1,4 +1,4 @@
-From Coq Require Import Arith Lia Setoid.
+From Stdlib Require Import Arith Lia Setoid.
 Require Import HahnBase.
 
 Lemma div2_add_double n m :

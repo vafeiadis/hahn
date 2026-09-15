@@ -2,7 +2,8 @@
 (** * Countable sets *)
 (******************************************************************************)
 
-Require Import Arith micromega.Lia Setoid IndefiniteDescription ClassicalChoice.
+From Stdlib Require Import Arith Lia Setoid.
+From Stdlib Require Import IndefiniteDescription ClassicalChoice.
 Require Import HahnBase HahnList HahnEquational HahnRewrite.
 Require Import HahnRelationsBasic HahnSets HahnNatExtra.
 Require Import HahnListBefore HahnWf HahnSorted HahnTotalExt.

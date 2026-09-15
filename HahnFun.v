@@ -2,7 +2,8 @@
 (** * Function update *)
 (******************************************************************************)
 
-Require Import HahnBase List.
+From Stdlib Require Import List.
+Require Import HahnBase.
 Set Implicit Arguments.
 
 (** Function update *)

@@ -2,9 +2,9 @@
 (** * Lemmas about traces (finite or infinite sequences) *)
 (******************************************************************************)
 
+From Stdlib Require Import Arith Lia IndefiniteDescription.
 Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
 Require Import HahnOmega HahnWf.
-Require Import Arith Lia IndefiniteDescription.
 
 Set Implicit Arguments.
 
@@ -75,6 +75,8 @@ Proof.
   rewrite length_app, nth_app; desf; try lia.
   all: first [apply nth_indep | f_equal]; lia.
 Qed.
+
+Create Rewrite HintDb trace_prepends.
 
 #[export]
 Hint Rewrite

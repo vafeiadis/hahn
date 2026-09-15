@@ -2,7 +2,7 @@
 (** * Well-founded and finitely supported relations *)
 (******************************************************************************)
 
-Require Import Arith Lia Setoid Morphisms Wf_nat.
+From Stdlib Require Import Arith Lia Setoid Morphisms Wf_nat.
 Require Import HahnBase HahnList HahnSets HahnRelationsBasic.
 Require Import HahnEquational HahnRewrite HahnDom.
 

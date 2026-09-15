@@ -1,4 +1,5 @@
-Require Import Arith HahnBase HahnList HahnRelationsBasic.
+From Stdlib Require Import Arith.
+Require Import HahnBase HahnList HahnRelationsBasic.
 
 Set Implicit Arguments.
   

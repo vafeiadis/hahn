@@ -1,8 +1,8 @@
-# Hahn : A Coq library for lists and relations
+# Hahn : A Rocq library for lists and relations
 
 [![Build Status](https://travis-ci.com/vafeiadis/hahn.svg?branch=master)](https://travis-ci.com/vafeiadis/hahn)
 
-Hahn is a Coq library that contains a useful collection of lemmas and tactics
+Hahn is a Rocq library that contains a useful collection of lemmas and tactics
 about lists and binary relations.
 
 - Hahn.v : exports all other files except HahnExtraNotation.v
@@ -36,11 +36,11 @@ about lists and binary relations.
 
 ## Build
 
-- Install [Rocq](https://rocq-prover.org) 8.20.1
+- Install [Rocq](https://rocq-prover.org) 9.2
 - make
 
 ## Use
 
-- In a Coq file, write "Require Import Hahn".
+- In a Rocq file, write "Require Import Hahn".
 - Optionally, also "Require Import HahnExtraNotation".
 

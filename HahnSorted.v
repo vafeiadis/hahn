@@ -3,7 +3,7 @@
 (******************************************************************************)
 
 Require Import HahnBase HahnSets HahnList HahnRelationsBasic HahnEquational.
-Require Export Sorted Setoid.
+From Stdlib Require Export Sorted Setoid.
 
 Set Implicit Arguments.
 

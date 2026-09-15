@@ -1,6 +1,6 @@
 Require Import HahnBase HahnSets HahnRelationsBasic HahnEquational.
 Require Import HahnRewrite.
-Require Import Setoid.
+From Stdlib Require Import Setoid.
 Set Implicit Arguments.
 
 (** * Calculating the (co)domain of a relation *)
@@ -381,6 +381,8 @@ Section Lemmas.
     all: try (repeat (apply inclusion_union_r; constructor); basic_solver 5).
     all: try (repeat (apply inclusion_union_r; constructor); basic_solver 20).
   Qed.
+
+  Scheme Rewriting for True.
 
   Lemma path_dom_same
         (E1: r ⊆ (⦗d⦘ ∪ ⦗d'⦘) ⨾ r ⨾ (⦗d⦘ ∪ ⦗d'⦘))

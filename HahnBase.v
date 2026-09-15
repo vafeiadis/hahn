@@ -8,9 +8,9 @@
 
 (** Symbols starting with [hahn__] are internal. *)
 
-Require Import Bool Arith ZArith String.
-Require ClassicalFacts.
-Require Export ClassicalDescription FunctionalExtensionality.
+From Stdlib Require Import Bool Arith ZArith String.
+From Stdlib Require ClassicalFacts.
+From Stdlib Require Export ClassicalDescription FunctionalExtensionality.
 
 Open Scope bool_scope.
 Open Scope list_scope.
@@ -22,6 +22,9 @@ Unset Strict Implicit.
 Create HintDb hahn discriminated.      (* General stuff, used by done *)
 Create HintDb hahn_refl discriminated. (* Decidable equalities *)
 Create HintDb hahn_full discriminated. (* Expensive lemmas *)
+Create Rewrite HintDb hahn_trivial.
+Create Rewrite HintDb hahn.
+Create Rewrite HintDb hahn_full.
 
 (** Shorthand for applying functional extensionality. *)
 
@@ -32,7 +35,6 @@ Ltac exten := apply functional_extensionality.
 Notation "'ifP' c 'then' u 'else' v" :=
   (if excluded_middle_informative c then u else v)
   (at level 200).
-
 
 (* ************************************************************************** *)
 (** ** Coersion of [bool] into [Prop] *)
@@ -94,7 +96,7 @@ Module Equality.
     forall x y, reflect (x = y) (e x y).
 
   Structure mixin_of T := Mixin {op : T -> T -> bool; _ : axiom op}.
-  Notation class_of := mixin_of (only parsing).
+  Abbreviation class_of := mixin_of (only parsing).
 
   Section ClassDef.
 
@@ -109,9 +111,9 @@ Module Equality.
 
   Module Exports.
     Coercion sort : type >-> Sortclass.
-    Notation eqType := type.
-    Notation EqMixin := Mixin.
-    Notation EqType T m := (@pack T m).
+    Abbreviation eqType := type.
+    Abbreviation EqMixin := Mixin.
+    Abbreviation EqType T m := (@pack T m).
   End Exports.
 
 End Equality.
@@ -152,10 +154,11 @@ Lemma beq_sym : forall (T : eqType) (x y : T), (eq_op x y) = (eq_op y x).
 Proof. intros; do 2 case eqP; congruence. Qed.
 
 Global Hint Resolve beq_refl : hahn.
+
 #[export]
 Hint Rewrite beq_refl : hahn_trivial.
 
-Notation eqxx := beq_refl.
+Abbreviation eqxx := beq_refl.
 
 (** Comparison for [nat] *)
 
@@ -282,11 +285,11 @@ Tactic Notation "econs" int_or_var(x) := econstructor x.
 Definition  NW (P: unit -> Prop) : Prop := P tt.
 
 Notation "⟪ x : t ⟫" := (NW (fun x => t))
-  (at level 80, x ident, no associativity, only parsing).
+  (x ident, no associativity, only parsing).
 Notation "<< x : t >>" := (NW (fun x => t))
-  (at level 80, x ident, no associativity, only parsing).
-(*Notation "⟪ t ⟫" := (NW (fun _ => t))
-  (at level 79, no associativity, format "⟪ t ⟫", only printing).
+  (x ident, no associativity, only parsing).
+(* Notation "⟪ t ⟫" := (NW (fun _ => t))
+  (no associativity, format "⟪ t ⟫", only printing).
 *)
 
 Ltac unnw := unfold NW in *.

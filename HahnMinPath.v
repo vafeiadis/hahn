@@ -2,7 +2,7 @@
 (** * Minimal paths and cycles *)
 (******************************************************************************)
 
-Require Import Arith Lia.
+From Stdlib Require Import Arith Lia.
 Require Import HahnBase HahnList HahnRelationsBasic HahnRewrite.
 
 Set Implicit Arguments.

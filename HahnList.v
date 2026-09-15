@@ -3,9 +3,9 @@
 (******************************************************************************)
 
 Require Import HahnBase HahnSets.
-Require Import Arith Lia Setoid Morphisms Sorted.
-Require Import IndefiniteDescription.
-Require Export List Permutation.
+From Stdlib Require Import Arith Lia Setoid Morphisms Sorted.
+From Stdlib Require Import IndefiniteDescription.
+From Stdlib Require Export List Permutation.
 
 Set Implicit Arguments.
 
@@ -25,6 +25,7 @@ Definition length_nil A : length (@nil A) = 0 := eq_refl.
 Definition length_cons A (a: A) l : length (a :: l) = S (length l) := eq_refl.
 Definition length_repeat := repeat_length.
 
+Create Rewrite HintDb calc_length.
 #[export]
 Hint Rewrite length_nil length_cons length_app length_rev length_map
              length_combine length_prod length_firstn length_seq
